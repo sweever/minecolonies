@@ -14,8 +14,10 @@ import com.minecolonies.entity.pathfinding.PathNavigate;
 import com.minecolonies.inventory.InventoryCitizen;
 import com.minecolonies.lib.Constants;
 import com.minecolonies.network.messages.BlockParticleEffectMessage;
+import com.minecolonies.sounds.FishermanSounds;
 import com.minecolonies.util.*;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.INpc;
@@ -109,10 +111,15 @@ public class EntityCitizen extends EntityAgeable implements INpc
     /**
      * Divide experience by a factor to ensure more levels fit in an int.
      */
-    private static final int EXP_DIVIDER = 10;
-    private static Field        navigatorField;
-    protected Status status = Status.IDLE;
-    private RenderBipedCitizen.Model modelId = RenderBipedCitizen.Model.SETTLER;
+    private static final int EXP_DIVIDER               = 10;
+
+    /**
+     * Chance the citizen will rant about bad weather. 20 ticks per 60 seconds = 5 minutes.
+     */
+    private static final int RANT_ABOUT_WEATHER_CHANCE = 20*60*5;
+    private static Field navigatorField;
+    protected Status                   status  = Status.IDLE;
+    private   RenderBipedCitizen.Model modelId = RenderBipedCitizen.Model.SETTLER;
     private String           renderMetadata;
     private ResourceLocation texture;
     private InventoryCitizen inventory;
@@ -614,8 +621,19 @@ public class EntityCitizen extends EntityAgeable implements INpc
             pickupItems();
             cleanupChatMessages();
             updateColonyServer();
+            if(worldObj.isDaytime() && !worldObj.isRaining())
+            {
+                SoundUtils.playRandomSound(worldObj, this);
+            }
+            else if(worldObj.isRaining() && 1 >=rand.nextInt(RANT_ABOUT_WEATHER_CHANCE))
+            {
+                //todo add sounds of other workers as well.
+                final String badWeather = isFemale() ? FishermanSounds.Female.badWeather : FishermanSounds.Male.badWeather;
+                SoundUtils.playSoundAtCitizenWithChance(worldObj, this, badWeather, 1);
+            }
         }
-        if (isEntityInsideOpaqueBlock())
+
+        if (isEntityInsideOpaqueBlock() || isInsideOfMaterial(Material.leaves))
         {
             getNavigator().moveAwayFromXYZ(this.getPosition(), MOVE_AWAY_RANGE, MOVE_AWAY_SPEED);
         }

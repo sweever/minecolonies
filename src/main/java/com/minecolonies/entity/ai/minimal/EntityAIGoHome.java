@@ -1,9 +1,13 @@
 package com.minecolonies.entity.ai.minimal;
 
 import com.minecolonies.entity.EntityCitizen;
+import com.minecolonies.sounds.FishermanSounds;
 import com.minecolonies.util.Log;
+import com.minecolonies.util.SoundUtils;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.BlockPos;
+
+import java.util.Random;
 
 /**
  * EntityCitizen go home AI
@@ -13,7 +17,15 @@ import net.minecraft.util.BlockPos;
  */
 public class EntityAIGoHome extends EntityAIBase
 {
+    /**
+     * The citizen.
+     */
     private EntityCitizen citizen;
+
+    /**
+     * Chance to play goHomeSound.
+     */
+    private static final int CHANCE = 100;
 
     public EntityAIGoHome(EntityCitizen citizen)
     {
@@ -45,6 +57,8 @@ public class EntityAIGoHome extends EntityAIBase
             return;
         }
 
+        playGoHomeSounds();
+
         if (citizen.getWorkBuilding() != null)
         {
             /*
@@ -57,5 +71,25 @@ public class EntityAIGoHome extends EntityAIBase
         }
 
         citizen.getNavigator().tryMoveToXYZ((double) pos.getX() + 0.5D, (double) pos.getY(), (double) pos.getZ() + 0.5D, 1.0D);
+    }
+
+    /**
+     * While going home play a goHome sound for the specific worker by chance.
+     */
+    private void playGoHomeSounds()
+    {
+        final Random rand = new Random();
+
+        final int chance = rand.nextInt(CHANCE);
+
+        if(chance <= 1)
+        {
+            if (citizen.getWorkBuilding() != null && ("fisherman").equals(citizen.getWorkBuilding().getJobName()))
+            {
+                final String offToBed = citizen.isFemale() ? FishermanSounds.Female.offToBed : FishermanSounds.Male.offToBed;
+                SoundUtils.playSoundAtCitizenWithChance(citizen.worldObj, citizen, offToBed, 1);
+            }
+            //add for further workers as soon as available
+        }
     }
 }

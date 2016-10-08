@@ -51,6 +51,12 @@ public class CommonProxy implements IProxy
     }
 
     @Override
+    public void registerSounds()
+    {
+        
+    }
+
+    @Override
     public boolean isClient()
     {
         return false;

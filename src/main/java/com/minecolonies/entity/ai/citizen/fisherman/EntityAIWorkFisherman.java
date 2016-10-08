@@ -8,7 +8,9 @@ import com.minecolonies.entity.ai.basic.AbstractEntityAISkill;
 import com.minecolonies.entity.ai.util.AIState;
 import com.minecolonies.entity.ai.util.AITarget;
 import com.minecolonies.entity.pathfinding.PathJobFindWater;
+import com.minecolonies.sounds.FishermanSounds;
 import com.minecolonies.util.InventoryUtils;
+import com.minecolonies.util.SoundUtils;
 import com.minecolonies.util.Utils;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -93,26 +95,6 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman>
     private static final int SEARCH_RANGE = 50;
 
     /**
-     * The volume in percent which shall be played for the entity sounds
-     */
-    private static final float VOLUME = 0.5F;
-
-    /**
-     * The upper limit for the frequency of the played sounds
-     */
-    private static final double FREQUENCY_UPPER_LIMIT_DIVIDER = 1.2D;
-
-    /**
-     * The lower limit for the frequency of the played sounds
-     */
-    private static final double FREQUENCY_LOWER_LIMIT_DIVIDER = 0.8D;
-
-    /**
-     * The frequency should be around this value
-     */
-    private static final double FREQUENCY_BOUND_VALUE = 0.4D;
-
-    /**
      * The percentage of times where the fisherman will check out a new pond.
      */
     private static final double CHANCE_NEW_POND = 0.05D;
@@ -127,7 +109,15 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman>
      */
     private static final int DEXTERITY_MULTIPLIER = 1;
 
-    private static final int FISHING_TIMEOUT = 5;
+    /**
+     * Time out fo fish again.
+     */
+    private static final int FISHING_TIMEOUT      = 5;
+
+    /**
+     * Chance to play a specific fisherman sound.
+     */
+    private static final int CHANCE_TO_PLAY_SOUND = 20;
 
     /**
      * The number of executed adjusts of the fisherman's rotation.
@@ -209,6 +199,12 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman>
     {
         if (checkOrRequestItems(new ItemStack(Items.fishing_rod)))
         {
+            if(worker != null)
+            {
+                final String needFishingRod = worker.isFemale() ? FishermanSounds.Female.needFishingRod : FishermanSounds.Male.needFishingRod;
+                SoundUtils.playSoundAtCitizenWithChance(world, worker, needFishingRod, CHANCE_TO_PLAY_SOUND);
+            }
+
             return getState();
         }
         if (job.getWater() == null)
@@ -458,6 +454,9 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman>
         }
         if (caughtFish())
         {
+            final String iGotOne = worker.isFemale() ? FishermanSounds.Female.iGotOne : FishermanSounds.Male.iGotOne;
+            SoundUtils.playSoundAtCitizenWithChance(world, worker, iGotOne, CHANCE_TO_PLAY_SOUND);
+
             if (random.nextDouble() < CHANCE_NEW_POND)
             {
                 job.setWater(null);
@@ -507,12 +506,12 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman>
         {
             worker.faceBlock(job.getWater());
             world.playSoundAtEntity(
-              worker, "random.bow", VOLUME,
-              (float) (FREQUENCY_BOUND_VALUE
+              worker, "random.bow", 0.8F,
+              (float) (0.8F
                          / (random.nextDouble()
-                              * (FREQUENCY_UPPER_LIMIT_DIVIDER
-                                   - FREQUENCY_LOWER_LIMIT_DIVIDER)
-                              + FREQUENCY_LOWER_LIMIT_DIVIDER)));
+                              * (0.2D
+                                   - 1.0D)
+                              + 0.3D)));
             this.entityFishHook = new EntityFishHook(world, this.getCitizen());
             world.spawnEntityInWorld(this.entityFishHook);
         }
