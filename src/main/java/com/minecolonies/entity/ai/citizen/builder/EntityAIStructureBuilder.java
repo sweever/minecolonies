@@ -529,8 +529,7 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructure<JobBuild
                  || block.equals(Blocks.LEAVES2)
                  || (block.equals(Blocks.DOUBLE_PLANT) && Utils.testFlag(metadata, 0x08))
                  || (block instanceof BlockDoor && Utils.testFlag(metadata, 0x08))
-                 || block.equals(Blocks.GRASS)
-                 || block.equals(Blocks.DIRT);
+                 || block.equals(Blocks.GRASS);
     }
 
     private AIState structureStep()
