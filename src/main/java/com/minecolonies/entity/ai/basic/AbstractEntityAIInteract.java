@@ -26,7 +26,7 @@ import java.util.List;
  */
 public abstract class AbstractEntityAIInteract<J extends AbstractJob> extends AbstractEntityAICrafting<J>
 {
-    private static final double DELAY_MODIFIER       = 1000.0D;
+    private static final double DELAY_MODIFIER       = 100.0D;
     /**
      * The amount of xp the entity gains per block mined.
      */
@@ -107,8 +107,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob> extends Ab
 
         //calculate fortune enchantment
         int fortune = Utils.getFortuneOf(tool);
-
-        //get all item drops
+//get all item drops
         List<ItemStack> items = BlockPosUtil.getBlockDrops(world, blockToMine, fortune);
 
         //Break the block
@@ -181,6 +180,6 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob> extends Ab
                         * (double) world.getBlockState(pos).getBlockHardness(world, pos)
                         / (double) (worker.getHeldItemMainhand().getItem()
                                       .getStrVsBlock(worker.getHeldItemMainhand(),
-                                        block.getDefaultState())));
+                                        world.getBlockState(pos))));
     }
 }
