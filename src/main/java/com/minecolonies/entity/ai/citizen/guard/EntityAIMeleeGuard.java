@@ -1,8 +1,11 @@
 package com.minecolonies.entity.ai.citizen.guard;
 
+import com.minecolonies.colony.buildings.AbstractBuilding;
+import com.minecolonies.colony.buildings.BuildingGuardTower;
 import com.minecolonies.colony.jobs.JobGuard;
 import com.minecolonies.entity.ai.util.AIState;
 import com.minecolonies.entity.ai.util.AITarget;
+import com.minecolonies.util.BlockPosUtil;
 import com.minecolonies.util.InventoryFunctions;
 import com.minecolonies.util.Utils;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -149,6 +152,12 @@ public class EntityAIMeleeGuard extends AbstractEntityAIGuard
 
             return AIState.GUARD_HUNT_DOWN_TARGET;
         }
+
+        if (shouldReturnToTarget(targetEntity.getPosition(), FOLLOW_RANGE))
+        {
+            return AIState.GUARD_PATROL;
+        }
+
         worker.setAIMoveSpeed((float) (BASE_FOLLOW_SPEED + BASE_FOLLOW_SPEED_MULTIPLIER * worker.getExperienceLevel()));
         worker.isWorkerAtSiteWithMove(targetEntity.getPosition(), (int) MIN_ATTACK_DISTANCE);
 
@@ -158,6 +167,11 @@ public class EntityAIMeleeGuard extends AbstractEntityAIGuard
     private void attackEntity(@NotNull EntityLivingBase entityToAttack, float baseDamage)
     {
         double damgeToBeDealt = baseDamage;
+
+        if(worker.getHealth() <= 2)
+        {
+            damgeToBeDealt*=2;
+        }
 
         final ItemStack heldItem = worker.getHeldItem(EnumHand.MAIN_HAND);
         if (heldItem != null)

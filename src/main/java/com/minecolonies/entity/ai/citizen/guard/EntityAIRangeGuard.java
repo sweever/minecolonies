@@ -1,8 +1,11 @@
 package com.minecolonies.entity.ai.citizen.guard;
 
+import com.minecolonies.colony.buildings.AbstractBuilding;
+import com.minecolonies.colony.buildings.BuildingGuardTower;
 import com.minecolonies.colony.jobs.JobGuard;
 import com.minecolonies.entity.ai.util.AIState;
 import com.minecolonies.entity.ai.util.AITarget;
+import com.minecolonies.util.BlockPosUtil;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
@@ -202,6 +205,12 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
 
             return AIState.GUARD_HUNT_DOWN_TARGET;
         }
+
+        if (shouldReturnToTarget(targetEntity.getPosition(), FOLLOW_RANGE + MAX_ATTACK_DISTANCE))
+        {
+            return AIState.GUARD_PATROL;
+        }
+
         worker.setAIMoveSpeed((float) (BASE_FOLLOW_SPEED + BASE_FOLLOW_SPEED_MULTIPLIER * worker.getExperienceLevel()));
         worker.isWorkerAtSiteWithMove(targetEntity.getPosition(), MOVE_CLOSE);
 
@@ -216,13 +225,18 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
         final double yVector = entityToAttack.getEntityBoundingBox().minY + entityToAttack.height / AIM_HEIGHT - arrowEntity.posY;
         final double zVector = entityToAttack.posZ - worker.posZ;
         final double distance = (double) MathHelper.sqrt_double(xVector * xVector + zVector * zVector);
-
+        double damage = baseDamage;
         //Lower the variable higher the chance that the arrows hits the target.
         final double chance = HIT_CHANCE_DIVIDER / (worker.getExperienceLevel() + 1);
 
         arrowEntity.setThrowableHeading(xVector, yVector + distance * AIM_SLIGHTLY_HIGHER_MULTIPLIER, zVector, (float) ARROW_SPEED, (float) chance);
 
-        addEffectsToArrow(arrowEntity, baseDamage);
+        if(worker.getHealth() <= 2)
+        {
+            damage*=2;
+        }
+
+        addEffectsToArrow(arrowEntity, damage);
 
         worker.addExperience(XP_EACH_ARROW);
         worker.faceEntity(entityToAttack, (float) TURN_AROUND, (float) TURN_AROUND);

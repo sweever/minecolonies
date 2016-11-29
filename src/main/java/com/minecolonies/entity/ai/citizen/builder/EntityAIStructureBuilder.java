@@ -254,7 +254,12 @@ public class EntityAIStructureBuilder extends AbstractEntityAIStructure<JobBuild
         workOrder.setRequested(false);
     }
 
-    private int getRotationFromFacing(EnumFacing facing)
+    /**
+     * Gets a rotation from a block facing.
+     * @param facing the block facing.
+     * @return the int rotation.
+     */
+    private static int getRotationFromFacing(EnumFacing facing)
     {
         switch (facing)
         {
