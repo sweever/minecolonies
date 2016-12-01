@@ -54,7 +54,7 @@ public class BuildingBuilder extends AbstractBuildingWorker
      * @param c the colony.
      * @param l the position.
      */
-    public BuildingBuilder(Colony c, BlockPos l)
+    public BuildingBuilder(final Colony c, final BlockPos l)
     {
         super(c, l);
     }
@@ -120,7 +120,7 @@ public class BuildingBuilder extends AbstractBuildingWorker
      */
     @NotNull
     @Override
-    public AbstractJob createJob(CitizenData citizen)
+    public AbstractJob createJob(final CitizenData citizen)
     {
         return new JobBuilder(citizen);
     }
@@ -190,7 +190,7 @@ public class BuildingBuilder extends AbstractBuildingWorker
         final NBTTagList neededResTagList = compound.getTagList(TAG_RESOURCE_LIST, Constants.NBT.TAG_COMPOUND);
         for (int i = 0; i < neededResTagList.tagCount(); ++i)
         {
-            NBTTagCompound neededRes = neededResTagList.getCompoundTagAt(i);
+            final NBTTagCompound neededRes = neededResTagList.getCompoundTagAt(i);
             final IBlockState state = NBTUtil.readBlockState(neededRes);
             final int amount = neededRes.getInteger(TAG_AMOUNT);
             neededResources.put(state.getBlock(), amount);
@@ -244,7 +244,7 @@ public class BuildingBuilder extends AbstractBuildingWorker
          * @param c the colony.
          * @param l the position.
          */
-        public View(ColonyView c, BlockPos l)
+        public View(final ColonyView c, final BlockPos l)
         {
             super(c, l);
         }
@@ -255,6 +255,7 @@ public class BuildingBuilder extends AbstractBuildingWorker
          * @return the window of the builder building.
          */
         @NotNull
+        @Override
         public com.blockout.views.Window getWindow()
         {
             return new WindowHutBuilder(this);
@@ -265,13 +266,13 @@ public class BuildingBuilder extends AbstractBuildingWorker
         {
             super.deserialize(buf);
 
-            int size = buf.readInt();
+            final int size = buf.readInt();
             neededResources = new HashMap<>();
 
             for (int i = 0; i < size; i++)
             {
-                String block = ByteBufUtils.readUTF8String(buf);
-                int amount = buf.readInt();
+                final String block = ByteBufUtils.readUTF8String(buf);
+                final int amount = buf.readInt();
                 neededResources.put(block, amount);
             }
         }

@@ -8,6 +8,7 @@ import com.minecolonies.entity.ai.basic.AbstractAISkeleton;
 import com.minecolonies.entity.ai.citizen.guard.EntityAIMeleeGuard;
 import com.minecolonies.entity.ai.citizen.guard.EntityAIRangeGuard;
 import org.jetbrains.annotations.NotNull;
+
 import java.util.Random;
 
 /**
@@ -25,7 +26,7 @@ public class JobGuard extends AbstractJob
      *
      * @param entity the entity to assign to the job.
      */
-    public JobGuard(CitizenData entity)
+    public JobGuard(final CitizenData entity)
     {
         super(entity);
     }

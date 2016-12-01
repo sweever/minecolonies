@@ -1,11 +1,8 @@
 package com.minecolonies.entity.ai.citizen.guard;
 
-import com.minecolonies.colony.buildings.AbstractBuilding;
-import com.minecolonies.colony.buildings.BuildingGuardTower;
 import com.minecolonies.colony.jobs.JobGuard;
 import com.minecolonies.entity.ai.util.AIState;
 import com.minecolonies.entity.ai.util.AITarget;
-import com.minecolonies.util.BlockPosUtil;
 import com.minecolonies.util.InventoryFunctions;
 import com.minecolonies.util.Utils;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -164,7 +161,7 @@ public class EntityAIMeleeGuard extends AbstractEntityAIGuard
         return AIState.GUARD_SEARCH_TARGET;
     }
 
-    private void attackEntity(@NotNull EntityLivingBase entityToAttack, float baseDamage)
+    private void attackEntity(@NotNull final EntityLivingBase entityToAttack, final float baseDamage)
     {
         double damgeToBeDealt = baseDamage;
 

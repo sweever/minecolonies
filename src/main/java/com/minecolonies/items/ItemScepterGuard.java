@@ -1,6 +1,8 @@
 package com.minecolonies.items;
 
-import com.minecolonies.colony.*;
+import com.minecolonies.colony.CitizenData;
+import com.minecolonies.colony.Colony;
+import com.minecolonies.colony.ColonyManager;
 import com.minecolonies.colony.buildings.AbstractBuilding;
 import com.minecolonies.colony.buildings.BuildingGuardTower;
 import com.minecolonies.util.BlockPosUtil;
@@ -38,7 +40,16 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
 
     @NotNull
     @Override
-    public EnumActionResult onItemUse(ItemStack scepter, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(
+                                       final ItemStack scepter,
+                                       final EntityPlayer playerIn,
+                                       final World worldIn,
+                                       final BlockPos pos,
+                                       final EnumHand hand,
+                                       final EnumFacing facing,
+                                       final float hitX,
+                                       final float hitY,
+                                       final float hitZ)
     {
         //todo watch how interaction with server is, might facilitate this.
         // if server world, do nothing
@@ -51,12 +62,12 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
         {
             scepter.setTagCompound(new NBTTagCompound());
         }
-        NBTTagCompound compound = scepter.getTagCompound();
+        final NBTTagCompound compound = scepter.getTagCompound();
 
-        if(compound.hasKey(TAG_LAST_POS))
+        if (compound.hasKey(TAG_LAST_POS))
         {
-            BlockPos lastPos = BlockPosUtil.readFromNBT(compound, TAG_LAST_POS);
-            if(lastPos.equals(pos))
+            final BlockPos lastPos = BlockPosUtil.readFromNBT(compound, TAG_LAST_POS);
+            if (lastPos.equals(pos))
             {
                 playerIn.inventory.removeStackFromSlot(playerIn.inventory.currentItem);
                 LanguageHandler.sendPlayerMessage(playerIn, LanguageHandler.format("com.minecolonies.job.guard.toolDoubleClick"));
@@ -68,38 +79,39 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
 
     /**
      * Handles the usage of the item.
-     * @param worldIn the world it is used in.
-     * @param pos the position.
+     *
+     * @param worldIn  the world it is used in.
+     * @param pos      the position.
      * @param compound the compound.
      * @param playerIn the player using it.
      * @return if it has been successful.
      */
     @NotNull
-    private static EnumActionResult handleItemUsage(World worldIn, BlockPos pos, NBTTagCompound compound, EntityPlayer playerIn)
+    private static EnumActionResult handleItemUsage(final World worldIn, final BlockPos pos, final NBTTagCompound compound, final EntityPlayer playerIn)
     {
-        Colony colony = ColonyManager.getClosestColony(worldIn, pos);
-        if(colony == null)
+        final Colony colony = ColonyManager.getClosestColony(worldIn, pos);
+        if (colony == null)
         {
             return EnumActionResult.FAIL;
         }
 
-        BlockPos guardTower = BlockPosUtil.readFromNBT(compound, "pos");
-        AbstractBuilding hut = colony.getBuilding(guardTower);
-        if(hut == null || !(hut instanceof BuildingGuardTower))
+        final BlockPos guardTower = BlockPosUtil.readFromNBT(compound, "pos");
+        final AbstractBuilding hut = colony.getBuilding(guardTower);
+        if (hut == null || !(hut instanceof BuildingGuardTower))
         {
             return EnumActionResult.FAIL;
         }
 
-        BuildingGuardTower.Task task = BuildingGuardTower.Task.values()[compound.getInteger("task")];
+        final BuildingGuardTower.Task task = BuildingGuardTower.Task.values()[compound.getInteger("task")];
         final CitizenData citizen = ((BuildingGuardTower) hut).getWorker();
 
         String name = "";
-        if(citizen != null)
+        if (citizen != null)
         {
             name = " " + citizen.getName();
         }
 
-        if(task.equals(BuildingGuardTower.Task.GUARD))
+        if (task.equals(BuildingGuardTower.Task.GUARD))
         {
             LanguageHandler.sendPlayerMessage(playerIn, LanguageHandler.format("com.minecolonies.job.guard.toolClickGuard", pos, name));
             ((BuildingGuardTower) hut).setGuardTarget(pos);
@@ -107,7 +119,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
         }
         else
         {
-            if(!compound.hasKey(TAG_LAST_POS))
+            if (!compound.hasKey(TAG_LAST_POS))
             {
                 ((BuildingGuardTower) hut).resetPatrolTargets();
             }

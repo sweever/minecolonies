@@ -18,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 /**
- * Window for the guardTower hut
+ * Window for the guardTower hut.
  */
 public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGuardTower.View>
 {
@@ -33,7 +33,7 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
     private static final String PAGE_ACTIONS    = "levelActions";
 
     /**
-     * Id of the previous page button in the GUI
+     * Id of the previous page button in the GUI.
      */
     private static final String BUTTON_PREVPAGE = "prevPage";
 
@@ -78,7 +78,7 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
     private static final String BUTTON_TASK_GUARD = "guarding";
 
     /**
-     * Id of the settarget button in the GUI - Depending ON task sets guard position or patrol..
+     * Id of the settarget button in the GUI - Depending ON task sets guard position or patrol.
      */
     private static final String BUTTON_SET_TARGET = "setTarget";
 
@@ -139,11 +139,11 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
 
 
     /**
-     * Constructor for the window of the guardTower hut
+     * Constructor for the window of the guardTower hut.
      *
-     * @param building {@link BuildingGuardTower.View}
+     * @param building {@link BuildingGuardTower.View}.
      */
-    public WindowHutGuardTower(BuildingGuardTower.View building)
+    public WindowHutGuardTower(final BuildingGuardTower.View building)
     {
         super(building, Constants.MOD_ID + HUT_GUARD_TOWER_RESOURCE_SUFFIX);
 
@@ -172,7 +172,7 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
      */
     private void handleButtons()
     {
-        Button buttonJob = this.findPaneOfTypeByID(BUTTON_JOB, Button.class);
+        final Button buttonJob = this.findPaneOfTypeByID(BUTTON_JOB, Button.class);
 
         if(job != null)
         {
@@ -259,9 +259,8 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
 
     /**
      * Sets the target for patrolling or guarding of the guard.
-     * @param button clicked button.
      */
-    private void setTarget(final Button button)
+    private void setTarget()
     {
         final EntityPlayerSP player = this.mc.thePlayer;
         final int emptySlot = player.inventory.getFirstEmptyStack();
@@ -290,7 +289,7 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
      * Send message to player to add scepter to his inventory.
      * @param localTask the task to execute with the scepter.
      */
-    private void givePlayerScepter(BuildingGuardTower.Task localTask)
+    private void givePlayerScepter(final BuildingGuardTower.Task localTask)
     {
         MineColonies.getNetwork().sendToServer(new GuardScepterMessage(localTask.ordinal(), building.getID()));
     }
@@ -306,9 +305,8 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
 
     /**
      * Switch the retrieval mode.
-     * @param button clicked button
      */
-    private void switchRetrievalMode(final Button button)
+    private void switchRetrievalMode()
     {
         building.retrieveOnLowHealth = !building.retrieveOnLowHealth;
         pullInfoFromHut();
@@ -318,9 +316,8 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
 
     /**
      * Switch the patrol mode.
-     * @param button clicked button
      */
-    private void switchPatrolMode(final Button button)
+    private void switchPatrolMode()
     {
         building.patrolManually = !building.patrolManually;
         pullInfoFromHut();
@@ -330,9 +327,8 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
 
     /**
      * Switch the job.
-     * @param button clicked button
      */
-    private void switchJob(final Button button)
+    private void switchJob()
     {
         if(building.job == null)
         {
@@ -355,9 +351,8 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
 
     /**
      * Switch the assignment mode.
-     * @param button clicked button.
      */
-    private void switchAssignmentMode(final Button button)
+    private void switchAssignmentMode()
     {
         building.assignManually = !building.assignManually;
         pullInfoFromHut();
@@ -399,7 +394,7 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
                 }
 
                 @Override
-                public void updateElement(int index, @NotNull Pane rowPane)
+                public void updateElement(final int index, @NotNull final Pane rowPane)
                 {
                     final BlockPos pos = patrolTargets.get(index);
                     rowPane.findPaneOfTypeByID("position", Label.class).setLabelText(pos.getX() + " " + pos.getY() + " " + pos.getZ());
@@ -417,7 +412,7 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
                 }
 
                 @Override
-                public void updateElement(int index, @NotNull Pane rowPane)
+                public void updateElement(final int index, @NotNull final Pane rowPane)
                 {
                     final BlockPos pos = building.guardPos;
                     rowPane.findPaneOfTypeByID("position", Label.class).setLabelText(pos.getX() + " " + pos.getY() + " " + pos.getZ());
@@ -427,7 +422,7 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
     }
 
     @Override
-    public void onButtonClicked(@NotNull Button button)
+    public void onButtonClicked(@NotNull final Button button)
     {
         switch (button.getID())
         {
@@ -458,7 +453,7 @@ public class WindowHutGuardTower extends AbstractWindowWorkerBuilding<BuildingGu
             patrolList.hide();
         }
 
-        String currentPage = findPaneOfTypeByID(VIEW_PAGES, SwitchView.class).getCurrentView().getID();
+        final String currentPage = findPaneOfTypeByID(VIEW_PAGES, SwitchView.class).getCurrentView().getID();
         if (currentPage.equals(PAGE_ACTIONS))
         {
             pullInfoFromHut();

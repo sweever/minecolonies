@@ -9,16 +9,15 @@ import com.minecolonies.colony.buildings.BuildingBuilder;
 import com.minecolonies.lib.Constants;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Window for the builder hut
+ * Window for the builder hut.
  */
 public class WindowHutBuilder extends AbstractWindowWorkerBuilding<BuildingBuilder.View>
 {
     /**
-     * The builders gui file
+     * The builders gui file.
      */
     private static final String HUT_BUILDER_RESOURCE_SUFFIX = ":gui/windowHutBuilder.xml";
     private static final String LIST_RESOURCES              = "resources";
@@ -32,14 +31,14 @@ public class WindowHutBuilder extends AbstractWindowWorkerBuilding<BuildingBuild
     private Button             buttonNextPage;
 
     private Map<String, Integer> resources;
-    private BuildingBuilder.View     builder;
+    private final BuildingBuilder.View     builder;
 
     /**
-     * Constructor for window builder hut
+     * Constructor for window builder hut.
      *
-     * @param building {@link com.minecolonies.colony.buildings.BuildingBuilder.View}
+     * @param building {@link com.minecolonies.colony.buildings.BuildingBuilder.View}.
      */
-    public WindowHutBuilder(BuildingBuilder.View building)
+    public WindowHutBuilder(final BuildingBuilder.View building)
     {
         super(building, Constants.MOD_ID + HUT_BUILDER_RESOURCE_SUFFIX);
         this.builder = building;
@@ -47,7 +46,7 @@ public class WindowHutBuilder extends AbstractWindowWorkerBuilding<BuildingBuild
     }
 
     /**
-     * Retrieve resources from the building to display in GUI
+     * Retrieve resources from the building to display in GUI.
      */
     private void pullResourcesFromHut()
     {
@@ -58,9 +57,9 @@ public class WindowHutBuilder extends AbstractWindowWorkerBuilding<BuildingBuild
     }
 
     /**
-     * Returns the name of a building
+     * Returns the name of a building.
      *
-     * @return Name of a building
+     * @return Name of a building.
      */
     @NotNull
     @Override
@@ -79,7 +78,7 @@ public class WindowHutBuilder extends AbstractWindowWorkerBuilding<BuildingBuild
         buttonPrevPage = findPaneOfTypeByID(BUTTON_PREVPAGE, Button.class);
         pullResourcesFromHut();
 
-        Object[] entries = resources.entrySet().toArray();
+        final Object[] entries = resources.entrySet().toArray();
 
         final ScrollingList resourceList = findPaneOfTypeByID(LIST_RESOURCES, ScrollingList.class);
         resourceList.setDataProvider(new ScrollingList.DataProvider()
@@ -91,14 +90,14 @@ public class WindowHutBuilder extends AbstractWindowWorkerBuilding<BuildingBuild
             }
 
             @Override
-            public void updateElement(int index, @NotNull Pane rowPane)
+            public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                Object obj = entries[index];
+                final Object obj = entries[index];
 
                 if (obj instanceof Map.Entry && ((Map.Entry) obj).getKey() instanceof String && ((Map.Entry) obj).getValue() instanceof Integer)
                 {
-                    @NotNull String key = (String) ((Map.Entry) obj).getKey();
-                    int value = (Integer) ((Map.Entry) obj).getValue();
+                    @NotNull final String key = (String) ((Map.Entry) obj).getKey();
+                    final int value = (Integer) ((Map.Entry) obj).getValue();
                     rowPane.findPaneOfTypeByID("resource", Label.class).setLabelText(key);
                     rowPane.findPaneOfTypeByID("amount", Label.class).setLabelText(Integer.toString(value));
                 }
@@ -107,7 +106,7 @@ public class WindowHutBuilder extends AbstractWindowWorkerBuilding<BuildingBuild
     }
 
     @Override
-    public void onButtonClicked(@NotNull Button button)
+    public void onButtonClicked(@NotNull final Button button)
     {
         switch (button.getID())
         {
@@ -130,7 +129,7 @@ public class WindowHutBuilder extends AbstractWindowWorkerBuilding<BuildingBuild
     @Override
     public void onUpdate()
     {
-        String currentPage = findPaneOfTypeByID(VIEW_PAGES, SwitchView.class).getCurrentView().getID();
+        final String currentPage = findPaneOfTypeByID(VIEW_PAGES, SwitchView.class).getCurrentView().getID();
         if (currentPage.equals(PAGE_RESOURCES))
         {
             pullResourcesFromHut();

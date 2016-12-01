@@ -1,11 +1,8 @@
 package com.minecolonies.entity.ai.citizen.guard;
 
-import com.minecolonies.colony.buildings.AbstractBuilding;
-import com.minecolonies.colony.buildings.BuildingGuardTower;
 import com.minecolonies.colony.jobs.JobGuard;
 import com.minecolonies.entity.ai.util.AIState;
 import com.minecolonies.entity.ai.util.AITarget;
-import com.minecolonies.util.BlockPosUtil;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
@@ -218,7 +215,7 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
     }
 
     @Override
-    public void attackEntityWithRangedAttack(@NotNull EntityLivingBase entityToAttack, float baseDamage)
+    public void attackEntityWithRangedAttack(@NotNull final EntityLivingBase entityToAttack, final float baseDamage)
     {
         final EntityTippedArrow arrowEntity = new GuardArrow(this.worker.worldObj, worker);
         final double xVector = entityToAttack.posX - worker.posX;
@@ -268,7 +265,7 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
      * @param arrowEntity the arrow to add these effects to.
      * @param baseDamage  the arrow base damage.
      */
-    private void addEffectsToArrow(EntityTippedArrow arrowEntity, double baseDamage)
+    private void addEffectsToArrow(final EntityTippedArrow arrowEntity, final double baseDamage)
     {
         final int powerEntchantment = EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.POWER, worker);
         final int punchEntchantment = EnchantmentHelper.getMaxEnchantmentLevel(Enchantments.PUNCH, worker);

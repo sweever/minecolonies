@@ -1,6 +1,5 @@
 package com.minecolonies.proxy;
 
-import com.structures.event.RenderEventHandler;
 import com.minecolonies.blocks.ModBlocks;
 import com.minecolonies.client.gui.WindowBuildTool;
 import com.minecolonies.client.gui.WindowCitizen;
@@ -15,8 +14,8 @@ import com.minecolonies.event.ClientEventHandler;
 import com.minecolonies.items.ModItems;
 import com.minecolonies.tileentities.ScarecrowTileEntity;
 import com.minecolonies.tileentities.TileEntityColonyBuilding;
+import com.structures.event.RenderEventHandler;
 import com.structures.helpers.Settings;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -60,14 +59,14 @@ public class ClientProxy extends CommonProxy
     }
 
     @Override
-    public void showCitizenWindow(CitizenDataView citizen)
+    public void showCitizenWindow(final CitizenDataView citizen)
     {
         @NotNull final WindowCitizen window = new WindowCitizen(citizen);
         window.open();
     }
 
     @Override
-    public void openBuildToolWindow(@Nullable BlockPos pos)
+    public void openBuildToolWindow(@Nullable final BlockPos pos)
     {
         if (pos == null && Settings.instance.getActiveStructure() == null)
         {

@@ -75,11 +75,11 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
     public static final int PATROL_DISTANCE = 40;
 
     /**
-     * Horizontal range in which the guard picks up items
+     * Horizontal range in which the guard picks up items.
      */
     private static final double RANGE_HORIZONTAL_PICKUP = 20.0D;
     /**
-     * Vertical range in which the guard picks up items
+     * Vertical range in which the guard picks up items.
      */
     private static final double RANGE_VERTICAL_PICKUP   = 2.0D;
 
@@ -89,7 +89,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
     private static final int   STUCK_WAIT_TICKS        = 20;
 
     /**
-     * The amount of time to wait while walking to items
+     * The amount of time to wait while walking to items.
      */
     private static final int   WAIT_WHILE_WALKING      = 5;
 
@@ -141,13 +141,13 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
     private List<BlockPos> items;
 
     /**
-     * Number of ticks the guard is standing still
+     * Number of ticks the guard is standing still.
      */
     private              int   stillTicks              = 0;
 
     /**
      * Used to store the path index
-     * to check if the guard is still walking
+     * to check if the guard is still walking.
      */
     private              int   previousIndex           = 0;
 
@@ -173,8 +173,8 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
      */
     private boolean checkIfExecute()
     {
-        AbstractBuilding building = getOwnBuilding();
-        if(building == null || !(building instanceof BuildingGuardTower))
+        final AbstractBuilding building = getOwnBuilding();
+        if(!(building instanceof BuildingGuardTower))
         {
             return true;
         }
@@ -189,7 +189,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
             return false;
         }
 
-        worker.isWorkerAtSiteWithMove(building.getLocation(), 3);
+        worker.isWorkerAtSiteWithMove(building.getLocation(), PATH_CLOSE);
         return true;
     }
 
@@ -291,9 +291,10 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
         {
             return AIState.GUARD_PATROL;
         }
-        Entity entity = entityList.get(0);
 
-        BlockPos buildingLocation = getOwnBuilding().getLocation();
+        final Entity entity = entityList.get(0);
+
+        final BlockPos buildingLocation = getOwnBuilding().getLocation();
 
         //Only attack entities in max patrol distance.
         if (BlockPosUtil.getDistance2D(entity.getPosition(), buildingLocation) < getPatrolDistance())
@@ -357,7 +358,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
         return AIState.GUARD_GET_TARGET;
     }
 
-    private AxisAlignedBB getTargetableArea(double range)
+    private AxisAlignedBB getTargetableArea(final double range)
     {
         return this.worker.getEntityBoundingBox().expand(range, HEIGHT_DETECTION_RANGE, range);
     }
@@ -392,9 +393,9 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
     protected AIState patrol()
     {
         worker.setAIMoveSpeed(1);
-        AbstractBuilding building = getOwnBuilding();
+        final AbstractBuilding building = getOwnBuilding();
 
-        if (building != null && building instanceof BuildingGuardTower)
+        if (building instanceof BuildingGuardTower)
         {
             if (currentPathTarget == null
                     || BlockPosUtil.getDistance2D(building.getColony().getCenter(), currentPathTarget) > Configurations.workingRangeTownHall + Configurations.townHallPadding
@@ -417,11 +418,11 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
      * @param building his building.
      * @return the next state to go to.
      */
-    private AIState getNextPatrollingTarget(BuildingGuardTower building)
+    private AIState getNextPatrollingTarget(final BuildingGuardTower building)
     {
         if (building.shallPatrolManually() && building.getTask().equals(BuildingGuardTower.Task.PATROL))
         {
-            BlockPos pos = building.getNextPatrolTarget(currentPathTarget);
+            final BlockPos pos = building.getNextPatrolTarget(currentPathTarget);
             if (pos != null)
             {
                 currentPathTarget = pos;
@@ -447,7 +448,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
                 {
                     Log.getLogger().info(BlockPosUtil.getDistance2D(pos, building.getColony().getCenter()));
                 }
-                EntityPlayer player = building.getPlayer();
+                final EntityPlayer player = building.getPlayer();
                 if(player != null)
                 {
                     LanguageHandler.sendPlayerMessage(building.getPlayer(), LanguageHandler.format("com.minecolonies.job.guard.switch"));
@@ -468,15 +469,12 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
      * @param range the range allowed to be from the patrol/guard/follow target.
      * @return true if too far.
      */
-    public boolean shouldReturnToTarget(BlockPos target, double range)
+    public boolean shouldReturnToTarget(final BlockPos target, final double range)
     {
-        AbstractBuilding building = getOwnBuilding();
-        if (building != null && building instanceof BuildingGuardTower)
+        final AbstractBuilding building = getOwnBuilding();
+        if (building instanceof BuildingGuardTower && BlockPosUtil.getDistance2D(target, currentPathTarget) > range)
         {
-            if (BlockPosUtil.getDistance2D(target, currentPathTarget) > range)
-            {
-                return true;
-            }
+            return true;
         }
         return false;
     }
@@ -577,14 +575,14 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
     }
 
     /**
-     * Collect one item by walking to it
+     * Collect one item by walking to it.
      */
     private void gatherItems()
     {
         worker.setCanPickUpLoot(true);
         if (worker.getNavigator().noPath())
         {
-            BlockPos pos = getAndRemoveClosestItem();
+            final BlockPos pos = getAndRemoveClosestItem();
             worker.isWorkerAtSiteWithMove(pos, ITEM_PICKUP_RANGE);
             return;
         }
@@ -594,7 +592,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
             return;
         }
 
-        int currentIndex = worker.getNavigator().getPath().getCurrentPathIndex();
+        final int currentIndex = worker.getNavigator().getPath().getCurrentPathIndex();
         //We moved a bit, not stuck
         if (currentIndex != previousIndex)
         {
@@ -629,7 +627,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAISkill<JobGua
 
         for (int i = 0; i < items.size(); i++)
         {
-            double tempDistance = items.get(i).distanceSq(worker.getPosition());
+            final double tempDistance = items.get(i).distanceSq(worker.getPosition());
             if (tempDistance < distance)
             {
                 index = i;
