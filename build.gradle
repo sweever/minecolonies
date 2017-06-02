@@ -16,6 +16,12 @@ plugins {
     id "com.matthewprenger.cursegradle" version "1.0.7"
 }
 
+repositories {
+    maven {
+        url 'http://dogforce-games.com/maven'
+    }
+}
+
 
 sonarqube {
     properties{
@@ -85,6 +91,8 @@ sourceSets {
 }
 
 dependencies {
+    deobfCompile "gigaherz.guidebook:Guidebook-1.11.0:1.3.0"
+
     structuresCompile sourceSets.api.output
     //blockOutCompile sourceSets.api.output
 
