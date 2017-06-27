@@ -11,6 +11,12 @@ import java.util.UUID;
  */
 public class StandardTokenFactory implements ITokenFactory<UUID, StandardToken>
 {
+
+    ////// --------------------------- NBTConstants --------------------------- \\\\\\
+    private static final String NBT_MSB = "Id_MSB";
+    private static final String NBT_LSB = "Id_LSB";
+    ////// --------------------------- NBTConstants --------------------------- \\\\\\
+
     /**
      * Method to get the request type this factory can produce.
      *
@@ -18,9 +24,9 @@ public class StandardTokenFactory implements ITokenFactory<UUID, StandardToken>
      */
     @NotNull
     @Override
-    public Class<? extends StandardToken> getFactoryOutputType()
+    public Class<IToken> getFactoryOutputType()
     {
-        return StandardToken.class;
+        return IToken.class;
     }
 
     /**
@@ -30,7 +36,7 @@ public class StandardTokenFactory implements ITokenFactory<UUID, StandardToken>
      */
     @NotNull
     @Override
-    public Class<? extends UUID> getFactoryInputType()
+    public Class<UUID> getFactoryInputType()
     {
         return UUID.class;
     }
@@ -46,7 +52,12 @@ public class StandardTokenFactory implements ITokenFactory<UUID, StandardToken>
     @Override
     public NBTTagCompound serialize(@NotNull final IFactoryController controller, @NotNull final StandardToken request)
     {
-        return request.serializeNBT();
+        final NBTTagCompound compound = new NBTTagCompound();
+
+        compound.setLong(NBT_LSB, request.getIdentifier().getLeastSignificantBits());
+        compound.setLong(NBT_MSB, request.getIdentifier().getMostSignificantBits());
+
+        return compound;
     }
 
     /**
@@ -60,9 +71,7 @@ public class StandardTokenFactory implements ITokenFactory<UUID, StandardToken>
     @Override
     public StandardToken deserialize(@NotNull final IFactoryController controller, @NotNull final NBTTagCompound nbt)
     {
-        final StandardToken token = new StandardToken();
-        token.deserializeNBT(nbt);
-        return token;
+        return new StandardToken(new UUID(nbt.getLong(NBT_MSB), nbt.getLong(NBT_LSB)));
     }
 
     /**
