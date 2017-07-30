@@ -486,7 +486,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
      * @param range Range to check in
      * @return True if worker is at site, otherwise false.
      */
-    public boolean goToWorkSite(@NotNull final BlockPos site, final int range)
+    public boolean isWorkerAtSiteWithMove(@NotNull final BlockPos site, final int range)
     {
         if (proxy == null)
         {

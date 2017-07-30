@@ -304,7 +304,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob> extends Ab
         if (worker.getNavigator().noPath())
         {
             final BlockPos pos = getAndRemoveClosestItemPosition();
-            worker.goToWorkSite(pos, ITEM_PICKUP_RANGE);
+            worker.isWorkerAtSiteWithMove(pos, ITEM_PICKUP_RANGE);
             return;
         }
         if (worker.getNavigator().getPath() == null)

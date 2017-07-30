@@ -136,7 +136,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
             return false;
         }
 
-        worker.goToWorkSite(building.getLocation(), PATH_CLOSE);
+        worker.isWorkerAtSiteWithMove(building.getLocation(), PATH_CLOSE);
         return true;
     }
 
@@ -377,7 +377,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
                 return getNextPatrollingTarget((BuildingGuardTower) building);
             }
 
-            if (worker.goToWorkSite(currentPathTarget, PATH_CLOSE) || ((BuildingGuardTower) building).getTask().equals(BuildingGuardTower.Task.FOLLOW))
+            if (worker.isWorkerAtSiteWithMove(currentPathTarget, PATH_CLOSE) || ((BuildingGuardTower) building).getTask().equals(BuildingGuardTower.Task.FOLLOW))
             {
                 return getNextPatrollingTarget((BuildingGuardTower) building);
             }

@@ -163,7 +163,7 @@ public class EntityAIMeleeGuard extends AbstractEntityAIGuard
         }
 
         worker.setAIMoveSpeed((float) (BASE_FOLLOW_SPEED + BASE_FOLLOW_SPEED_MULTIPLIER * worker.getExperienceLevel()));
-        worker.goToWorkSite(targetEntity.getPosition(), (int) MIN_ATTACK_DISTANCE);
+        worker.isWorkerAtSiteWithMove(targetEntity.getPosition(), (int) MIN_ATTACK_DISTANCE);
 
         return AIState.GUARD_SEARCH_TARGET;
     }

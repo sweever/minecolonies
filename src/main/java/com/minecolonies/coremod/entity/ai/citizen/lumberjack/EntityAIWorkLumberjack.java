@@ -335,7 +335,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAIInteract<JobLumberja
             workFrom = getWorkingPosition(workAt);
         }
 
-        return worker.goToWorkSite(workFrom, STANDARD_WORKING_RANGE) || MathUtils.twoDimDistance(worker.getPosition(), workFrom) <= MIN_WORKING_RANGE;
+        return worker.isWorkerAtSiteWithMove(workFrom, STANDARD_WORKING_RANGE) || MathUtils.twoDimDistance(worker.getPosition(), workFrom) <= MIN_WORKING_RANGE;
     }
 
     /**
