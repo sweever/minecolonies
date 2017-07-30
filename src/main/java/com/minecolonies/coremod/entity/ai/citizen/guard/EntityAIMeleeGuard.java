@@ -109,7 +109,7 @@ public class EntityAIMeleeGuard extends AbstractEntityAIGuard
     @Override
     protected AIState searchTarget()
     {
-        if (checkForToolOrWeapon(ToolType.SWORD))
+        if (needsToolOrWeapon(ToolType.SWORD))
         {
             return AIState.GUARD_SEARCH_TARGET;
         }
@@ -124,12 +124,12 @@ public class EntityAIMeleeGuard extends AbstractEntityAIGuard
      */
     protected AIState huntDown()
     {
-        if(huntDownlastAttacker())
+        if(canHuntDownLastAttacker())
         {
             targetEntity = this.worker.getLastAttacker();
         }
 
-        if (!targetEntity.isEntityAlive() || checkForToolOrWeapon(ToolType.SWORD))
+        if (!targetEntity.isEntityAlive() || needsToolOrWeapon(ToolType.SWORD))
         {
             targetEntity = null;
             worker.setAIMoveSpeed((float) 1.0D);
@@ -163,7 +163,7 @@ public class EntityAIMeleeGuard extends AbstractEntityAIGuard
         }
 
         worker.setAIMoveSpeed((float) (BASE_FOLLOW_SPEED + BASE_FOLLOW_SPEED_MULTIPLIER * worker.getExperienceLevel()));
-        worker.isWorkerAtSiteWithMove(targetEntity.getPosition(), (int) MIN_ATTACK_DISTANCE);
+        worker.goToWorkSite(targetEntity.getPosition(), (int) MIN_ATTACK_DISTANCE);
 
         return AIState.GUARD_SEARCH_TARGET;
     }

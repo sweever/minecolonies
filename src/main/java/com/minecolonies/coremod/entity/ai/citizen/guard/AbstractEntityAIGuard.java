@@ -136,7 +136,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
             return false;
         }
 
-        worker.isWorkerAtSiteWithMove(building.getLocation(), PATH_CLOSE);
+        worker.goToWorkSite(building.getLocation(), PATH_CLOSE);
         return true;
     }
 
@@ -280,7 +280,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
         return AIState.GUARD_GET_TARGET;
     }
 
-    public boolean huntDownlastAttacker()
+    public boolean canHuntDownLastAttacker()
     {
         if(this.worker.getLastAttacker() != null && this.worker.getLastAttackerTime() >= worker.ticksExisted - ATTACK_TIME_BUFFER
                 && this.worker.getLastAttacker().isEntityAlive())
@@ -298,7 +298,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
      */
     protected AIState searchTarget()
     {
-        if(huntDownlastAttacker())
+        if(canHuntDownLastAttacker())
         {
             targetEntity = this.worker.getLastAttacker();
             return AIState.GUARD_HUNT_DOWN_TARGET;
@@ -377,7 +377,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
                 return getNextPatrollingTarget((BuildingGuardTower) building);
             }
 
-            if (worker.isWorkerAtSiteWithMove(currentPathTarget, PATH_CLOSE) || ((BuildingGuardTower) building).getTask().equals(BuildingGuardTower.Task.FOLLOW))
+            if (worker.goToWorkSite(currentPathTarget, PATH_CLOSE) || ((BuildingGuardTower) building).getTask().equals(BuildingGuardTower.Task.FOLLOW))
             {
                 return getNextPatrollingTarget((BuildingGuardTower) building);
             }

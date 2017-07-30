@@ -329,7 +329,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
         if (delay > 0)
         {
             if (currentStandingLocation != null
-                    && !worker.isWorkerAtSiteWithMove(currentStandingLocation, DEFAULT_RANGE_FOR_DELAY))
+                    && !worker.goToWorkSite(currentStandingLocation, DEFAULT_RANGE_FOR_DELAY))
             {
                 //Don't decrease delay as we are just walking...
                 return true;
@@ -618,7 +618,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
     private AIState waitForToolOrWeapon()
     {
         final IToolType toolType = worker.getWorkBuilding().getNeedsTool();
-        if (toolType != ToolType.NONE && checkForToolOrWeapon(toolType, worker.getWorkBuilding().getNeededToolLevel()))
+        if (toolType != ToolType.NONE && needsToolOrWeapon(toolType, worker.getWorkBuilding().getNeededToolLevel()))
         {
             delay += DELAY_RECHECK;
             return NEEDS_TOOL;
@@ -631,14 +631,14 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
      * Will set {@code needsTool} accordingly.
      *
      * @param toolType type of tool we check for.
-     * @return true if we have the tool
+     * @return false if we have the tool
      */
-    protected boolean checkForToolOrWeapon(@NotNull final IToolType toolType)
+    protected boolean needsToolOrWeapon(@NotNull final IToolType toolType)
     {
-        return checkForToolOrWeapon(toolType, TOOL_LEVEL_WOOD_OR_GOLD);
+        return needsToolOrWeapon(toolType, TOOL_LEVEL_WOOD_OR_GOLD);
     }
 
-    protected boolean checkForToolOrWeapon(@NotNull final IToolType toolType, final int minimalLevel)
+    protected boolean needsToolOrWeapon(@NotNull final IToolType toolType, final int minimalLevel)
     {
         if (checkForNeededTool(toolType, minimalLevel))
         {
@@ -774,7 +774,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
     @NotNull
     private AIState dumpInventory()
     {
-        if (!worker.isWorkerAtSiteWithMove(getOwnBuilding().getLocation(), DEFAULT_RANGE_FOR_DELAY))
+        if (!worker.goToWorkSite(getOwnBuilding().getLocation(), DEFAULT_RANGE_FOR_DELAY))
         {
             return INVENTORY_FULL;
         }
@@ -1166,11 +1166,11 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
     {
         if (ToolType.PICKAXE.equals(toolType))
         {
-            checkForToolOrWeapon(toolType, required);
+            needsToolOrWeapon(toolType, required);
         }
         else
         {
-            checkForToolOrWeapon(toolType);
+            needsToolOrWeapon(toolType);
         }
     }
 

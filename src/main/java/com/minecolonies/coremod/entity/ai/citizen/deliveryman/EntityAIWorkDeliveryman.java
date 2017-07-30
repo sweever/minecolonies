@@ -136,7 +136,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
             return START_WORKING;
         }
 
-        if (!worker.isWorkerAtSiteWithMove(gatherTarget, MIN_DISTANCE_TO_WAREHOUSE))
+        if (!worker.goToWorkSite(gatherTarget, MIN_DISTANCE_TO_WAREHOUSE))
         {
             return GATHERING;
         }
@@ -277,7 +277,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
      */
     public AIState dump()
     {
-        if (!worker.isWorkerAtSiteWithMove(wareHouse.getLocation(), MIN_DISTANCE_TO_WAREHOUSE))
+        if (!worker.goToWorkSite(wareHouse.getLocation(), MIN_DISTANCE_TO_WAREHOUSE))
         {
             return DUMPING;
         }
@@ -303,7 +303,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
             return START_WORKING;
         }
 
-        if (!worker.isWorkerAtSiteWithMove(buildingToDeliver.getLocation(), MIN_DISTANCE_TO_WAREHOUSE))
+        if (!worker.goToWorkSite(buildingToDeliver.getLocation(), MIN_DISTANCE_TO_WAREHOUSE))
         {
             return DELIVERY;
         }
@@ -479,7 +479,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
             return START_WORKING;
         }
 
-        if (!worker.isWorkerAtSiteWithMove(position, MIN_DISTANCE_TO_CHEST))
+        if (!worker.goToWorkSite(position, MIN_DISTANCE_TO_CHEST))
         {
             setDelay(DUMP_AND_GATHER_DELAY);
             return GATHER_IN_WAREHOUSE;
@@ -566,7 +566,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
      */
     private AIState checkWareHouse()
     {
-        if (!worker.isWorkerAtSiteWithMove(wareHouse.getLocation(), MIN_DISTANCE_TO_WAREHOUSE))
+        if (!worker.goToWorkSite(wareHouse.getLocation(), MIN_DISTANCE_TO_WAREHOUSE))
         {
             return START_WORKING;
         }

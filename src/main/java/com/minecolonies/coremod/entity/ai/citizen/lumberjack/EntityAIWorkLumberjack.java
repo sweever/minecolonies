@@ -201,7 +201,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAIInteract<JobLumberja
      */
     private AIState prepareForWoodcutting()
     {
-        if (checkForToolOrWeapon(ToolType.AXE))
+        if (needsToolOrWeapon(ToolType.AXE))
         {
             return getState();
         }
@@ -293,7 +293,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAIInteract<JobLumberja
      */
     private AIState chopWood()
     {
-        if (checkForToolOrWeapon(ToolType.AXE))
+        if (needsToolOrWeapon(ToolType.AXE))
         {
             return IDLE;
         }
@@ -335,7 +335,7 @@ public class EntityAIWorkLumberjack extends AbstractEntityAIInteract<JobLumberja
             workFrom = getWorkingPosition(workAt);
         }
 
-        return worker.isWorkerAtSiteWithMove(workFrom, STANDARD_WORKING_RANGE) || MathUtils.twoDimDistance(worker.getPosition(), workFrom) <= MIN_WORKING_RANGE;
+        return worker.goToWorkSite(workFrom, STANDARD_WORKING_RANGE) || MathUtils.twoDimDistance(worker.getPosition(), workFrom) <= MIN_WORKING_RANGE;
     }
 
     /**

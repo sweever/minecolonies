@@ -525,7 +525,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
         }
 
         //The miner shouldn't search for a save position. Just let him build from where he currently is.
-        return worker.isWorkerAtSiteWithMove(workFrom, STANDARD_WORKING_RANGE) || MathUtils.twoDimDistance(worker.getPosition(), workFrom) < MIN_WORKING_RANGE;
+        return worker.goToWorkSite(workFrom, STANDARD_WORKING_RANGE) || MathUtils.twoDimDistance(worker.getPosition(), workFrom) < MIN_WORKING_RANGE;
     }
 
     /**

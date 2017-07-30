@@ -113,7 +113,7 @@ public class EntityAIGoHome extends EntityAIBase
             else
             {
                 //If he has no homePosition strangely then try to  move to the colony.
-                citizen.isWorkerAtSiteWithMove(citizen.getColony().getCenter(), 2);
+                citizen.goToWorkSite(citizen.getColony().getCenter(), 2);
             }
             return;
         }
@@ -129,7 +129,7 @@ public class EntityAIGoHome extends EntityAIBase
      */
     private void handleSaturation(@NotNull final BlockPos pos)
     {
-        if (citizen.isWorkerAtSiteWithMove(pos, 2) && citizen.getColony() != null
+        if (citizen.goToWorkSite(pos, 2) && citizen.getColony() != null
                 && citizen.getCitizenData() != null && citizen.getCitizenData().getSaturation() < EntityCitizen.HIGH_SATURATION)
         {
             final double currentSaturation = citizen.getCitizenData().getSaturation();
