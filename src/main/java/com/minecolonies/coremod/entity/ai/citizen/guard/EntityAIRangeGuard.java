@@ -58,6 +58,11 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
     private static final double DIFFICULTY_DAMAGE_MULTIPLIER = 0.11D;
 
     /**
+     * Experience to add when a mob is killed
+     */
+    private static final int EXP_PER_MOD_DEATH = 15;
+
+    /**
      * Chance that the arrow lights up the target when the target is on fire.
      */
     private static final int FIRE_EFFECT_TIME = 100;
