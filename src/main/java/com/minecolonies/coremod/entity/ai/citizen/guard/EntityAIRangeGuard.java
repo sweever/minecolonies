@@ -60,7 +60,7 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
     /**
      * Experience to add when a mob is killed
      */
-    private static final int EXP_PER_MOD_DEATH = 15;
+    private static final int EXP_PER_MOB_DEATH = 15;
 
     /**
      * Chance that the arrow lights up the target when the target is on fire.
@@ -217,6 +217,7 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
 
         worker.setAIMoveSpeed((float) (BASE_FOLLOW_SPEED + BASE_FOLLOW_SPEED_MULTIPLIER * worker.getExperienceLevel()));
         worker.isWorkerAtSiteWithMove(targetEntity.getPosition(), MOVE_CLOSE);
+        worker.addExperience(EXP_PER_MOB_DEATH);
 
         return AIState.GUARD_SEARCH_TARGET;
     }
