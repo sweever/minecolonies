@@ -329,7 +329,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
         if (delay > 0)
         {
             if (currentStandingLocation != null
-                    && !worker.goToWorkSite(currentStandingLocation, DEFAULT_RANGE_FOR_DELAY))
+                    && !worker.isWorkerAtSiteWithMove(currentStandingLocation, DEFAULT_RANGE_FOR_DELAY))
             {
                 //Don't decrease delay as we are just walking...
                 return true;
@@ -774,7 +774,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
     @NotNull
     private AIState dumpInventory()
     {
-        if (!worker.goToWorkSite(getOwnBuilding().getLocation(), DEFAULT_RANGE_FOR_DELAY))
+        if (!worker.isWorkerAtSiteWithMove(getOwnBuilding().getLocation(), DEFAULT_RANGE_FOR_DELAY))
         {
             return INVENTORY_FULL;
         }

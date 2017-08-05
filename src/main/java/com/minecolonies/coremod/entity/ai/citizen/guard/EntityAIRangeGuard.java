@@ -28,7 +28,7 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
 {
 
     /**
-     * Basic delay for the next shot.
+     * Basic delay for the next shot. /z
      */
     private static final int BASE_RELOAD_TIME = 60;
 
@@ -121,12 +121,12 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
     /**
      * Base speed of the guard he follows his target.
      */
-    private static final int BASE_FOLLOW_SPEED = 1;
+    private static final float BASE_FOLLOW_SPEED = 1;
 
     /**
      * Base multiplier increasing the attack speed each level.
      */
-    private static final double BASE_FOLLOW_SPEED_MULTIPLIER = 0.25D;
+    private static final float BASE_FOLLOW_SPEED_MULTIPLIER = 0.25F;
 
     /**
      * The start search distance of the guard to track/attack entities may get more depending on the level.
@@ -195,7 +195,7 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
      */
     protected AIState huntDown()
     {
-        chooseTarget();
+        tryToFollowPreviousTarget();
 
         if (!targetEntity.isEntityAlive() || needsToolOrWeapon(ToolType.BOW))
         {
@@ -203,10 +203,10 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
             return AIState.GUARD_GATHERING;
         }
 
-        if (targetCanBeAttacked(MAX_ATTACK_DISTANCE))
+        if (targetCanBeAttacked())
         {
             attackEntityWithRangedAttack(targetEntity, DAMAGE_PER_ATTACK);
-            if (attacksExecuted >= getMaxAttacksUntilRestock())
+            if (shouldRestock())
                 return AIState.GUARD_RESTOCK;
             return AIState.GUARD_HUNT_DOWN_TARGET;
         }
@@ -215,14 +215,12 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
         if (shouldReturnToTarget(targetEntity.getPosition(), maxRange))
             return AIState.GUARD_PATROL;
 
-        worker.setAIMoveSpeed((float) (BASE_FOLLOW_SPEED + BASE_FOLLOW_SPEED_MULTIPLIER * worker.getExperienceLevel()));
-        worker.isWorkerAtSiteWithMove(targetEntity.getPosition(), MOVE_CLOSE);
-        worker.addExperience(EXP_PER_MOB_DEATH);
+        chaseTarget();
 
         return AIState.GUARD_SEARCH_TARGET;
     }
 
-    private void chooseTarget()
+    private void tryToFollowPreviousTarget()
     {
         if(canHuntDownLastAttacker())
             targetEntity = this.worker.getLastAttacker();
@@ -232,13 +230,21 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
     {
         targetEntity = null;
         worker.setAIMoveSpeed((float) 1.0D);
+        worker.addExperience(EXP_PER_MOB_DEATH);
     }
 
-    private boolean targetCanBeAttacked(double range)
+    private boolean targetCanBeAttacked()
     {
-        boolean inLineOfSight = worker.getEntitySenses().canSee(targetEntity);
-        boolean withinRange = worker.getDistanceToEntity(targetEntity) <= range;
-        return inLineOfSight && withinRange;
+        final boolean inSight = worker.getEntitySenses().canSee(targetEntity);
+        final boolean inRange = worker.getDistanceToEntity(targetEntity) <= MAX_ATTACK_DISTANCE;
+        return inSight && inRange;
+    }
+
+    private void chaseTarget()
+    {
+        final float followSpeed = BASE_FOLLOW_SPEED + BASE_FOLLOW_SPEED_MULTIPLIER * worker.getExperienceLevel();
+        worker.setAIMoveSpeed(followSpeed);
+        worker.isWorkerAtSiteWithMove(targetEntity.getPosition(), MOVE_CLOSE);
     }
 
     private int getReloadTime()

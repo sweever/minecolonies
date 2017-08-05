@@ -354,14 +354,17 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
     }
 
     /**
-     * Getter calculating how many arrows the guard may shoot or deal sword hits until restock.
+     * Says if the guard has shot too many arrows or made too many sword hits and must return to the guard tower.
      *
-     * @return the amount.
+     * @return if the guard should "restock".
      */
-    protected int getMaxAttacksUntilRestock()
+    protected boolean shouldRestock()
     {
         final BuildingGuardTower guardTower = (BuildingGuardTower) worker.getWorkBuilding();
-        return (guardTower == null) ? 0 : (BASE_MAX_ATTACKS + guardTower.getBuildingLevel() * ADDITIONAL_MAX_ATTACKS_PER_LEVEL);
+        int maxAttacksUntilRestock = 0;
+        if (guardTower != null)
+            maxAttacksUntilRestock = BASE_MAX_ATTACKS + guardTower.getBuildingLevel() * ADDITIONAL_MAX_ATTACKS_PER_LEVEL;
+        return attacksExecuted >= maxAttacksUntilRestock;
     }
 
     /**
