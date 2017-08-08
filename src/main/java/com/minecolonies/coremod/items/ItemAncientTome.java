@@ -1,7 +1,6 @@
 package com.minecolonies.coremod.items;
 
 import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.ColonyManager;
 import com.minecolonies.coremod.creativetab.ModCreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
