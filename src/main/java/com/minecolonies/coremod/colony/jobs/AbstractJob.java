@@ -449,4 +449,12 @@ public abstract class AbstractJob
     {
 
     }
+
+    /**
+     * Executed every time the colony woke up.
+     */
+    public void onWakeUp()
+    {
+        searchedForFoodToday = false;
+    }
 }
