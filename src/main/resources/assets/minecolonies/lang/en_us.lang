@@ -464,3 +464,6 @@ tile.minecolonies.blockWayPoint.name=Waypoint placeholder
 
 com.minecolonies.coremod.permission.teleport_to_colony=Teleport to Colony
 com.minecolonies.coremod.gui.warehouse.upgrade=Upgrade Storage
+com.minecolonies.coremod.job.cook=Cook
+com.minecolonies.coremod.gui.workerHuts.cook=Cook
+tile.minecolonies.blockHutBaker.name=Restaurant
