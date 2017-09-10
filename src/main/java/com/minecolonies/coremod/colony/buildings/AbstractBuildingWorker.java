@@ -175,12 +175,12 @@ public abstract class AbstractBuildingWorker extends AbstractBuildingHut
     }
 
     /**
-     * executed when a new day start.
+     * Executed when a new day start.
      */
     public void onWakeUp()
     {
-    }
 
+    }
 
     /**
      * Returns whether or not the building has a worker.
