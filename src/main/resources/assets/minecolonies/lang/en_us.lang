@@ -471,3 +471,4 @@ com.minecolonies.coremod.gui.warehouse.upgrade=Upgrade Storage
 com.minecolonies.coremod.job.cook=Cook
 com.minecolonies.coremod.gui.workerHuts.cook=Cook
 tile.minecolonies.blockHutBaker.name=Restaurant
+com.minecolonies.coremod.ai.noRestaurant=Please build a restaurant or get me something to eat!

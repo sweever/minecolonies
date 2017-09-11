@@ -1317,6 +1317,14 @@ public class InventoryUtils
         return false;
     }
 
+    /**
+     * Transfer X of sourceHandler to targetHandler matching a predicate.
+     * @param sourceHandler the source handler.
+     * @param itemStackSelectionPredicate the predicate.
+     * @param amount the amount.
+     * @param targetHandler the target handler.
+     * @return the result.
+     */
     public static boolean transferXOfFirstSlotInProviderWithIntoNextFreeSlotInItemHandler(
             @NotNull final IItemHandler sourceHandler,
             @NotNull final Predicate<ItemStack> itemStackSelectionPredicate,
