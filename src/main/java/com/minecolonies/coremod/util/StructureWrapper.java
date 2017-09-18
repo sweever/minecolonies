@@ -5,6 +5,7 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.BlockUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.coremod.blocks.BlockMinecoloniesRack;
+import com.minecolonies.coremod.blocks.BlockWaypoint;
 import com.minecolonies.coremod.blocks.ModBlocks;
 import com.minecolonies.structures.helpers.StructureProxy;
 import net.minecraft.block.Block;
@@ -358,7 +359,8 @@ public final class StructureWrapper
             return BlockMinecoloniesRack.shouldBlockBeReplacedWithRack(structureBlock);
         }
         else if ((structureBlock instanceof BlockStairs && structureBlockState == worldBlockState)
-                || BlockUtils.isGrassOrDirt(structureBlock, worldBlock, structureBlockState, worldBlockState))
+                || BlockUtils.isGrassOrDirt(structureBlock, worldBlock, structureBlockState, worldBlockState)
+                || structureBlock instanceof BlockWaypoint)
         {
             return true;
         }

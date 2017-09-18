@@ -47,7 +47,7 @@ public abstract class AbstractJob
     private static final String MAPPING_TOWER_GUARD = "GuardTower";
     private static final String MAPPING_BAKER       = "Baker";
     private static final String MAPPING_COOK        = "Cook";
-    
+
     /**
      * The priority assigned with every main AI job.
      */
