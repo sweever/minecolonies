@@ -28,10 +28,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.List;
 import java.util.Random;
 
+import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECOLONIES_COREMOD_ENTITY_WORKER_TOOLREQUEST;
 import static com.minecolonies.coremod.entity.ai.util.AIState.*;
 
 /**
@@ -229,6 +229,7 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
 
                 if (ItemStackUtils.isEmpty(stack))
                 {
+                    
                     continue;
                 }
 
@@ -242,6 +243,10 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
                         new InvWrapper(worker.getInventoryCitizen()).insertItem(emptySlot, stack, false);
                         chest.setInventorySlotContents(i, ItemStackUtils.EMPTY);
                     }
+                }
+                if (i == workBuilding.getTileEntity().getSizeInventory()-1);
+                {
+                    chatSpamFilter.talkWithoutSpam(COM_MINECOLONIES_COREMOD_ENTITY_WORKER_TOOLREQUEST);
                 }
                 dumpAfterActions = DUMP_BASE * workBuilding.getBuildingLevel();
             }
