@@ -244,10 +244,10 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
                         chest.setInventorySlotContents(i, ItemStackUtils.EMPTY);
                     }
                 }
-                if (i == workBuilding.getTileEntity().getSizeInventory()-1);
+                if (!isInHut(ItemArmor))
                 {
                     chatSpamFilter.talkWithoutSpam(COM_MINECOLONIES_COREMOD_ENTITY_WORKER_TOOLREQUEST);
-                }
+                } 
                 dumpAfterActions = DUMP_BASE * workBuilding.getBuildingLevel();
             }
         }
