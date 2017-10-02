@@ -73,7 +73,7 @@ public class ChangeColonyOwnerCommand extends AbstractSingleCommand
                 return;
             }
             final EntityPlayer player = sender.getEntityWorld().getPlayerEntityByName(playerName);
-            final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner(player);
+            final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner(player);
 
             colonyId = colony.getID();
         }
@@ -83,7 +83,7 @@ public class ChangeColonyOwnerCommand extends AbstractSingleCommand
             return;
         }
 
-        final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColony(colonyId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColony(colonyId);
 
         if (colony == null)
         {
@@ -111,7 +111,7 @@ public class ChangeColonyOwnerCommand extends AbstractSingleCommand
         }
 
 
-        if (IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner(player) != null)
+        if (IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner(player) != null)
         {
             sender.getCommandSenderEntity().sendMessage(new TextComponentString(String.format(HAS_A_COLONY, playerName)));
             return;

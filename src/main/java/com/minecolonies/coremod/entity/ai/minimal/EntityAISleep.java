@@ -4,7 +4,7 @@ import com.minecolonies.api.entity.DesiredCitizenActivity;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import net.minecraft.entity.ai.EntityAIBase;
 
-import static com.minecolonies.coremod.entity.EntityCitizen.Status.SLEEPING;
+import static com.minecolonies.api.entity.CitizenStatus.SLEEPING;
 
 /**
  * AI to send Entity to sleep.

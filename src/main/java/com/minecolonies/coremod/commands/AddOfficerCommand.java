@@ -59,7 +59,7 @@ public class AddOfficerCommand extends AbstractSingleCommand
         IToken colonyId = getIthArgument(args, 0, null);
         if (colonyId == null && sender instanceof EntityPlayer)
         {
-            final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner(((EntityPlayer) sender).getUniqueID());
+            final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner(((EntityPlayer) sender).getUniqueID());
             if (colony == null)
             {
                 sender.getCommandSenderEntity().sendMessage(new TextComponentString(COLONY_NULL));
@@ -74,7 +74,7 @@ public class AddOfficerCommand extends AbstractSingleCommand
             return;
         }
 
-        final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColony(colonyId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColony(colonyId);
 
         if (colony == null)
         {

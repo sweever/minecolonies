@@ -3,6 +3,7 @@ package com.minecolonies.coremod.proxy;
 import com.minecolonies.api.colony.management.ColonyManager;
 import com.minecolonies.api.lib.Constants;
 import com.minecolonies.api.reference.ModBlocks;
+import com.minecolonies.api.reference.ModItems;
 import com.minecolonies.api.tileentities.TileEntityColonyBuilding;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.coremod.client.gui.WindowBuildTool;
@@ -15,7 +16,6 @@ import com.minecolonies.coremod.colony.CitizenDataView;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import com.minecolonies.coremod.entity.EntityFishHook;
 import com.minecolonies.coremod.event.ClientEventHandler;
-import com.minecolonies.api.reference.ModItems;
 import com.minecolonies.coremod.tileentities.ScarecrowTileEntity;
 import com.minecolonies.structures.Structures;
 import com.minecolonies.structures.event.RenderEventHandler;
@@ -29,6 +29,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,6 +39,7 @@ import java.io.File;
 /**
  * Client side proxy.
  */
+@SideOnly(Side.CLIENT)
 public class ClientProxy extends CommonProxy
 {
     /**

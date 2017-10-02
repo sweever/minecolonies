@@ -283,9 +283,16 @@ public class CitizenDataView implements ICitizenData
      * @return the home coordinates.
      */
     @Nullable
+    @Override
     public IBuilding getHomeBuilding()
     {
         return homeBuilding;
+    }
+
+    @Override
+    public void setHomeBuilding(@Nullable final IBuilding building)
+    {
+        //Noop
     }
 
     /**
@@ -322,7 +329,7 @@ public class CitizenDataView implements ICitizenData
         dimensionId = buf.readInt();
         final World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimensionId);
         final IToken colonyId = StandardFactoryController.getInstance().deserialize(ByteBufUtils.readTag(buf));
-        colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(world).getColony(colonyId);
+        colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(colonyId);
 
         homeBuilding = buf.readBoolean() ? colony.getBuilding(BlockPosUtil.readFromByteBuf(buf)) : null;
         workBuilding = buf.readBoolean() ? colony.getBuilding(BlockPosUtil.readFromByteBuf(buf)) : null;

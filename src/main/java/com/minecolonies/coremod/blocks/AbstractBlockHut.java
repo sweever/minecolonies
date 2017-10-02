@@ -1,14 +1,13 @@
 package com.minecolonies.coremod.blocks;
 
 import com.minecolonies.api.IAPI;
+import com.minecolonies.api.client.colony.IBuildingView;
 import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.IHutBlock;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.entity.ai.citizen.builder.IBuilderUndestroyable;
 import com.minecolonies.api.lib.Constants;
 import com.minecolonies.api.tileentities.TileEntityColonyBuilding;
-import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.creativetab.ModCreativeTabs;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockHorizontal;
@@ -202,7 +201,7 @@ public abstract class AbstractBlockHut extends Block implements ITileEntityProvi
          */
         if (worldIn.isRemote)
         {
-            @Nullable final IBuilding building = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(worldIn).getColony(pos).getBuilding(pos);
+            @Nullable final IBuildingView building = IAPI.Holder.getApi().getClientColonyManager().getControllerForWorld(worldIn).getBuilding(pos);
 
             if (building != null
                   && building.getColony() != null
@@ -261,7 +260,7 @@ public abstract class AbstractBlockHut extends Block implements ITileEntityProvi
         if (placer instanceof EntityPlayer && tileEntity instanceof TileEntityColonyBuilding)
         {
             @NotNull final TileEntityColonyBuilding hut = (TileEntityColonyBuilding) tileEntity;
-            @Nullable final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(worldIn).getColony(hut.getPosition());
+            @Nullable final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(worldIn).getColony(hut.getPosition());
 
             if (colony != null)
             {

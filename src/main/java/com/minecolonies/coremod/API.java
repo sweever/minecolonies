@@ -24,7 +24,7 @@ public final class API implements IAPI
 
     @NotNull
     @Override
-    public IColonyManager getColonyManager()
+    public IColonyManager getServerColonyManager()
     {
         return null;
     }

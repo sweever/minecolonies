@@ -162,6 +162,11 @@ public interface ICitizenData
     void increaseLevel();
 
     /**
+     * Marks this citizen data as Dirty.
+     */
+    void markDirty();
+
+    /**
      * Returns whether or not the instance is dirty.
      *
      * @return true when dirty, otherwise false.
@@ -172,4 +177,19 @@ public interface ICitizenData
      * Markt the instance not dirty.
      */
     void clearDirty();
+
+    /**
+     * Returns the home building of the citizen.
+     *
+     * @return home building.
+     */
+    @Nullable
+    IBuilding getHomeBuilding();
+
+    /**
+     * Sets the home of the citizen.
+     *
+     * @param building home building.
+     */
+    void setHomeBuilding(@Nullable IBuilding building);
 }

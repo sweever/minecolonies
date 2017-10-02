@@ -177,7 +177,7 @@ public class BlockHutField extends BlockContainer implements IFieldBlock
         //If the world is server, open the inventory of the field.
         if (!worldIn.isRemote)
         {
-            @Nullable final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(worldIn).getColony(pos);
+            @Nullable final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(worldIn).getColony(pos);
             if (colony != null)
             {
                 playerIn.openGui(MineColonies.instance, 0, worldIn, pos.getX(), pos.getY(), pos.getZ());
@@ -219,7 +219,7 @@ public class BlockHutField extends BlockContainer implements IFieldBlock
 
         if (placer instanceof EntityPlayer)
         {
-            @Nullable final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(worldIn).getColony(pos);
+            @Nullable final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(worldIn).getColony(pos);
 
             if (colony != null)
             {

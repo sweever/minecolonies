@@ -452,10 +452,9 @@ public class WindowBuildTool extends AbstractWindowSkeleton
     {
         super.onUpdate();
 
-
-        if (IAPI.Holder.getApi().getColonyManager().isSchematicDownloaded())
+        if (IAPI.Holder.getApi().getClientColonyManager().isSchematicDownloaded())
         {
-            IAPI.Holder.getApi().getColonyManager().setSchematicDownloaded(false);
+            IAPI.Holder.getApi().getClientColonyManager().setSchematicDownloaded(false);
             changeSchematic();
         }
     }

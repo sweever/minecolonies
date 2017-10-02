@@ -46,14 +46,13 @@ public class BlockHutTownHall extends AbstractBlockHut
 
         if (placer.getActiveHand().equals(EnumHand.MAIN_HAND))
         {
-            final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(worldIn).getClosestColony(pos);
+            final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(worldIn).getClosestColony(pos);
 
             if ((colony == null
                    || BlockPosUtil.getDistance2D(colony.getCenter(), pos) >= Configurations.workingRangeTownHall * 2 + Configurations.townHallPadding)
                   && placer instanceof EntityPlayer)
             {
-
-                IAPI.Holder.getApi().getColonyManager().getControllerForWorld(worldIn).createColony(pos, (EntityPlayer) placer);
+                IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(worldIn).createColony(pos, (EntityPlayer) placer);
             }
         }
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);

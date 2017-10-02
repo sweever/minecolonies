@@ -1,6 +1,8 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
+import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.client.gui.WindowHomeBuilding;
 import com.minecolonies.coremod.colony.CitizenData;
@@ -24,7 +26,7 @@ public class BuildingHome extends AbstractBuildingHut
     private static final String            TAG_RESIDENTS = "residents";
     private static final String            CITIZEN       = "Citizen";
     @NotNull
-    private final        List<CitizenData> residents     = new ArrayList<>();
+    private final        List<ICitizenData> residents     = new ArrayList<>();
     private              boolean           isFoodNeeded  = false;
 
     /**
@@ -114,11 +116,11 @@ public class BuildingHome extends AbstractBuildingHut
 
     /**
      * Looks for a homeless citizen to add to the current building Calls.
-     * {@link #addResident(CitizenData)}
+     * {@link #addResident(ICitizenData)}
      */
     private void addHomelessCitizens()
     {
-        for (@NotNull final CitizenData citizen : getColony().getCitizens().values())
+        for (@NotNull final ICitizenData citizen : getColony().getCitizens().values())
         {
             // Move the citizen to a better hut
             if (citizen.getHomeBuilding() != null && citizen.getHomeBuilding().getBuildingLevel() < this.getBuildingLevel())
@@ -139,7 +141,7 @@ public class BuildingHome extends AbstractBuildingHut
     }
 
     @Override
-    public void removeCitizen(@NotNull final CitizenData citizen)
+    public void removeCitizen(@NotNull final ICitizenData citizen)
     {
         if (residents.contains(citizen))
         {
@@ -153,7 +155,7 @@ public class BuildingHome extends AbstractBuildingHut
      *
      * @param citizen Citizen to add.
      */
-    private void addResident(@NotNull final CitizenData citizen)
+    private void addResident(@NotNull final ICitizenData citizen)
     {
         residents.add(citizen);
         citizen.setHomeBuilding(this);
@@ -173,7 +175,7 @@ public class BuildingHome extends AbstractBuildingHut
         super.serializeToView(buf);
 
         buf.writeInt(residents.size());
-        for (@NotNull final CitizenData citizen : residents)
+        for (@NotNull final ICitizenData citizen : residents)
         {
             buf.writeInt(citizen.getId());
         }

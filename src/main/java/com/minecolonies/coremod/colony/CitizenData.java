@@ -12,7 +12,6 @@ import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
-import com.minecolonies.coremod.colony.buildings.BuildingHome;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import io.netty.buffer.ByteBuf;
@@ -84,7 +83,7 @@ public class CitizenData implements ICitizenData
      * The home building of the citizen.
      */
     @Nullable
-    private BuildingHome homeBuilding;
+    private IBuilding homeBuilding;
 
     /**
      * The work building of the citizen.
@@ -603,23 +602,15 @@ public class CitizenData implements ICitizenData
         }
     }
 
-    /**
-     * Returns the home building of the citizen.
-     *
-     * @return home building.
-     */
+    @Override
     @Nullable
-    public BuildingHome getHomeBuilding()
+    public IBuilding getHomeBuilding()
     {
         return homeBuilding;
     }
 
-    /**
-     * Sets the home of the citizen.
-     *
-     * @param building home building.
-     */
-    public void setHomeBuilding(@Nullable final BuildingHome building)
+    @Override
+    public void setHomeBuilding(@Nullable final IBuilding building)
     {
         if (homeBuilding != null && building != null && homeBuilding != building)
         {

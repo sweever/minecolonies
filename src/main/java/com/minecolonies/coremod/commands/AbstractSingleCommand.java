@@ -74,7 +74,7 @@ public abstract class AbstractSingleCommand implements ISubCommand
 
         try
         {
-            return StandardFactoryController.getInstance().getNewInstance(UUID.newRandom(), args[i]);
+            return StandardFactoryController.getInstance().getNewInstance(UUID.randomUUID(), args[i]);
         }
         catch (final NumberFormatException e)
         {
@@ -111,7 +111,7 @@ public abstract class AbstractSingleCommand implements ISubCommand
             return true;
         }
 
-        final IColony chkColony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(player.getEntityWorld()).getColony(colonyId);
+        final IColony chkColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(player.getEntityWorld()).getColony(colonyId);
         if (chkColony == null)
         {
             return false;

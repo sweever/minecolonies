@@ -3,7 +3,6 @@ package com.minecolonies.coremod.commands;
 import com.minecolonies.api.IAPI;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
-import com.minecolonies.coremod.colony.Colony;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
@@ -64,7 +63,7 @@ public abstract class AbstractCitizensCommands extends AbstractSingleCommand
         final IColony colony;
         if (sender instanceof EntityPlayer && colonyId == null)
         {
-            final IColony tempColony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner((EntityPlayer) sender);
+            final IColony tempColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner((EntityPlayer) sender);
             if (tempColony != null)
             {
                 colonyId = tempColony.getID();
@@ -77,7 +76,7 @@ public abstract class AbstractCitizensCommands extends AbstractSingleCommand
             return;
         }
 
-        colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColony(colonyId);
+        colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColony(colonyId);
 
         if (colony == null)
         {

@@ -52,7 +52,7 @@ public final class GetColonyAndCitizen
         {
             try
             {
-                colonyId = StandardFactoryController.getInstance().getNewInstance(UUID.newRandom(), args[i]);;
+                colonyId = StandardFactoryController.getInstance().getNewInstance(UUID.randomUUID(), args[ARGUMENT_ZERO]);
             }
             catch (NumberFormatException e)
             {
@@ -61,7 +61,7 @@ public final class GetColonyAndCitizen
         }
         else if (args.length == SHORT_ARGUMENT_LENGTH || args.length == NAME_ARGUMENT_LENGTH)
         {
-            final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(world).getColonyByOwner(mayorID);
+            final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColonyByOwner(mayorID);
             if (colony == null)
             {
                 throw new IllegalArgumentException(NO_COLONY);
@@ -80,7 +80,7 @@ public final class GetColonyAndCitizen
             throw new IllegalArgumentException(UNKNOWN_ERROR);
         }
 
-        if (colonyId != null && IAPI.Holder.getApi().getColonyManager().getControllerForWorld(world).getColony(colonyId) == null)
+        if (colonyId != null && IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(colonyId) == null)
         {
             throw new IllegalArgumentException(String.format(NOT_FOUND, "Colony"));
         }
@@ -107,7 +107,7 @@ public final class GetColonyAndCitizen
             return citizenId;
         }
 
-        final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(world).getColony(colonyId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(colonyId);
 
         if (args.length == NORMAL_ARGUMENT_LENGTH)
         {

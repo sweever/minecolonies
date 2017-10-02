@@ -1441,7 +1441,7 @@ public class Colony implements IColony<AbstractBuilding>
 
         //TODO Target the controller not the manager
         //Makes it a tick more specific on what to save and what not to.
-        IAPI.Holder.getApi().getColonyManager().getControllerForWorld(getWorld()).markDirty();
+        IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(getWorld()).markDirty();
 
         return building;
     }
@@ -1496,7 +1496,7 @@ public class Colony implements IColony<AbstractBuilding>
 
         calculateMaxCitizens();
 
-        IAPI.Holder.getApi().getColonyManager().getControllerForWorld(getWorld()).markDirty();
+        IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(getWorld()).markDirty();
     }
 
     @Override

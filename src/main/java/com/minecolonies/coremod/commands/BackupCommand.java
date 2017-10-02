@@ -40,7 +40,7 @@ public class BackupCommand extends AbstractSingleCommand
             server.addScheduledTask(() ->
             {
                 //todo we should back up our data here!
-                IAPI.Holder.getApi().getColonyManager();
+                IAPI.Holder.getApi().getServerColonyManager();
                 /*if (ColonyManager.backupColonyData())
                 {
                     sender.sendMessage(new TextComponentString(BACKUP_SUCCESS_MESSAGE));

@@ -115,7 +115,7 @@ public class RandomTeleportCommand extends AbstractSingleCommand
             final int z = getRandCoordinate();
 
             /* Check for a close by colony*/
-            if (IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getClosestColony(new BlockPos(x, STARTING_Y, z)) != null)
+            if (IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getClosestColony(new BlockPos(x, STARTING_Y, z)) != null)
             {
                 continue;
             }

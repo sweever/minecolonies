@@ -8,6 +8,7 @@ import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.colony.permissions.Player;
 import com.minecolonies.api.colony.permissions.Rank;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.configuration.Configurations;
 import com.minecolonies.api.entity.Citizen;
 import com.minecolonies.api.entity.CitizenStatus;
@@ -16,6 +17,7 @@ import com.minecolonies.api.entity.pathfinding.PathNavigate;
 import com.minecolonies.api.inventory.InventoryCitizen;
 import com.minecolonies.api.lib.Constants;
 import com.minecolonies.api.reference.ModAchievements;
+import com.minecolonies.api.reference.ModDataDeserializers;
 import com.minecolonies.api.util.*;
 import com.minecolonies.coremod.MineColonies;
 import com.minecolonies.coremod.colony.CitizenData;
@@ -109,7 +111,7 @@ public class EntityCitizen extends Citizen
     private static final DataParameter<Integer> DATA_TEXTURE         = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> DATA_LEVEL           = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.VARINT);
     private static final DataParameter<Integer> DATA_IS_FEMALE       = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.VARINT);
-    private static final DataParameter<Integer> DATA_COLONY_ID       = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.VARINT);
+    private static final DataParameter<IToken> DATA_COLONY_ID       = EntityDataManager.createKey(EntityCitizen.class, ModDataDeserializers.VARTOKEN);
     private static final DataParameter<Integer> DATA_CITIZEN_ID      = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.VARINT);
     private static final DataParameter<String>  DATA_MODEL           = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.STRING);
     private static final DataParameter<String>  DATA_RENDER_METADATA = EntityDataManager.createKey(EntityCitizen.class, DataSerializers.STRING);
@@ -248,7 +250,7 @@ public class EntityCitizen extends Citizen
     private   Model         modelId = Model.SETTLER;
     private String           renderMetadata;
     private ResourceLocation texture;
-    private int              colonyId;
+    private IToken           colonyId;
     private int citizenId = 0;
     private int         level;
     private int         textureId;
@@ -704,14 +706,14 @@ public class EntityCitizen extends Citizen
 
     @Override
     @Nullable
-    public CitizenData getCitizenData()
+    public ICitizenData getCitizenData()
     {
         return citizenData;
     }
 
     @Override
     @Nullable
-    public Colony getColony()
+    public IColony getColony()
     {
         return colony;
     }
@@ -734,7 +736,7 @@ public class EntityCitizen extends Citizen
     @Override
     public void updateColonyServer()
     {
-        if (colonyId == 0)
+        if (colonyId == null)
         {
             setDead();
             return;
@@ -758,7 +760,7 @@ public class EntityCitizen extends Citizen
         if (c == null)
         {
             colony = null;
-            colonyId = 0;
+            colonyId = null;
             citizenId = 0;
             citizenData = null;
             setDead();

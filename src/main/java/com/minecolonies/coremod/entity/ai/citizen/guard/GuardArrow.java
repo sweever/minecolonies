@@ -1,12 +1,16 @@
 package com.minecolonies.coremod.entity.ai.citizen.guard;
 
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.IAPI;
+import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
+import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.api.util.Log;
-import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityTippedArrow;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
@@ -16,7 +20,7 @@ import net.minecraft.world.World;
 public class GuardArrow extends EntityTippedArrow
 {
     private static final String TAG_COLONY = "colony";
-    private Colony colony;
+    private IColony colony;
 
     /**
      * Constructor for forge.
@@ -44,15 +48,24 @@ public class GuardArrow extends EntityTippedArrow
     public void writeEntityToNBT(final NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger(TAG_COLONY, colony.getID());
+        compound.setTag(TAG_COLONY, StandardFactoryController.getInstance().serialize(colony.getID()));
     }
 
     @Override
     public void readEntityFromNBT(final NBTTagCompound compound)
     {
         super.readEntityFromNBT(compound);
-        final int colonyID = compound.getInteger(TAG_COLONY);
-        colony = ColonyManager.getColony(colonyID);
+
+        NBTBase colonyIdNBTBase = compound.getTag(TAG_COLONY);
+        IToken colonyId;
+
+        if (colonyIdNBTBase instanceof NBTTagCompound) {
+            colonyId = StandardFactoryController.getInstance().deserialize((NBTTagCompound) colonyIdNBTBase);
+        } else {
+            this.setDead();
+            return;
+        }
+        colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(getEntityWorld()).getColony(colonyId);
     }
 
     @Override

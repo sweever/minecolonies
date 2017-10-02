@@ -82,7 +82,7 @@ public class MarkBuildingDirtyMessage extends AbstractMessage<MarkBuildingDirtyM
     public void messageOnServerThread(final MarkBuildingDirtyMessage message, final EntityPlayerMP player)
     {
         final World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimensionId);
-        final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(world).getColony(colonyId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(colonyId);
         if (colony == null)
         {
             Log.getLogger().warn("TransferItemsRequestMessage colony is null");

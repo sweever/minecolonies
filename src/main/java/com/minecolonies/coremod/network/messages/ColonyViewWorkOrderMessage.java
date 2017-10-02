@@ -1,7 +1,7 @@
 package com.minecolonies.coremod.network.messages;
 
 import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.colony.workorder.IWorkOrder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -16,7 +16,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class ColonyViewWorkOrderMessage implements IMessage, IMessageHandler<ColonyViewWorkOrderMessage, IMessage>
 {
-    private int     colonyId;
+    private IToken  colonyId;
+    private int     dimensionId;
     private int     workOrderId;
     private ByteBuf workOrderBuffer;
 
@@ -37,6 +38,7 @@ public class ColonyViewWorkOrderMessage implements IMessage, IMessageHandler<Col
     public ColonyViewWorkOrderMessage(@NotNull final IColony colony, @NotNull final IWorkOrder workOrder)
     {
         this.colonyId = colony.getID();
+        this.dimensionId = colony.getDimension();
         this.workOrderBuffer = Unpooled.buffer();
         this.workOrderId = workOrder.getID();
         workOrder.serializeViewNetworkData(workOrderBuffer);
@@ -46,6 +48,7 @@ public class ColonyViewWorkOrderMessage implements IMessage, IMessageHandler<Col
     public void fromBytes(@NotNull final ByteBuf buf)
     {
         colonyId = buf.readInt();
+
         workOrderId = buf.readInt();
         workOrderBuffer = buf;
     }

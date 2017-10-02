@@ -2,6 +2,8 @@ package com.minecolonies.coremod.network.messages;
 
 import com.minecolonies.api.colony.management.ColonyManager;
 import com.minecolonies.api.colony.permissions.Action;
+import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.coremod.MineColonies;
 import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.ColonyView;
@@ -18,7 +20,7 @@ public class TownHallRenameMessage extends AbstractMessage<TownHallRenameMessage
 {
     private static final int MAX_NAME_LENGTH  = 25;
     private static final int SUBSTRING_LENGTH = MAX_NAME_LENGTH - 1;
-    private int    colonyId;
+    private IToken colonyId;
     private String name;
 
     /**
@@ -45,7 +47,7 @@ public class TownHallRenameMessage extends AbstractMessage<TownHallRenameMessage
     @Override
     public void fromBytes(@NotNull final ByteBuf buf)
     {
-        colonyId = buf.readInt();
+        colonyId = StandardFactoryController.getInstance().deserialize(ByteBufUtils.readTag(buf));
         name = ByteBufUtils.readUTF8String(buf);
     }
 

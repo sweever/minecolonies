@@ -74,7 +74,7 @@ public class ListCitizensCommand extends AbstractSingleCommand
             }
         }
 
-        final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColony(colonyId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColony(colonyId);
 
         final List<CitizenData> citizens = new ArrayList<>(colony.getCitizens().values());
         final int citizenCount = citizens.size();
@@ -131,7 +131,7 @@ public class ListCitizensCommand extends AbstractSingleCommand
      */
     private static IToken getColonyId(@NotNull final ICommandSender sender)
     {
-        final IColony tempColony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner((EntityPlayer) sender);
+        final IColony tempColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner((EntityPlayer) sender);
         if (tempColony instanceof Colony)
         {
             return tempColony.getID();

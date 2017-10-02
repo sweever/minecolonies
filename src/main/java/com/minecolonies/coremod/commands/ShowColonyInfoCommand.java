@@ -60,7 +60,7 @@ public class ShowColonyInfoCommand extends AbstractSingleCommand
 
         if(colonyId != null)
         {
-            tempColony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColony(colonyId);
+            tempColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColony(colonyId);
         }
 
         if (colonyId == null && args.length >= 1)
@@ -68,7 +68,7 @@ public class ShowColonyInfoCommand extends AbstractSingleCommand
             final EntityPlayer player = server.getEntityWorld().getPlayerEntityByName(args[0]);
             if (player != null)
             {
-                tempColony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner(player);
+                tempColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner(player);
             }
         }
 
@@ -77,7 +77,7 @@ public class ShowColonyInfoCommand extends AbstractSingleCommand
             final UUID mayorID = sender.getCommandSenderEntity().getUniqueID();
             if (colonyId == null)
             {
-                tempColony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner(mayorID);
+                tempColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonyByOwner(mayorID);
             }
 
             final EntityPlayer player = (EntityPlayer) sender;

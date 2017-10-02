@@ -41,7 +41,6 @@ import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.MinecraftDummyContainer;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import org.jetbrains.annotations.NotNull;
@@ -344,7 +343,7 @@ public final class ColonyView implements IColony<AbstractBuilding.View>
         final CitizenDataView citizen = CitizenData.createCitizenDataView(id, buf);
         if (citizen != null)
         {
-            citizens.put(citizen.getID(), citizen);
+            citizens.put(citizen.getId(), citizen);
         }
 
         return null;
@@ -737,7 +736,7 @@ public final class ColonyView implements IColony<AbstractBuilding.View>
      *
      * @return a unmodifiable Map of the citizen.
      */
-    public Map<Integer, CitizenDataView> getCitizens()
+    public Map<Integer, ICitizenData> getCitizens()
     {
         return Collections.unmodifiableMap(citizens);
     }

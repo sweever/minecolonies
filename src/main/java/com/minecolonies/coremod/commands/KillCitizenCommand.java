@@ -91,7 +91,7 @@ public class KillCitizenCommand extends AbstractCitizensCommands
     @Override
     public boolean canPlayerUseCommand(final EntityPlayer player, final Commands theCommand, final IToken colonyId)
     {
-        final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(player.getEntityWorld()).getColony(colonyId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(player.getEntityWorld()).getColony(colonyId);
 
 
         return super.canPlayerUseCommand(player, theCommand, colonyId)

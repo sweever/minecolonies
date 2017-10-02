@@ -1,7 +1,8 @@
 package com.minecolonies.coremod.commands;
 
+import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.IAPI;
-import com.minecolonies.coremod.colony.Colony;
+import com.minecolonies.api.colony.IColony;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
@@ -59,7 +60,7 @@ public class ListColoniesCommand extends AbstractSingleCommand
     public void execute(@NotNull final MinecraftServer server, @NotNull final ICommandSender sender, @NotNull final String... args) throws CommandException
     {
         int page = 1;
-        final List<Colony> colonies = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonies();
+        final ImmutableList<? extends IColony> colonies = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(sender.getEntityWorld()).getColonies();
         final int colonyCount = colonies.size();
 
         // check to see if we have to add one page to show the half page
@@ -87,11 +88,11 @@ public class ListColoniesCommand extends AbstractSingleCommand
         final int prevPage = Math.max(0, page - 1);
         final int nextPage = Math.min(page + 1, (colonyCount / COLONIES_ON_PAGE) + halfPage);
 
-        final List<Colony> coloniesPage;
+        final ImmutableList<? extends IColony> coloniesPage;
 
         if (pageStartIndex < 0 || pageStartIndex >= colonyCount)
         {
-            coloniesPage = new ArrayList<>();
+            coloniesPage = ImmutableList.of();
         }
         else
         {
@@ -101,7 +102,7 @@ public class ListColoniesCommand extends AbstractSingleCommand
         final ITextComponent headerLine = new TextComponentString(PAGE_TOP_LEFT + page + PAGE_TOP_MIDDLE + pageCount + PAGE_TOP_RIGHT);
         sender.sendMessage(headerLine);
 
-        for (final Colony colony : coloniesPage)
+        for (final IColony colony : coloniesPage)
         {
             sender.sendMessage(new TextComponentString(String.format(
               ID_AND_NAME_TEXT, colony.getID(), colony.getName())).setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,

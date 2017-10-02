@@ -49,14 +49,14 @@ public class RefreshColonyCommand extends AbstractSingleCommand
     public void execute(@NotNull final MinecraftServer server, @NotNull final ICommandSender sender, @NotNull final String... args) throws CommandException
     {
         IToken colonyId = getIthArgument(args, 0, null);
-        IColony tempColony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(server.getEntityWorld()).getColony(colonyId);
+        IColony tempColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(server.getEntityWorld()).getColony(colonyId);
 
         if (colonyId == null && args.length >= 1)
         {
             final EntityPlayer player = server.getEntityWorld().getPlayerEntityByName(args[0]);
             if (player != null)
             {
-                tempColony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(server.getEntityWorld()).getColonyByOwner(player);
+                tempColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(server.getEntityWorld()).getColonyByOwner(player);
             }
         }
 
@@ -64,7 +64,7 @@ public class RefreshColonyCommand extends AbstractSingleCommand
         {
             if (tempColony == null)
             {
-                tempColony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(server.getEntityWorld()).getColonyByOwner((EntityPlayer) sender);
+                tempColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(server.getEntityWorld()).getColonyByOwner((EntityPlayer) sender);
             }
 
             final EntityPlayer player = (EntityPlayer) sender;

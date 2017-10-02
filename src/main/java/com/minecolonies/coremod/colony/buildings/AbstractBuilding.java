@@ -2,6 +2,7 @@ package com.minecolonies.coremod.colony.buildings;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.IAPI;
+import com.minecolonies.api.client.colony.IBuildingView;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -788,7 +789,9 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         {
             requestWorkOrder(buildingLevel + 1);
         }
-    }@Override
+    }
+
+    @Override
     public void removeCitizen(final ICitizenData citizen)
     {
         // Can be overridden by other buildings.
@@ -1165,7 +1168,7 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
      * Views contain the AbstractBuilding's data that is relevant to a Client, in a more client-friendly form.
      * Mutable operations on a View result in a message to the server to perform the operation.
      */
-    public static class View implements IBuilding<View>
+    public static class View implements IBuildingView<View>
     {
         private final IColony<View>  colony;
         @NotNull
@@ -1223,32 +1226,17 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         {
             return workOrderLevel != NO_WORK_ORDER && workOrderLevel > buildingLevel;
         }
-public boolean isRepairing()
+
+        public boolean isRepairing()
         {
             return workOrderLevel != NO_WORK_ORDER && workOrderLevel == buildingLevel;
-        }@Override
+        }
+        @Override
         public void onUpgradeComplete(final int newLevel)
         {
             //Noop
         }
 
-        /**
-         * Open the associated BlockOut window for this building.
-         */
-        @SideOnly(Side.CLIENT)
-        public void openGui()
-        {
-            @Nullable final Window window = getWindow();
-            if (window != null)
-            {
-                window.open();
-            }
-        }
-/**
-         * Will return the window if this building has an associated BlockOut window.
-         *
-         * @return BlockOut window.
-         */
         @Nullable
         @SideOnly(Side.CLIENT)
         public Window getWindow()
@@ -1352,9 +1340,9 @@ public boolean isRepairing()
         }
 
         @Override
-        public <Request> void createRequest(@NotNull final ICitizenData citizenData, @NotNull final Request requested)
+        public void createRequest(@NotNull final ICitizenData citizenData, @NotNull final Object requested)
         {
-            throw new IllegalStateException("Requests cannot be created on the client side.");
+
         }
 
         @Override
@@ -1365,11 +1353,11 @@ public boolean isRepairing()
         }
 
         @Override
-        public <Request> boolean hasWorkerOpenRequestsOfType(@NotNull final ICitizenData citizenData, final Class<Request> requestType)
+        public boolean hasWorkerOpenRequestsOfType(@NotNull final ICitizenData citizenData, final Class requestType)
         {
             return getOpenRequests(citizenData).stream()
-                     .map(getColony().getRequestManager()::getRequestForToken)
-                     .anyMatch(request -> request.getRequestType().equals(requestType));
+                      .map(getColony().getRequestManager()::getRequestForToken)
+                      .anyMatch(request -> request.getRequestType().equals(requestType));
         }
 
         @Override
@@ -1380,12 +1368,12 @@ public boolean isRepairing()
         }
 
         @Override
-        public <Request> ImmutableList<IRequest<Request>> getOpenRequestsOfType(@NotNull final ICitizenData citizenData, final Class<Request> requestType)
+        public ImmutableList<IRequest> getOpenRequestsOfType(@NotNull final ICitizenData citizenData, final Class requestType)
         {
             return ImmutableList.copyOf(getOpenRequests(citizenData).stream()
                                           .map(getColony().getRequestManager()::getRequestForToken)
                                           .filter(request -> request.getRequestType().equals(requestType))
-                                          .map(request -> (IRequest<Request>) request)
+                                          .map(request -> (IRequest) request)
                                           .iterator());
         }
 
@@ -1433,15 +1421,15 @@ public boolean isRepairing()
             return buildingMaxLevel;
         }
 
-
-
-
-
-
-
-
-
-
+        @Override
+        public void openGui()
+        {
+            @Nullable final Window window = getWindow();
+            if (window != null)
+            {
+                window.open();
+            }
+        }
     }/**
      * Returns the level of the current object.
      *
@@ -1463,7 +1451,7 @@ public boolean isRepairing()
 
         buildingLevel = level;
         markDirty();
-        IAPI.Holder.getApi().getColonyManager().getControllerForWorld(getColony().getWorld()).markDirty();
+        IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(getColony().getWorld()).markDirty();
     }
 
 
