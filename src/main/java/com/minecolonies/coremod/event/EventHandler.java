@@ -1,8 +1,10 @@
 package com.minecolonies.coremod.event;
 
+import com.minecolonies.api.IAPI;
 import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.permissions.Action;
+import com.minecolonies.api.entity.ai.citizen.builder.IBuilderUndestroyable;
 import com.minecolonies.api.util.LanguageHandler;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MathUtils;
@@ -53,12 +55,13 @@ public class EventHandler
             {
                 final WorldClient world = mc.world;
                 final EntityPlayerSP player = mc.player;
-                IColony colony = ColonyManager.getColony(world, player.getPosition());
-                final double minDistance = ColonyManager.getMinimumDistanceBetweenTownHalls();
+                IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(player.getPosition());
+
+                final double minDistance = IAPI.Holder.getApi().getServerColonyManager().getMinimumDistanceBetweenTownHalls();
 
                 if (colony == null)
                 {
-                    colony = ColonyManager.getClosestColony(world, player.getPosition());
+                    colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getClosestColony( player.getPosition());
 
                     if (colony == null || Math.sqrt(colony.getDistanceSquared(player.getPosition())) > 2 * minDistance)
                     {
@@ -91,7 +94,8 @@ public class EventHandler
 
         if (!world.isRemote && event.getState().getBlock() instanceof AbstractBlockHut)
         {
-            @Nullable final AbstractBuilding building = ColonyManager.getBuilding(world, event.getPos());
+
+            @Nullable final IBuilding building = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getBuilding(event.getPos());
             if (building == null)
             {
                 return;
@@ -127,10 +131,8 @@ public class EventHandler
             // and uses that return value, but I didn't want to call it twice
             if (playerRightClickInteract(player, world, event.getPos())
                   && world.getBlockState(event.getPos()).getBlock() instanceof AbstractBlockHut)
-
-
             {
-                final IColony colony = ColonyManager.getColony(world, event.getPos());
+                final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(event.getPos());
                 if (colony != null
                       && !colony.getPermissions().hasPermission(player, Action.ACCESS_HUTS))
                 {
@@ -209,13 +211,13 @@ public class EventHandler
 
     static boolean onTownHallPlaced(@NotNull final World world, @NotNull final EntityPlayer player, final BlockPos pos)
     {
-        IColony colony = ColonyManager.getColonyByOwner(world, player);
+        IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColonyByOwner(player);
         if (colony != null)
         {
             return canOwnerPlaceTownHallHere(world, player, colony, pos);
         }
 
-        colony = ColonyManager.getClosestColony(world, pos);
+        colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getClosestColony(pos);
         if (colony == null)
         {
             return true;
@@ -227,12 +229,12 @@ public class EventHandler
 
     private static boolean onBlockHutPlaced(final World world, @NotNull final EntityPlayer player, final BlockPos pos)
     {
-        final IColony colony = ColonyManager.getColony(world, pos);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(pos);
 
         if (colony == null)
         {
             //  Not in a colony
-            if (ColonyManager.getColonyByOwner(world, player) == null)
+            if (IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColonyByOwner(player) == null)
             {
                 LanguageHandler.sendPlayerMessage(player, "tile.blockHut.messageNoTownHall");
             }
@@ -263,7 +265,7 @@ public class EventHandler
             return false;
         }
 
-        final IColony currentColony = ColonyManager.getColony(world, pos);
+        final IColony currentColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(pos);
         if (currentColony != colony)
         {
             LanguageHandler.sendPlayerMessage(player, "tile.blockHutTownhall.messageTooFar");
@@ -297,7 +299,7 @@ public class EventHandler
             return true;
         }
 
-        if (closestColony.getDistanceSquared(pos) <= MathUtils.square(ColonyManager.getMinimumDistanceBetweenTownHalls()))
+        if (closestColony.getDistanceSquared(pos) <= MathUtils.square(IAPI.Holder.getApi().getServerColonyManager().getMinimumDistanceBetweenTownHalls()))
         {
             Log.getLogger().info("Can't place at: " + pos.getX() + "." + pos.getY() + "." + pos.getZ() + ". Because of townhall of: " + closestColony.getName() + " at "
                                    + closestColony.getCenter().getX() + "." + closestColony.getCenter().getY() + "." + closestColony.getCenter().getZ());
@@ -368,7 +370,7 @@ public class EventHandler
     @SubscribeEvent
     public void onWorldLoad(@NotNull final WorldEvent.Load event)
     {
-        ColonyManager.onWorldLoad(event.getWorld());
+        IAPI.Holder.getApi().getServerColonyManager().onWorldLoad(event);
     }
 
     /**
@@ -380,7 +382,7 @@ public class EventHandler
     @SubscribeEvent
     public void onWorldUnload(@NotNull final WorldEvent.Unload event)
     {
-        ColonyManager.onWorldUnload(event.getWorld());
+        IAPI.Holder.getApi().getServerColonyManager().onWorldUnload(event);
     }
 
     /**
@@ -392,6 +394,6 @@ public class EventHandler
     @SubscribeEvent
     public void onWorldSave(@NotNull final WorldEvent.Save event)
     {
-        ColonyManager.onWorldSave(event.getWorld());
+        IAPI.Holder.getApi().getServerColonyManager().onWorldSave(event);
     }
 }
