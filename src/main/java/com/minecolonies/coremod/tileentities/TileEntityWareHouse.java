@@ -1,5 +1,6 @@
 package com.minecolonies.coremod.tileentities;
 
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.inventory.InventoryCitizen;
 import com.minecolonies.api.tileentities.TileEntityColonyBuilding;
@@ -7,7 +8,6 @@ import com.minecolonies.api.util.InventoryFunctions;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.LanguageHandler;
 import com.minecolonies.api.util.Utils;
-import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.buildings.*;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
@@ -32,15 +32,15 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
     /**
      * Wait this amount of ticks before checking again.
      */
-    private static final int WAIT_TICKS = 5;
+    private static final int                             WAIT_TICKS = 5;
     /**
      * List which contains the currentTasks to be executed by the deliveryman.
      */
-    private final CopyOnWriteArrayList<AbstractBuilding> list = new CopyOnWriteArrayList<>();
+    private final        CopyOnWriteArrayList<IBuilding> list       = new CopyOnWriteArrayList<IBuilding>();
     /**
      * Index of last controlled building.
      */
-    private int index = 1;
+    private              int                             index      = 1;
 
     /**
      * Ticks past since the last check.
@@ -88,7 +88,7 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
         }
         ticksPassed = 0;
 
-        final AbstractBuilding wareHouseBuilding = getBuilding();
+        final IBuilding wareHouseBuilding = getBuilding();
         if (getColony() != null
               && wareHouseBuilding instanceof BuildingWareHouse
               && !((BuildingWareHouse) wareHouseBuilding).getRegisteredDeliverymen().isEmpty())
@@ -209,17 +209,17 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
      * @param buildingEntry the building to check.
      * @return true if so.
      */
-    private boolean deliveryManHasBuildingAsTask(@NotNull final AbstractBuilding buildingEntry)
+    private boolean deliveryManHasBuildingAsTask(@NotNull final IBuilding buildingEntry)
     {
-        final AbstractBuilding wareHouse = getBuilding();
+        final IBuilding wareHouse = getBuilding();
         if (wareHouse instanceof BuildingWareHouse)
         {
             for (final Vec3d pos : ((BuildingWareHouse) wareHouse).getRegisteredDeliverymen())
             {
-                final Colony colony = getColony();
+                final IColony colony = getColony();
                 if (colony != null)
                 {
-                    final AbstractBuilding building = colony.getBuilding(new BlockPos(pos));
+                    final IBuilding building = colony.getBuilding(new BlockPos(pos));
                     if (building instanceof BuildingDeliveryman)
                     {
                         return ((BuildingDeliveryman) building).getBuildingToDeliver() != null
@@ -239,10 +239,10 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
      */
     public boolean isInHut(@Nullable final ItemStack is)
     {
-        @Nullable final AbstractBuilding building = getBuilding();
+        @Nullable final IBuilding building = getBuilding();
         if (building != null)
         {
-            if (isInTileEntity(building.getTileEntity(), is))
+            if (isInTileEntity((TileEntityChest) building.getTileEntity(), is))
             {
                 return true;
             }
@@ -267,9 +267,9 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
      * @param requestingBuilding the building requesting it.
      * @return true if a stack of that type was found
      */
-    public boolean isToolInHut(final String tool, @NotNull final AbstractBuilding requestingBuilding)
+    public boolean isToolInHut(final String tool, @NotNull final IBuilding requestingBuilding)
     {
-        @Nullable final AbstractBuilding building = getBuilding();
+        @Nullable final IBuilding building = getBuilding();
 
         boolean hasItem;
         if (building != null)
@@ -321,10 +321,10 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
      */
     public boolean isInHut(@NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
-        @Nullable final AbstractBuilding building = getBuilding();
+        @Nullable final IBuilding building = getBuilding();
         if (building != null)
         {
-            if (isInTileEntity(building.getTileEntity(), itemStackSelectionPredicate))
+            if (isInTileEntity((TileEntityChest) building.getTileEntity(), itemStackSelectionPredicate))
             {
                 return true;
             }
@@ -389,7 +389,7 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
      * @return the building which needs a delivery.
      */
     @Nullable
-    public AbstractBuilding getTask()
+    public IBuilding getTask()
     {
         if (list.isEmpty())
         {
@@ -407,13 +407,13 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
     @Nullable
     public BlockPos getPositionOfChestWithItemStack(@NotNull final ItemStack stack)
     {
-        @Nullable final AbstractBuilding building = getBuilding();
+        @Nullable final IBuilding building = getBuilding();
 
         if (building != null)
         {
-            if (isInTileEntity(building.getTileEntity(), stack))
+            if (isInTileEntity((TileEntityChest) building.getTileEntity(), stack))
             {
-                return building.getLocation();
+                return building.getLocation().getInDimensionLocation();
             }
 
             for (final BlockPos pos : building.getAdditionalContainers())
@@ -437,13 +437,13 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
     @Nullable
     public BlockPos getPositionOfChestWithItemStack(@NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
     {
-        @Nullable final AbstractBuilding building = getBuilding();
+        @Nullable final IBuilding building = getBuilding();
 
         if (building != null)
         {
-            if (isInTileEntity(building.getTileEntity(), itemStackSelectionPredicate))
+            if (isInTileEntity((TileEntityChest) building.getTileEntity(), itemStackSelectionPredicate))
             {
-                return building.getLocation();
+                return building.getLocation().getInDimensionLocation();
             }
 
             for (final BlockPos pos : building.getAdditionalContainers())
@@ -468,7 +468,7 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
      */
     public BlockPos getPositionOfChestWithTool(@NotNull final String tool, final int minLevel, @NotNull final AbstractBuilding requestingBuilding)
     {
-        @Nullable final AbstractBuilding building = getBuilding();
+        @Nullable final IBuilding building = getBuilding();
 
         if (building != null)
         {
@@ -476,7 +476,7 @@ public class TileEntityWareHouse extends TileEntityColonyBuilding
                    && InventoryUtils.isPickaxeInProvider(building.getTileEntity(), minLevel, requestingBuilding.getBuildingLevel()))
                   || InventoryUtils.isToolInProvider(building.getTileEntity(), tool, requestingBuilding.getBuildingLevel()))
             {
-                return building.getLocation();
+                return building.getLocation().getInDimensionLocation();
             }
 
             for (@NotNull final BlockPos pos : building.getAdditionalContainers())

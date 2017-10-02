@@ -1,7 +1,7 @@
 package com.minecolonies.coremod.util;
 
+import com.minecolonies.api.entity.Citizen;
 import com.minecolonies.coremod.colony.CitizenData;
-import com.minecolonies.coremod.entity.EntityCitizen;
 import net.minecraft.entity.player.EntityPlayerMP;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +20,7 @@ public class ColonyUtils
      */
     public static boolean isCitizenMissingFromWorld(@NotNull final CitizenData citizen)
     {
-        final EntityCitizen entity = citizen.getCitizen();
+        final Citizen entity = citizen.getCitizen();
 
         return entity != null && entity.world.getEntityByID(entity.getEntityId()) != entity;
     }
