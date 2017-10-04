@@ -2,6 +2,7 @@ package com.minecolonies.coremod.colony.buildings;
 
 import com.minecolonies.api.client.colony.IColonyView;
 import com.minecolonies.api.colony.ICitizenData;
+import com.minecolonies.api.colony.buildings.IBuildingHome;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.blockout.views.Window;
@@ -21,7 +22,7 @@ import java.util.List;
 /**
  * The class of the citizen hut.
  */
-public class BuildingHome extends AbstractBuildingHut
+public class BuildingHome extends AbstractBuildingHut implements IBuildingHome<AbstractBuilding>
 {
     private static final String            TAG_RESIDENTS = "residents";
     private static final String            CITIZEN       = "Citizen";
@@ -50,7 +51,7 @@ public class BuildingHome extends AbstractBuildingHut
         final int[] residentIds = compound.getIntArray(TAG_RESIDENTS);
         for (final int citizenId : residentIds)
         {
-            final CitizenData citizen = (CitizenData) getColony().getCitizen(citizenId);
+            final ICitizenData citizen = getColony().getCitizen(citizenId);
             if (citizen != null)
             {
                 // Bypass addResident (which marks dirty)

@@ -214,4 +214,9 @@ public interface ICitizenData
      * @param extraSaturation the saturation to remove.
      */
     void decreaseSaturation(double extraSaturation);
+
+    /**
+     * Resets the experience and the experience level of the citizen.
+     */
+    void resetExperienceAndLevel();
 }

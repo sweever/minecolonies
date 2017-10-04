@@ -6,6 +6,7 @@ import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.api.util.Log;
+import com.minecolonies.api.util.UpgradeUtils;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -56,15 +57,14 @@ public class GuardArrow extends EntityTippedArrow
     {
         super.readEntityFromNBT(compound);
 
-        NBTBase colonyIdNBTBase = compound.getTag(TAG_COLONY);
         IToken colonyId;
 
-        if (colonyIdNBTBase instanceof NBTTagCompound) {
-            colonyId = StandardFactoryController.getInstance().deserialize((NBTTagCompound) colonyIdNBTBase);
+        if (compound.getTag(TAG_COLONY).getId() == net.minecraftforge.common.util.Constants.NBT.TAG_INT) {
+            colonyId = StandardFactoryController.getInstance().getNewInstance(UpgradeUtils.generateUniqueIdFromInt(compound.getInteger(TAG_COLONY)));
         } else {
-            this.setDead();
-            return;
+            colonyId = StandardFactoryController.getInstance().deserialize(compound.getCompoundTag(TAG_COLONY));
         }
+
         colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(getEntityWorld()).getColony(colonyId);
     }
 

@@ -1,6 +1,10 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.minecolonies.api.client.colony.IColonyView;
+import com.minecolonies.api.colony.ICitizenData;
+import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
+import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.client.gui.WindowHutGuardTower;
@@ -341,13 +345,13 @@ public class BuildingGuardTower extends AbstractBuildingWorker
      */
     @NotNull
     @Override
-    public AbstractJob createJob(final CitizenData citizen)
+    public IJob createJob(final ICitizenData citizen)
     {
         return new JobGuard(citizen);
     }
 
     @Override
-    public void setWorker(final CitizenData citizen)
+    public void setWorker(final ICitizenData citizen)
     {
         if (citizen == null && this.getWorkerEntity() != null)
         {
@@ -589,7 +593,7 @@ public class BuildingGuardTower extends AbstractBuildingWorker
          * @param c The ColonyView the building is in.
          * @param l The location of the building.
          */
-        public View(final ColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
+        public View(final IColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
         {
             super(c, l, id);
         }

@@ -253,7 +253,7 @@ public class Colony implements IColony<AbstractBuilding>
 
         if (compound.getTag(TAG_ID).getId() == NBT.TAG_INT)
         {
-            id = StandardFactoryController.getInstance().getNewInstance(UUID.randomUUID());
+            id = StandardFactoryController.getInstance().getNewInstance(UpgradeUtils.generateUniqueIdFromInt(compound.getInteger(TAG_ID)));
         }
         else
         {

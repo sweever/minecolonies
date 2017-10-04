@@ -1,7 +1,11 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.minecolonies.api.client.colony.IColonyView;
+import com.minecolonies.api.colony.ICitizenData;
+import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.entity.ai.citizen.farmer.Field;
+import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.api.util.LanguageHandler;
 import com.minecolonies.api.util.Utils;
 import com.minecolonies.blockout.views.Window;
@@ -220,7 +224,7 @@ public class BuildingFarmer extends AbstractBuildingWorker
 
     @NotNull
     @Override
-    public AbstractJob createJob(@NotNull final CitizenData citizen)
+    public IJob createJob(@NotNull final ICitizenData citizen)
     {
         if (!farmerFields.isEmpty())
         {
@@ -521,7 +525,7 @@ public class BuildingFarmer extends AbstractBuildingWorker
          * @param c the colony.
          * @param l the position.
          */
-        protected View(final ColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
+        protected View(final IColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
         {
             super(c, l, id);
         }

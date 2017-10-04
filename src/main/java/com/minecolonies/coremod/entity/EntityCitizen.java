@@ -12,6 +12,7 @@ import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.colony.permissions.Player;
 import com.minecolonies.api.colony.permissions.Rank;
+import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.configuration.Configurations;
 import com.minecolonies.api.entity.Citizen;
@@ -1541,8 +1542,13 @@ public class EntityCitizen extends Citizen
     @Override
     public boolean processInteract(final EntityPlayer player, final EnumHand hand)
     {
+        IColony colonyView;
+        if (isServerWorld()) {
+            colonyView = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(getEntityWorld()).getColony(colonyId);
+        } else {
+            colonyView = IAPI.Holder.getApi().getClientColonyManager().getControllerForWorld(getEntityWorld()).getColony(colonyId);
+        }
 
-        final IColony colonyView = IAPI.Holder.getApi()..getColonyView(colonyId);
         if (colonyView != null && !colonyView.getPermissions().hasPermission(player, Action.ACCESS_HUTS))
         {
             return false;
@@ -1579,7 +1585,7 @@ public class EntityCitizen extends Citizen
         compound.setInteger(TAG_STATUS, status.ordinal());
         if (colony != null && citizenData != null)
         {
-            compound.setInteger(TAG_COLONY_ID, colony.getID());
+            compound.setTag(TAG_COLONY_ID, StandardFactoryController.getInstance().serialize(colonyId));
             compound.setInteger(TAG_CITIZEN, citizenData.getId());
         }
 
@@ -1595,8 +1601,15 @@ public class EntityCitizen extends Citizen
         super.readEntityFromNBT(compound);
 
         status = CitizenStatus.values()[compound.getInteger(TAG_STATUS)];
-        colonyId = compound.getInteger(TAG_COLONY_ID);
+
         citizenId = compound.getInteger(TAG_CITIZEN);
+
+
+        if (compound.getTag(TAG_COLONY_ID).getId() == net.minecraftforge.common.util.Constants.NBT.TAG_INT) {
+            colonyId = StandardFactoryController.getInstance().getNewInstance(UpgradeUtils.generateUniqueIdFromInt(compound.getInteger(TAG_COLONY_ID)));
+        } else {
+            colonyId = StandardFactoryController.getInstance().deserialize(compound.getCompoundTag(TAG_COLONY_ID));
+        }
 
         if (isServerWorld())
         {
@@ -1676,7 +1689,7 @@ public class EntityCitizen extends Citizen
     {
         if (dataManager.isDirty())
         {
-            if (colonyId == 0)
+            if (colonyId == null)
             {
                 colonyId = dataManager.get(DATA_COLONY_ID);
             }
@@ -1842,20 +1855,20 @@ public class EntityCitizen extends Citizen
      */
     private void handleNullColony()
     {
-        final Colony c = ColonyManager.getColony(colonyId);
+        final IColony c = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(getEntityWorld()).getColony(colonyId);
 
         if (c == null)
         {
-            Log.getLogger().warn(String.format("EntityCitizen '%s' unable to find Colony #%d", getUniqueID(), colonyId));
+            Log.getLogger().warn(String.format("EntityCitizen '%s' unable to find Colony #%s", getUniqueID(), colonyId));
             setDead();
             return;
         }
 
-        final CitizenData data = (CitizenData) c.getCitizen(citizenId);
+        final ICitizenData data = c.getCitizen(citizenId);
         if (data == null)
         {
             //  Citizen does not exist in the Colony
-            Log.getLogger().warn(String.format("EntityCitizen '%s' attempting to register with Colony #%d as Citizen %d, but not known to colony",
+            Log.getLogger().warn(String.format("EntityCitizen '%s' attempting to register with Colony #%s as Citizen %d, but not known to colony",
               getUniqueID(),
               colonyId,
               citizenId));
@@ -1863,7 +1876,7 @@ public class EntityCitizen extends Citizen
             return;
         }
 
-        @Nullable final EntityCitizen existingCitizen = data.getCitizen();
+        @Nullable final Citizen existingCitizen = data.getCitizen();
         if (existingCitizen != null && existingCitizen != this)
         {
             // This Citizen already has a different Entity registered to it
@@ -1874,9 +1887,9 @@ public class EntityCitizen extends Citizen
         setColony(c, data);
     }
 
-    private void handleExistingCitizen(@NotNull final CitizenData data, @NotNull final EntityCitizen existingCitizen)
+    private void handleExistingCitizen(@NotNull final ICitizenData data, @NotNull final Citizen existingCitizen)
     {
-        Log.getLogger().warn(String.format("EntityCitizen '%s' attempting to register with Colony #%d as Citizen #%d, but already have a citizen ('%s')",
+        Log.getLogger().warn(String.format("EntityCitizen '%s' attempting to register with Colony #%s as Citizen #%d, but already have a citizen ('%s')",
           getUniqueID(),
           colonyId,
           citizenId,
@@ -1898,9 +1911,9 @@ public class EntityCitizen extends Citizen
      */
     private CitizenDataView getCitizenDataView()
     {
-        if (colonyId != 0 && citizenId != 0)
+        if (colonyId != null && citizenId != 0)
         {
-            final ColonyView colonyView = ColonyManager.getColonyView(colonyId);
+            final IColonyView colonyView = IAPI.Holder.getApi().getClientColonyManager().getControllerForWorld(getEntityWorld()).getColony(colonyId);
             if (colonyView != null)
             {
                 return (CitizenDataView) colonyView.getCitizen(citizenId);

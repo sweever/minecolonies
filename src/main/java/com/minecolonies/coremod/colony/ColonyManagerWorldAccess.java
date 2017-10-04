@@ -1,5 +1,6 @@
 package com.minecolonies.coremod.colony;
 
+import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -91,7 +92,7 @@ public class ColonyManagerWorldAccess implements IWorldEventListener
     {
         if (entity instanceof EntityCitizen)
         {
-            final CitizenData citizen = ((EntityCitizen) entity).getCitizenData();
+            final ICitizenData citizen = ((EntityCitizen) entity).getCitizenData();
             if (citizen != null)
             {
                 citizen.setCitizenEntity(null);

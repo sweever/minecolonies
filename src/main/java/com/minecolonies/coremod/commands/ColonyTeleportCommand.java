@@ -1,5 +1,6 @@
 package com.minecolonies.coremod.commands;
 
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.util.TeleportToColony;
@@ -44,7 +45,7 @@ public final class ColonyTeleportCommand extends AbstractSingleCommand
     }
 
     @Override
-    public boolean canRankUseCommand(@NotNull final Colony colony, @NotNull final EntityPlayer player)
+    public boolean canRankUseCommand(@NotNull final IColony colony, @NotNull final EntityPlayer player)
     {
         return colony.getPermissions().hasPermission(player, Action.TELEPORT_TO_COLONY);
     }

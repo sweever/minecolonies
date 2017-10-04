@@ -2,6 +2,7 @@ package com.minecolonies.coremod.colony.buildings;
 
 import com.minecolonies.api.client.colony.IColonyView;
 import com.minecolonies.api.colony.ICitizenData;
+import com.minecolonies.api.colony.buildings.IBuildingWorker;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.entity.Citizen;
 import com.minecolonies.coremod.colony.CitizenData;
@@ -18,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * The abstract class for each worker building.
  */
-public abstract class AbstractBuildingWorker extends AbstractBuildingHut
+public abstract class AbstractBuildingWorker extends AbstractBuildingHut implements IBuildingWorker<AbstractBuilding>
 {
     /**
      * Tag used to store the worker to nbt.
@@ -28,7 +29,7 @@ public abstract class AbstractBuildingWorker extends AbstractBuildingHut
     /**
      * The citizenData of the assigned worker.
      */
-    private CitizenData worker;
+    private ICitizenData worker;
 
     /**
      * The abstract constructor of the building.
@@ -41,21 +42,8 @@ public abstract class AbstractBuildingWorker extends AbstractBuildingHut
         super(c, l);
     }
 
-    /**
-     * The abstract method which creates a job for the building.
-     *
-     * @param citizen the citizen to take the job.
-     * @return the Job.
-     */
-    @NotNull
-    public abstract AbstractJob createJob(CitizenData citizen);
-
-    /**
-     * Returns the worker of the current building.
-     *
-     * @return {@link CitizenData} of the current building
-     */
-    public CitizenData getWorker()
+    @Override
+    public ICitizenData getWorker()
     {
         return worker;
     }
@@ -65,7 +53,7 @@ public abstract class AbstractBuildingWorker extends AbstractBuildingHut
      *
      * @param citizen {@link CitizenData} of the worker
      */
-    public void setWorker(final CitizenData citizen)
+    public void setWorker(final ICitizenData citizen)
     {
         if (worker == citizen)
         {
@@ -216,7 +204,7 @@ public abstract class AbstractBuildingWorker extends AbstractBuildingHut
         if (!hasWorker() && (getBuildingLevel() > 0 || this instanceof BuildingBuilder)
               && !this.getColony().isManualHiring())
         {
-            final CitizenData joblessCitizen = getColony().getJoblessCitizen();
+            final ICitizenData joblessCitizen = getColony().getJoblessCitizen();
             if (joblessCitizen != null)
             {
                 setWorker(joblessCitizen);

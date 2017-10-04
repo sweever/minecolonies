@@ -4,6 +4,8 @@ import com.minecolonies.api.IAPI;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.IBuildingHome;
+import com.minecolonies.api.colony.buildings.IBuildingWorker;
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
@@ -60,9 +62,9 @@ public class CitizenDataView implements ICitizenData
      * Working and home position.
      */
     @Nullable
-    private IBuilding homeBuilding;
+    private IBuildingHome homeBuilding;
     @Nullable
-    private IBuilding workBuilding;
+    private IBuildingWorker workBuilding;
 
     /**
      * Set View id.
@@ -154,9 +156,15 @@ public class CitizenDataView implements ICitizenData
      * @return the work coordinates.
      */
     @Nullable
-    public IBuilding getWorkBuilding()
+    public IBuildingWorker getWorkBuilding()
     {
         return workBuilding;
+    }
+
+    @Override
+    public void setWorkBuilding(@Nullable final IBuildingWorker building)
+    {
+
     }
 
     /**
@@ -290,15 +298,33 @@ public class CitizenDataView implements ICitizenData
      */
     @Nullable
     @Override
-    public IBuilding getHomeBuilding()
+    public IBuildingHome getHomeBuilding()
     {
         return homeBuilding;
     }
 
     @Override
-    public void setHomeBuilding(@Nullable final IBuilding building)
+    public void setHomeBuilding(@Nullable final IBuildingHome building)
     {
-        //Noop
+
+    }
+
+    @Override
+    public void increaseSaturation(final double extraSaturation)
+    {
+
+    }
+
+    @Override
+    public void decreaseSaturation(final double extraSaturation)
+    {
+
+    }
+
+    @Override
+    public void resetExperienceAndLevel()
+    {
+
     }
 
     /**
@@ -337,8 +363,8 @@ public class CitizenDataView implements ICitizenData
         final IToken colonyId = StandardFactoryController.getInstance().deserialize(ByteBufUtils.readTag(buf));
         colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(colonyId);
 
-        homeBuilding = buf.readBoolean() ? colony.getBuilding(BlockPosUtil.readFromByteBuf(buf)) : null;
-        workBuilding = buf.readBoolean() ? colony.getBuilding(BlockPosUtil.readFromByteBuf(buf)) : null;
+        homeBuilding = buf.readBoolean() ? (IBuildingHome) colony.getBuilding(BlockPosUtil.readFromByteBuf(buf)) : null;
+        workBuilding = buf.readBoolean() ? (IBuildingWorker) colony.getBuilding(BlockPosUtil.readFromByteBuf(buf)) : null;
 
         //  Attributes
         level = buf.readInt();

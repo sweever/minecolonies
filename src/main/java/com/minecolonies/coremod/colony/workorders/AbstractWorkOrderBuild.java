@@ -15,6 +15,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Represents one building order to complete.
  * Has his own structure for the building.
@@ -278,7 +281,8 @@ public class AbstractWorkOrderBuild extends AbstractWorkOrder implements IWorkOr
         boolean sendMessage = true;
         boolean hasBuilder = false;
 
-        for (@NotNull final ICitizenData citizen : colony.getCitizens().values())
+        Collection<ICitizenData> citizens = colony.getCitizens().values();
+        for (@NotNull final ICitizenData citizen : citizens)
         {
             final JobBuilder job = (JobBuilder) citizen.getJob();
 

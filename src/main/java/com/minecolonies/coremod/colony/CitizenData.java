@@ -730,9 +730,7 @@ public class CitizenData implements ICitizenData
         this.saturation = Math.max(MIN_SATURATION, this.saturation - Math.abs(extraSaturation));
     }
 
-    /**
-     * Resets the experience and the experience level of the citizen.
-     */
+    @Override
     public void resetExperienceAndLevel()
     {
         this.level = 0;

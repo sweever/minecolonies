@@ -5,9 +5,7 @@ import com.minecolonies.api.configuration.Configurations;
 import com.minecolonies.api.entity.ai.util.AIState;
 import com.minecolonies.api.entity.ai.util.AITarget;
 import com.minecolonies.api.reference.ModBlocks;
-import com.minecolonies.api.util.BlockPosUtil;
-import com.minecolonies.api.util.BlockUtils;
-import com.minecolonies.api.util.Log;
+import com.minecolonies.api.util.*;
 import com.minecolonies.coremod.colony.jobs.AbstractJobStructure;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import com.minecolonies.coremod.entity.ai.util.Structure;
@@ -296,12 +294,12 @@ public abstract class AbstractEntityAIStructure<J extends IJob> extends Abstract
             final Object result = handlers.handle(world, coords, blockState, this);
             if (result instanceof IPlacementHandler.ActionProcessingResult)
             {
-                if (result == ActionProcessingResult.ACCEPT)
+                if (result == IPlacementHandler.ActionProcessingResult.ACCEPT)
                 {
                     return true;
                 }
 
-                if (result == ActionProcessingResult.DENY)
+                if (result == IPlacementHandler.ActionProcessingResult.DENY)
                 {
                     return false;
                 }

@@ -1165,12 +1165,6 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         this.isMirrored = !isMirrored;
     }
 
-    @Override
-    public boolean neededForWorker(@Nullable final ItemStack stack)
-    {
-        return false;
-    }
-
     /**
      * The AbstractBuilding View is the client-side representation of a AbstractBuilding.
      * Views contain the AbstractBuilding's data that is relevant to a Client, in a more client-friendly form.
@@ -1406,12 +1400,6 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         public boolean hasWorkOrder()
         {
             return workOrderLevel != NO_WORK_ORDER;
-        }
-
-        @Override
-        public boolean neededForWorker(@Nullable final ItemStack stack)
-        {
-            return false;
         }
 
         @Override

@@ -3,6 +3,7 @@ package com.minecolonies.coremod.colony;
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.minecolonies.api.client.colony.IColonyView;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.IWorkManager;
@@ -51,7 +52,7 @@ import java.util.*;
 /**
  * Client side representation of the Colony.
  */
-public final class ColonyView implements IColony<AbstractBuilding.View>
+public final class ColonyView implements IColonyView<AbstractBuilding.View>
 {
     //  General Attributes
     private final IToken id;
@@ -1001,5 +1002,11 @@ public final class ColonyView implements IColony<AbstractBuilding.View>
     public ImmutableCollection<IColonyEventHandler> getCombinedHandlers()
     {
         return null;
+    }
+
+    @Override
+    public void openGui()
+    {
+
     }
 }

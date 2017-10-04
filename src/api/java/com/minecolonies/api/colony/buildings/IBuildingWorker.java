@@ -9,8 +9,16 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Interface describing buildings that can be worked in.
  */
-public interface IBuildingWorker<B extends IBuildingWorker> extends IBuilding<B>
+public interface IBuildingWorker<B extends IBuilding> extends IBuilding<B>
 {
+
+    /**
+     * Returns the worker of the current building.
+     *
+     * @return {@link ICitizenData} of the current building
+     */
+    ICitizenData getWorker();
+
     /**
      * Override this method if you want to keep some items in inventory.
      * When the inventory is full, everything get's dumped into the building chest.
