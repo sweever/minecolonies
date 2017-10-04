@@ -2,7 +2,8 @@ package com.minecolonies.coremod.colony;
 
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.IBuildingHome;
+import com.minecolonies.api.colony.buildings.IBuildingWorker;
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.configuration.Configurations;
@@ -11,7 +12,6 @@ import com.minecolonies.api.entity.ai.basic.AbstractAISkeleton;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
-import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import io.netty.buffer.ByteBuf;
@@ -83,13 +83,13 @@ public class CitizenData implements ICitizenData
      * The home building of the citizen.
      */
     @Nullable
-    private IBuilding homeBuilding;
+    private IBuildingHome homeBuilding;
 
     /**
      * The work building of the citizen.
      */
     @Nullable
-    private AbstractBuildingWorker workBuilding;
+    private IBuildingWorker workBuilding;
 
     /**
      * The job of the citizen.
@@ -307,17 +307,13 @@ public class CitizenData implements ICitizenData
 
     @Override
     @Nullable
-    public IBuilding getWorkBuilding()
+    public IBuildingWorker getWorkBuilding()
     {
         return workBuilding;
     }
 
-    /**
-     * Sets the work building of a citizen.
-     *
-     * @param building work building.
-     */
-    public void setWorkBuilding(@Nullable final AbstractBuildingWorker building)
+    @Override
+    public void setWorkBuilding(@Nullable final IBuildingWorker building)
     {
         if (workBuilding != null && building != null && workBuilding != building)
         {
@@ -604,13 +600,13 @@ public class CitizenData implements ICitizenData
 
     @Override
     @Nullable
-    public IBuilding getHomeBuilding()
+    public IBuildingHome getHomeBuilding()
     {
         return homeBuilding;
     }
 
     @Override
-    public void setHomeBuilding(@Nullable final IBuilding building)
+    public void setHomeBuilding(@Nullable final IBuildingHome building)
     {
         if (homeBuilding != null && building != null && homeBuilding != building)
         {
@@ -722,21 +718,13 @@ public class CitizenData implements ICitizenData
         ByteBufUtils.writeTag(buf, compound);
     }
 
-    /**
-     * Getter for the saturation.
-     *
-     * @param extraSaturation the extra saturation
-     */
+    @Override
     public void increaseSaturation(final double extraSaturation)
     {
         this.saturation = Math.min(MAX_SATURATION, this.saturation + Math.abs(extraSaturation));
     }
 
-    /**
-     * Getter for the saturation.
-     *
-     * @param extraSaturation the saturation to remove.
-     */
+    @Override
     public void decreaseSaturation(final double extraSaturation)
     {
         this.saturation = Math.max(MIN_SATURATION, this.saturation - Math.abs(extraSaturation));

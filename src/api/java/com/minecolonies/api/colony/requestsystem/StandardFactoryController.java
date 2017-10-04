@@ -3,7 +3,9 @@ package com.minecolonies.api.colony.requestsystem;
 import com.minecolonies.api.colony.requestsystem.factory.IFactory;
 import com.minecolonies.api.colony.requestsystem.factory.IFactoryController;
 import com.minecolonies.api.util.Log;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -159,6 +161,18 @@ public class StandardFactoryController implements IFactoryController
 
         IFactory<?, Output> factory = getFactoryForOutput(className);
         return factory.deserialize(this, compound.getCompoundTag(NBT_DATA));
+    }
+
+    @Override
+    public <Output> void writeToBuffer(@NotNull final ByteBuf buffer, @NotNull final Output object) throws IllegalArgumentException
+    {
+        ByteBufUtils.writeTag(buffer, serialize(object));
+    }
+
+    @Override
+    public <Output> Output readFromBuffer(@NotNull final ByteBuf buffer) throws IllegalArgumentException
+    {
+        return deserialize(ByteBufUtils.readTag(buffer));
     }
 
     /**

@@ -165,7 +165,7 @@ public class ItemSupplyCampDeployer extends AbstractItemMinecolonies
      */
     private static boolean isInsideAColony(final World world, final BlockPos pos)
     {
-        return IAPI.Holder.getApi().getColonyManager().getControllerForWorld(world).isCoordinateInAnyColony(pos);
+        return IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).isCoordinateInAnyColony(pos);
     }
 
     private boolean checkAndPlaceSupplyCamp(final World world, @NotNull final BlockPos pos, @NotNull final EnumFacing direction)

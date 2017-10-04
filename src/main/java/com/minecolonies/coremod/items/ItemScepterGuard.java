@@ -88,7 +88,7 @@ public class ItemScepterGuard extends AbstractItemMinecolonies
     @NotNull
     private static EnumActionResult handleItemUsage(final World worldIn, final BlockPos pos, final NBTTagCompound compound, final EntityPlayer playerIn)
     {
-        final IColony colony = IAPI.Holder.getApi().getColonyManager().getControllerForWorld(worldIn).getClosestColony(pos);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(worldIn).getClosestColony(pos);
 
         if (colony == null)
         {

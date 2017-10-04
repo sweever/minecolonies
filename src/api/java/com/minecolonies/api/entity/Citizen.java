@@ -3,7 +3,7 @@ package com.minecolonies.api.entity;
 import com.minecolonies.api.client.render.Model;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.IBuildingWorker;
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.inventory.InventoryCitizen;
 import net.minecraft.block.Block;
@@ -52,7 +52,7 @@ public abstract class Citizen extends EntityAgeable implements ICommandSender, I
      * @return the building or null if none present.
      */
     @Nullable
-    public abstract IBuilding getWorkBuilding();
+    public abstract IBuildingWorker getWorkBuilding();
 
     public abstract CitizenStatus getStatus();
 

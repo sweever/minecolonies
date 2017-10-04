@@ -266,6 +266,12 @@ public class CitizenDataView implements ICitizenData
     }
 
     @Override
+    public void markDirty()
+    {
+        //Noop
+    }
+
+    @Override
     public boolean isDirty()
     {
         return false;

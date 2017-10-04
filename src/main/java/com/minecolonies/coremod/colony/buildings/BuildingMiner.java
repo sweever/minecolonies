@@ -1,5 +1,6 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.minecolonies.api.client.colony.IColonyView;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.api.util.BlockPosUtil;
@@ -8,7 +9,6 @@ import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.client.gui.WindowHutMiner;
 import com.minecolonies.coremod.colony.CitizenData;
 import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.ColonyView;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.colony.jobs.JobMiner;
 import com.minecolonies.coremod.entity.ai.citizen.miner.Level;
@@ -668,7 +668,7 @@ public class BuildingMiner extends AbstractBuildingWorker
          * @param c the colony.
          * @param l the position.
          */
-        protected View(final ColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
+        protected View(final IColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
         {
             super(c, l, id);
         }

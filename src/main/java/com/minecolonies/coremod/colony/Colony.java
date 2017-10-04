@@ -1118,7 +1118,7 @@ public class Colony implements IColony<AbstractBuilding>
                 }
             }
 
-            final BuildingHome home = citizen.getHomeBuilding();
+            final IBuilding home = citizen.getHomeBuilding();
             if (home != null)
             {
                 housing += home.getBuildingLevel();
@@ -1319,7 +1319,7 @@ public class Colony implements IColony<AbstractBuilding>
     {
         if (data.getCitizen() == null)
         {
-            Log.getLogger().warn(String.format("Citizen #%d:%d has gone AWOL, respawning them!", this.getID(), data.getId()));
+            Log.getLogger().warn(String.format("Citizen #%s:%s has gone AWOL, respawning them!", this.getID(), data.getId()));
             spawnCitizen(data);
         }
     }
@@ -1415,7 +1415,7 @@ public class Colony implements IColony<AbstractBuilding>
             addBuilding(building);
             tileEntity.setBuilding(building);
 
-            Log.getLogger().info(String.format("Colony %d - new AbstractBuilding for %s at %s",
+            Log.getLogger().info(String.format("Colony %s - new AbstractBuilding for %s at %s",
               getID(),
               tileEntity.getBlockType().getClass(),
               tileEntity.getPosition()));
@@ -1431,7 +1431,7 @@ public class Colony implements IColony<AbstractBuilding>
         }
         else
         {
-            Log.getLogger().error(String.format("Colony %d unable to create AbstractBuilding for %s at %s",
+            Log.getLogger().error(String.format("Colony %s unable to create AbstractBuilding for %s at %s",
               getID(),
               tileEntity.getBlockType().getClass(),
               tileEntity.getPosition()));

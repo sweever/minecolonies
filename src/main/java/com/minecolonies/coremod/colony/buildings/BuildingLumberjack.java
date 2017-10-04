@@ -1,11 +1,13 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.minecolonies.api.client.colony.IColonyView;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
+import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.api.util.Utils;
 import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.client.gui.WindowHutWorkerPlaceholder;
 import com.minecolonies.coremod.colony.CitizenData;
 import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.ColonyView;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.colony.jobs.JobLumberjack;
 import com.minecolonies.coremod.entity.ai.item.handling.ItemStorage;
@@ -161,9 +163,9 @@ public class BuildingLumberjack extends AbstractBuildingWorker
          * @param c the colony.
          * @param l the position.
          */
-        public View(final ColonyView c, final BlockPos l)
+        public View(final IColonyView c, final BlockPos l, @NotNull final IToken id)
         {
-            super(c, l);
+            super(c, l, id);
         }
 
         /**

@@ -1,11 +1,11 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.minecolonies.api.client.colony.IColonyView;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.client.gui.WindowTownHall;
 import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.ColonyView;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
@@ -74,7 +74,7 @@ public class BuildingTownHall extends AbstractBuildingHut
          * @param c the colonyView.
          * @param l the location of the block.
          */
-        public View(final ColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
+        public View(final IColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
         {
             super(c, l, id);
         }

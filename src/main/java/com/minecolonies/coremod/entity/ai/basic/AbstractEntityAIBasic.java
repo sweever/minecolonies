@@ -2,6 +2,7 @@ package com.minecolonies.coremod.entity.ai.basic;
 
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.IBuildingWorker;
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.colony.requestsystem.RequestState;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
@@ -18,6 +19,7 @@ import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
 import com.minecolonies.coremod.colony.jobs.JobDeliveryman;
 import com.minecolonies.coremod.entity.ai.item.handling.ItemStorage;
 import com.minecolonies.coremod.entity.pathfinding.WalkToProxy;
+import com.minecolonies.coremod.util.EntityUtils;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -167,7 +169,7 @@ public abstract class AbstractEntityAIBasic<J extends IJob> extends AbstractAISk
      * @return the building associated with this AI's worker.
      */
     @Nullable
-    protected IBuilding getOwnBuilding()
+    protected IBuildingWorker getOwnBuilding()
     {
         return worker.getWorkBuilding();
     }
@@ -439,7 +441,8 @@ public abstract class AbstractEntityAIBasic<J extends IJob> extends AbstractAISk
                 return true;
             }
 
-            for (final BlockPos pos : building.getAdditionalContainers())
+            List<BlockPos> containerPositions = building.getAdditionalContainers();
+            for (final BlockPos pos : containerPositions)
             {
                 final TileEntity entity = world.getTileEntity(pos);
                 if (entity instanceof TileEntityChest)
@@ -637,7 +640,8 @@ public abstract class AbstractEntityAIBasic<J extends IJob> extends AbstractAISk
                 return true;
             }
 
-            for (final BlockPos pos : building.getAdditionalContainers())
+            List<BlockPos> containerPositions = building.getAdditionalContainers();
+            for (final BlockPos pos : containerPositions)
             {
                 final TileEntity entity = world.getTileEntity(pos);
                 if (entity instanceof TileEntityChest)
@@ -937,7 +941,7 @@ public abstract class AbstractEntityAIBasic<J extends IJob> extends AbstractAISk
      */
     private boolean isInventoryAndChestFull()
     {
-        @Nullable final AbstractBuildingWorker buildingWorker = getOwnBuilding();
+        @Nullable final IBuilding buildingWorker = getOwnBuilding();
         return InventoryUtils.isProviderFull(worker)
                  && (buildingWorker != null
                        && InventoryUtils.isProviderFull(buildingWorker.getTileEntity()));

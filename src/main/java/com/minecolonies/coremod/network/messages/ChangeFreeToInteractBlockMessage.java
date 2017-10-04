@@ -1,16 +1,19 @@
 package com.minecolonies.coremod.network.messages;
 
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.IAPI;
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.permissions.Action;
+import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.LanguageHandler;
-import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.ColonyView;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +27,11 @@ public class ChangeFreeToInteractBlockMessage extends AbstractMessage<ChangeFree
     /**
      * The id of the colony.
      */
-    private int colonyId;
+    private IToken colonyId;
+    /**
+     * The id of the dimension the colony is in.
+     */
+    private int dimensionId;
     /**
      * The position of the free to interact block.
      */
@@ -53,10 +60,11 @@ public class ChangeFreeToInteractBlockMessage extends AbstractMessage<ChangeFree
      * @param block  the blockState.
      * @param type   the type of message.
      */
-    public ChangeFreeToInteractBlockMessage(@NotNull final ColonyView colony, @NotNull final Block block, @NotNull final MessageType type)
+    public ChangeFreeToInteractBlockMessage(@NotNull final IColony colony, @NotNull final Block block, @NotNull final MessageType type)
     {
         super();
         this.colonyId = colony.getID();
+        this.dimensionId = colony.getDimension();
         this.pos = new BlockPos(0, 0, 0);
         this.block = block;
         this.type = type;
@@ -70,10 +78,11 @@ public class ChangeFreeToInteractBlockMessage extends AbstractMessage<ChangeFree
      * @param pos    the position.
      * @param type   the type of message.
      */
-    public ChangeFreeToInteractBlockMessage(@NotNull final ColonyView colony, @NotNull final BlockPos pos, @NotNull final MessageType type)
+    public ChangeFreeToInteractBlockMessage(@NotNull final IColony colony, @NotNull final BlockPos pos, @NotNull final MessageType type)
     {
         super();
         this.colonyId = colony.getID();
+        this.dimensionId = colony.getDimension();
         this.pos = pos;
         this.block = Blocks.DIRT;
         this.type = type;
@@ -83,7 +92,8 @@ public class ChangeFreeToInteractBlockMessage extends AbstractMessage<ChangeFree
     @Override
     public void fromBytes(@NotNull final ByteBuf buf)
     {
-        colonyId = buf.readInt();
+        colonyId = StandardFactoryController.getInstance().deserialize(ByteBufUtils.readTag(buf));
+        dimensionId = buf.readInt();
         block = Block.getBlockFromName(ByteBufUtils.readUTF8String(buf));
         pos = BlockPosUtil.readFromByteBuf(buf);
         type = MessageType.values()[buf.readInt()];
@@ -93,7 +103,8 @@ public class ChangeFreeToInteractBlockMessage extends AbstractMessage<ChangeFree
     @Override
     public void toBytes(@NotNull final ByteBuf buf)
     {
-        buf.writeInt(colonyId);
+        ByteBufUtils.writeTag(buf, StandardFactoryController.getInstance().serialize(colonyId));
+        buf.writeInt(dimensionId);
         ByteBufUtils.writeUTF8String(buf, block.getRegistryName().toString());
         BlockPosUtil.writeToByteBuf(buf, pos);
         buf.writeInt(type.ordinal());
@@ -103,7 +114,8 @@ public class ChangeFreeToInteractBlockMessage extends AbstractMessage<ChangeFree
     @Override
     public void messageOnServerThread(final ChangeFreeToInteractBlockMessage message, final EntityPlayerMP player)
     {
-        final Colony colony = ColonyManager.getColony(message.colonyId);
+        final World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimensionId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(message.colonyId);
         if (colony != null)
         {
             //Verify player has permission to change this huts settings

@@ -1,11 +1,11 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.minecolonies.api.client.colony.IColonyView;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.client.gui.WindowHutWorkerPlaceholder;
 import com.minecolonies.coremod.colony.CitizenData;
 import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.ColonyView;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.colony.jobs.JobDeliveryman;
 import io.netty.buffer.ByteBuf;
@@ -116,7 +116,7 @@ public class BuildingDeliveryman extends AbstractBuildingWorker
          * @param c the colonyview to put it in
          * @param l the positon
          */
-        protected View(final ColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
+        protected View(final IColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
         {
             super(c, l, id);
         }

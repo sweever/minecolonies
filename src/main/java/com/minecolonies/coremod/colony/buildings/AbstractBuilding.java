@@ -3,6 +3,7 @@ package com.minecolonies.coremod.colony.buildings;
 import com.google.common.collect.ImmutableList;
 import com.minecolonies.api.IAPI;
 import com.minecolonies.api.client.colony.IBuildingView;
+import com.minecolonies.api.client.colony.IColonyView;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
@@ -766,7 +767,7 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
      */
     @Override
     @NotNull
-    public Colony getColony()
+    public IColony<AbstractBuilding> getColony()
     {
         return colony;
     }
@@ -1163,6 +1164,13 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
     {
         this.isMirrored = !isMirrored;
     }
+
+    @Override
+    public boolean neededForWorker(@Nullable final ItemStack stack)
+    {
+        return false;
+    }
+
     /**
      * The AbstractBuilding View is the client-side representation of a AbstractBuilding.
      * Views contain the AbstractBuilding's data that is relevant to a Client, in a more client-friendly form.
@@ -1186,7 +1194,7 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
          * @param c ColonyView the building is in.
          * @param l The location of the building.
          */
-        protected View(final IColony<View> c, @NotNull final BlockPos l, @NotNull final IToken id)
+        protected View(final IColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
         {
             colony = c;
             location = new StaticLocation(l, c.getDimension());
@@ -1390,10 +1398,6 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
             throw new IllegalStateException("Requests cannot be marked as accepted on the client side");
         }
 
-
-
-
-
         /**
          * Get the current work order level.
          *
@@ -1402,6 +1406,12 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         public boolean hasWorkOrder()
         {
             return workOrderLevel != NO_WORK_ORDER;
+        }
+
+        @Override
+        public boolean neededForWorker(@Nullable final ItemStack stack)
+        {
+            return false;
         }
 
         @Override

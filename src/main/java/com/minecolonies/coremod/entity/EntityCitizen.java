@@ -1,9 +1,13 @@
 package com.minecolonies.coremod.entity;
 
+import com.minecolonies.api.IAPI;
+import com.minecolonies.api.client.colony.IColonyView;
 import com.minecolonies.api.client.render.Model;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.IBuildingHome;
+import com.minecolonies.api.colony.buildings.IBuildingWorker;
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.colony.permissions.Player;
@@ -465,7 +469,7 @@ public class EntityCitizen extends Citizen
      */
     @Override
     @Nullable
-    public IBuilding getWorkBuilding()
+    public IBuildingWorker getWorkBuilding()
     {
         return (citizenData == null) ? null : citizenData.getWorkBuilding();
     }
@@ -593,7 +597,7 @@ public class EntityCitizen extends Citizen
     @Override
     public void addExperience(final double xp)
     {
-        final BuildingHome home = getHomeBuilding();
+        final IBuildingHome home = getHomeBuilding();
         final double citizenHutLevel = home == null ? 0 : home.getBuildingLevel();
         final double citizenHutMaxLevel = home == null ? 1 : home.getMaxBuildingLevel();
         if (citizenHutLevel < citizenHutMaxLevel
@@ -881,7 +885,7 @@ public class EntityCitizen extends Citizen
     @Override
     public BlockPos getHomePosition()
     {
-        @Nullable final BuildingHome homeBuilding = getHomeBuilding();
+        @Nullable final IBuildingHome homeBuilding = getHomeBuilding();
         if (homeBuilding != null)
         {
             return homeBuilding.getLocation().getInDimensionLocation();
@@ -894,7 +898,7 @@ public class EntityCitizen extends Citizen
         return null;
     }
 
-    private BuildingHome getHomeBuilding()
+    private IBuildingHome getHomeBuilding()
     {
         return (citizenData == null) ? null : citizenData.getHomeBuilding();
     }
@@ -943,7 +947,7 @@ public class EntityCitizen extends Citizen
             if (isDay && citizenData != null)
             {
                 isDay = false;
-                final AbstractBuildingWorker buildingWorker = getWorkBuilding();
+                final IBuildingWorker buildingWorker = getWorkBuilding();
                 final double decreaseBy = buildingWorker == null || buildingWorker.getBuildingLevel() == 0 ? 0.1
                                             : (SATURATION_DECREASE_FACTOR * Math.pow(2, buildingWorker.getBuildingLevel() - 1.0));
                 citizenData.decreaseSaturation(decreaseBy);
@@ -1537,7 +1541,8 @@ public class EntityCitizen extends Citizen
     @Override
     public boolean processInteract(final EntityPlayer player, final EnumHand hand)
     {
-        final ColonyView colonyView = ColonyManager.getColonyView(colonyId);
+
+        final IColony colonyView = IAPI.Holder.getApi()..getColonyView(colonyId);
         if (colonyView != null && !colonyView.getPermissions().hasPermission(player, Action.ACCESS_HUTS))
         {
             return false;

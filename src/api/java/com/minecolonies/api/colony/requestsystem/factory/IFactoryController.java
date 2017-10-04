@@ -2,6 +2,7 @@ package com.minecolonies.api.colony.requestsystem.factory;
 
 import net.minecraft.nbt.NBTTagCompound;
 import org.jetbrains.annotations.NotNull;
+import io.netty.buffer.ByteBuf;
 
 /**
  * Interface used to describe classes that function as Factory controllers.
@@ -117,6 +118,24 @@ public interface IFactoryController
     <Output> Output deserialize(@NotNull NBTTagCompound compound) throws IllegalArgumentException;
 
     /**
+     * Method used to quickly write an object into the given {@link ByteBuf}.
+     * @param buffer The buffer to write into.
+     * @param object The object to write.
+     * @param <Output> The type of the object to write.
+     * @throws IllegalArgumentException is thrown when the given output type is unknown to this controller.
+     */
+    <Output extends Object> void writeToBuffer(@NotNull final ByteBuf buffer, @NotNull final Output object) throws IllegalArgumentException;
+
+    /**
+     * Method used to quickly read an object from a given {@link ByteBuf}
+     * @param buffer The buffer to read from.
+     * @param <Output> The type to read.
+     * @return An instance of the given output type, with its stored data from the buffer.
+     * @throws IllegalArgumentException is thrown when the requested type is unknown to this controller.
+     */
+    <Output>Output readFromBuffer(@NotNull final ByteBuf buffer) throws IllegalArgumentException;
+
+    /**
      * Method used to create a new instance of the given input.
      *
      * @param input    The input to process.
@@ -129,4 +148,5 @@ public interface IFactoryController
      * @throws ClassCastException       thrown when a Factory is known for the given input, but does not produce the given output.
      */
     <Input, Output> Output getNewInstance(@NotNull Input input, @NotNull Object... context) throws IllegalArgumentException, ClassCastException;
+
 }

@@ -1,5 +1,6 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.minecolonies.api.client.colony.IColonyView;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.reference.ModAchievements;
@@ -7,7 +8,6 @@ import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.client.gui.WindowHomeBuilding;
 import com.minecolonies.coremod.colony.CitizenData;
 import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.ColonyView;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -248,7 +248,7 @@ public class BuildingHome extends AbstractBuildingHut
          * @param c the colonyView.
          * @param l the position the hut is at.
          */
-        public View(final ColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
+        public View(final IColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
         {
             super(c, l, id);
         }

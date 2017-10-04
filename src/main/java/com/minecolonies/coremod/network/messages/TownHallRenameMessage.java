@@ -1,14 +1,16 @@
 package com.minecolonies.coremod.network.messages;
 
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.IAPI;
+import com.minecolonies.api.client.colony.IColonyView;
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.coremod.MineColonies;
-import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.ColonyView;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +23,7 @@ public class TownHallRenameMessage extends AbstractMessage<TownHallRenameMessage
     private static final int MAX_NAME_LENGTH  = 25;
     private static final int SUBSTRING_LENGTH = MAX_NAME_LENGTH - 1;
     private IToken colonyId;
+    private int dimensionId;
     private String name;
 
     /**
@@ -37,31 +40,33 @@ public class TownHallRenameMessage extends AbstractMessage<TownHallRenameMessage
      * @param colony Colony the rename is going to occur in.
      * @param name   New name of the town hall.
      */
-    public TownHallRenameMessage(@NotNull final ColonyView colony, final String name)
+    public TownHallRenameMessage(@NotNull final IColonyView colony, final String name)
     {
         super();
         this.colonyId = colony.getID();
+        this.dimensionId = colony.getDimension();
         this.name = (name.length() <= MAX_NAME_LENGTH) ? name : name.substring(0, SUBSTRING_LENGTH);
     }
 
     @Override
     public void fromBytes(@NotNull final ByteBuf buf)
     {
-        colonyId = StandardFactoryController.getInstance().deserialize(ByteBufUtils.readTag(buf));
+        colonyId = StandardFactoryController.getInstance().readFromBuffer(buf);
         name = ByteBufUtils.readUTF8String(buf);
     }
 
     @Override
     public void toBytes(@NotNull final ByteBuf buf)
     {
-        buf.writeInt(colonyId);
+        StandardFactoryController.getInstance().writeToBuffer(buf, colonyId);
         ByteBufUtils.writeUTF8String(buf, name);
     }
 
     @Override
     public void messageOnServerThread(final TownHallRenameMessage message, final EntityPlayerMP player)
     {
-        final Colony colony = ColonyManager.getColony(message.colonyId);
+        final World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimensionId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(message.colonyId);
         if (colony != null)
         {
             //Verify player has permission to change this huts settings

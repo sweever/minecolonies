@@ -298,9 +298,9 @@ public class ItemSupplyChestDeployer extends AbstractItemMinecolonies
      */
     private static boolean notInAnyColony(final World world, final BlockPos pos1, final BlockPos pos2, final BlockPos pos3)
     {
-        return !IAPI.Holder.getApi().getColonyManager().getControllerForWorld(world).isCoordinateInAnyColony(pos1)
-                && !IAPI.Holder.getApi().getColonyManager().getControllerForWorld(world).isCoordinateInAnyColony(pos2)
-                && !IAPI.Holder.getApi().getColonyManager().getControllerForWorld(world).isCoordinateInAnyColony(pos3);
+        return !IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).isCoordinateInAnyColony(pos1)
+                && !IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).isCoordinateInAnyColony(pos2)
+                && !IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).isCoordinateInAnyColony(pos3);
     }
 
     @NotNull

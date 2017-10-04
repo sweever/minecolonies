@@ -1,6 +1,8 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.minecolonies.api.entity.Citizen;
 import com.minecolonies.api.inventory.InventoryCitizen;
+import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.Utils;
 import com.minecolonies.coremod.colony.CitizenData;
@@ -8,7 +10,6 @@ import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.buildings.utils.BuildingBuilderResource;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.colony.jobs.JobBuilder;
-import com.minecolonies.coremod.entity.EntityCitizen;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -227,7 +228,7 @@ public class BuildingBuilder extends AbstractBuildingWorker
      */
     private void updateAvailableResources()
     {
-        final EntityCitizen builder = getWorkerEntity();
+        final Citizen builder = getWorkerEntity();
 
         InventoryCitizen builderInventory = null;
         if (builder != null)

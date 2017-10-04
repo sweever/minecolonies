@@ -1,6 +1,7 @@
 package com.minecolonies.api.colony;
 
-import com.minecolonies.api.colony.buildings.IBuilding;
+import com.minecolonies.api.colony.buildings.IBuildingHome;
+import com.minecolonies.api.colony.buildings.IBuildingWorker;
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.entity.Citizen;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +78,14 @@ public interface ICitizenData
      * @return home building of a citizen.
      */
     @Nullable
-    IBuilding getWorkBuilding();
+    IBuildingWorker getWorkBuilding();
+
+    /**
+     * Sets the work building of a citizen.
+     *
+     * @param building work building.
+     */
+    void setWorkBuilding(@Nullable IBuildingWorker building);
 
     /**
      * Returns the job of the citizen.
@@ -184,12 +192,26 @@ public interface ICitizenData
      * @return home building.
      */
     @Nullable
-    IBuilding getHomeBuilding();
+    IBuildingHome getHomeBuilding();
 
     /**
      * Sets the home of the citizen.
      *
      * @param building home building.
      */
-    void setHomeBuilding(@Nullable IBuilding building);
+    void setHomeBuilding(@Nullable IBuildingHome building);
+
+    /**
+     * Getter for the saturation.
+     *
+     * @param extraSaturation the extra saturation
+     */
+    void increaseSaturation(double extraSaturation);
+
+    /**
+     * Getter for the saturation.
+     *
+     * @param extraSaturation the saturation to remove.
+     */
+    void decreaseSaturation(double extraSaturation);
 }

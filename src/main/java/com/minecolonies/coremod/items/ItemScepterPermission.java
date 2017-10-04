@@ -125,7 +125,7 @@ public class ItemScepterPermission extends AbstractItemMinecolonies
         }
         final NBTTagCompound compound = scepter.getTagCompound();
 
-        final IColony iColony =         IAPI.Holder.getApi().getColonyManager().getControllerForWorld(worldIn).getClosestColony(pos);
+        final IColony iColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(worldIn).getClosestColony(pos);
         if (iColony == null)
         {
             return EnumActionResult.FAIL;

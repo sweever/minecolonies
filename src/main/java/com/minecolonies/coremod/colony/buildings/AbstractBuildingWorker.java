@@ -1,11 +1,11 @@
 package com.minecolonies.coremod.colony.buildings;
 
+import com.minecolonies.api.client.colony.IColonyView;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.entity.Citizen;
 import com.minecolonies.coremod.colony.CitizenData;
 import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.ColonyView;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.item.ItemStack;
@@ -99,14 +99,7 @@ public abstract class AbstractBuildingWorker extends AbstractBuildingHut
         markDirty();
     }
 
-    /**
-     * Override this method if you want to keep some items in inventory.
-     * When the inventory is full, everything get's dumped into the building chest.
-     * But you can use this method to hold some stacks back.
-     *
-     * @param stack the stack to decide on
-     * @return true if the stack should remain in inventory
-     */
+    @Override
     public boolean neededForWorker(@Nullable final ItemStack stack)
     {
         return false;
@@ -265,7 +258,7 @@ public abstract class AbstractBuildingWorker extends AbstractBuildingHut
          * @param c the colony.
          * @param l the location.
          */
-        public View(final ColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
+        public View(final IColonyView c, @NotNull final BlockPos l, @NotNull final IToken id)
         {
             super(c, l, id);
         }
