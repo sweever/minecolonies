@@ -1,6 +1,6 @@
 package com.minecolonies.coremod.proxy;
 
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.IAPI;
 import com.minecolonies.api.lib.Constants;
 import com.minecolonies.api.reference.ModBlocks;
 import com.minecolonies.api.reference.ModItems;
@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.UUID;
 
 /**
  * Client side proxy.
@@ -144,9 +145,10 @@ public class ClientProxy extends CommonProxy
     {
         if (FMLCommonHandler.instance().getMinecraftServerInstance() == null)
         {
-            if (ColonyManager.getServerUUID() != null)
+            final UUID uuid = IAPI.Holder.getApi().getServerColonyManager().getServerUUID();
+            if (uuid != null)
             {
-                return new File(Minecraft.getMinecraft().mcDataDir, Constants.MOD_ID + "/" + ColonyManager.getServerUUID());
+                return new File(Minecraft.getMinecraft().mcDataDir, Constants.MOD_ID + "/" + uuid);
             }
             else
             {

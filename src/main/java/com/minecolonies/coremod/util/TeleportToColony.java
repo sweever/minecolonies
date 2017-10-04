@@ -1,8 +1,10 @@
 package com.minecolonies.coremod.util;
 
+import com.minecolonies.api.IAPI;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.configuration.Configurations;
 import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.commands.MinecoloniesCommand;
@@ -12,6 +14,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.UUID;
 
 /**
  * Helper class for teleporting players to home or a friendly colony.
@@ -46,7 +50,7 @@ public final class TeleportToColony
     {
         final EntityPlayer playerToTeleport;
         final IColony colony;
-        final int colonyId;
+        final IToken colonyId;
         //see if sent by a player and grab their name and Get the players Colony ID that sent the command
         if (sender instanceof EntityPlayer)
         {
@@ -54,7 +58,7 @@ public final class TeleportToColony
             if (args.length == 0)
             {
                 playerToTeleport = (EntityPlayer) sender;
-                colony = ColonyManager.getColonyByOwner(((EntityPlayer) sender).world, (EntityPlayer) sender);
+                colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(server.getEntityWorld()).getColonyByOwner((EntityPlayer) sender);
                 colonyId = colony.getID();
             }
             else
@@ -62,7 +66,7 @@ public final class TeleportToColony
                 //if there is args then this will be to a friends colony TP and we use the Colony ID they specify
                 //will need to see if they friendly to destination colony
                 playerToTeleport = (EntityPlayer) sender;
-                colonyId = Integer.valueOf(args[0]);
+                colonyId = StandardFactoryController.getInstance().getNewInstance(UUID.randomUUID(), args[0]);
             }
         }
         else
@@ -85,9 +89,9 @@ public final class TeleportToColony
      * @param colID            the senders colony ID.
      * @param playerToTeleport the player which shall be teleported.
      */
-    private static void teleportPlayer(final EntityPlayer playerToTeleport, final int colID, final ICommandSender sender)
+    private static void teleportPlayer(final EntityPlayer playerToTeleport, final IToken colID, final ICommandSender sender)
     {
-        final Colony colony = ColonyManager.getColony(colID);
+        final IColony colony =  IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(playerToTeleport.getEntityWorld()).getColony(colID);
         final IBuilding townHall = colony.getTownHall();
 
         if (townHall == null)
@@ -100,7 +104,7 @@ public final class TeleportToColony
 
         final BlockPos position = townHall.getLocation().getInDimensionLocation();
 
-        if (colID >= 1)
+        if (colID != null)
         {
             playerToTeleport.setPositionAndUpdate(position.getX(), position.getY() + 2.0, position.getZ());
         }

@@ -1,6 +1,6 @@
 package com.minecolonies.coremod.event;
 
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.IAPI;
 import com.minecolonies.coremod.MineColonies;
 import com.minecolonies.coremod.network.messages.ColonyStylesMessage;
 import com.minecolonies.coremod.network.messages.ServerUUIDMessage;
@@ -24,7 +24,7 @@ public class FMLEventHandler
     @SubscribeEvent
     public void onServerTick(final TickEvent.ServerTickEvent event)
     {
-        ColonyManager.onServerTick(event);
+        IAPI.Holder.getApi().getServerColonyManager().onServerTick(event);
     }
 
     /**
@@ -36,7 +36,7 @@ public class FMLEventHandler
     @SubscribeEvent
     public void onClientTick(final TickEvent.ClientTickEvent event)
     {
-        ColonyManager.onClientTick(event);
+        IAPI.Holder.getApi().getServerColonyManager().onClientTick(event);
     }
 
     /**
@@ -48,7 +48,7 @@ public class FMLEventHandler
     @SubscribeEvent
     public void onWorldTick(final TickEvent.WorldTickEvent event)
     {
-        ColonyManager.onWorldTick(event);
+        IAPI.Holder.getApi().getServerColonyManager().onWorldTick(event);
     }
 
     /**
@@ -64,7 +64,7 @@ public class FMLEventHandler
         {
             MineColonies.getNetwork().sendTo(new ServerUUIDMessage(), (EntityPlayerMP) event.player);
             MineColonies.getNetwork().sendTo(new ColonyStylesMessage(), (EntityPlayerMP) event.player);
-            ColonyManager.syncAllColoniesAchievements();
+            IAPI.Holder.getApi().getServerColonyManager().syncAllColoniesAchievements();
         }
     }
 }

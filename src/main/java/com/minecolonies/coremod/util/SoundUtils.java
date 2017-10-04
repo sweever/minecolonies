@@ -1,6 +1,6 @@
 package com.minecolonies.coremod.util;
 
-import com.minecolonies.coremod.entity.EntityCitizen;
+import com.minecolonies.api.entity.Citizen;
 import com.minecolonies.coremod.sounds.CitizenSounds;
 import com.minecolonies.coremod.sounds.FishermanSounds;
 import net.minecraft.util.SoundCategory;
@@ -59,7 +59,7 @@ public final class SoundUtils
      * @param worldIn the world to play the sound in.
      * @param citizen the citizen to play the sound for.
      */
-    public static void playRandomSound(@NotNull final World worldIn, @NotNull final EntityCitizen citizen)
+    public static void playRandomSound(@NotNull final World worldIn, @NotNull final Citizen citizen)
     {
         if (1 >= rand.nextInt(CHANCE_TO_PLAY_SOUND))
         {
@@ -67,7 +67,7 @@ public final class SoundUtils
 
             if (citizen.getWorkBuilding() != null)
             {
-                prefix = citizen.getWorkBuilding().getJobName();
+                prefix = citizen.getColonyJob().getName();
             }
 
             switch (prefix)

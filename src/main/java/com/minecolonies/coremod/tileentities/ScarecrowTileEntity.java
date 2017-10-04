@@ -1,10 +1,10 @@
 package com.minecolonies.coremod.tileentities;
 
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.IAPI;
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.entity.ai.citizen.farmer.ScareCrowType;
 import com.minecolonies.api.lib.Constants;
 import com.minecolonies.api.util.LanguageHandler;
-import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.inventory.InventoryField;
 import com.minecolonies.coremod.util.EntityUtils;
 import net.minecraft.entity.Entity;
@@ -153,7 +153,7 @@ public class ScarecrowTileEntity extends TileEntityChest implements com.minecolo
         super.onLoad();
         final World world = getWorld();
 
-        @Nullable final Colony colony = ColonyManager.getColony(world, pos);
+        @Nullable final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(pos);
         if (colony != null && colony.getField(pos) == null)
         {
             @Nullable final Entity entity = EntityUtils.getEntityFromUUID(world, colony.getPermissions().getOwner());
