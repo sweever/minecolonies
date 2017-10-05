@@ -123,9 +123,23 @@ public class StandardSidelessWorldColonyController<B extends IBuilding, C extend
     @Override
     public C createColony(@NotNull final BlockPos pos, @NotNull final EntityPlayer player)
     {
-        C newColony = StandardFactoryController.getInstance().getNewInstance(world, pos, player);
+        IToken colonyId = StandardFactoryController.getInstance().getNewInstance(UUID.randomUUID());
+        C newColony = StandardFactoryController.getInstance().getNewInstance(world, colonyId, pos, player);
 
-        colonyMap.put(newColony.getID(), newColony);
+        colonyMap.put(colonyId, newColony);
+        markDirty();
+
+        return newColony;
+    }
+
+    @NotNull
+    @Override
+    public C createColony(@NotNull final IToken id)
+    {
+        IToken colonyId = StandardFactoryController.getInstance().getNewInstance(UUID.randomUUID());
+        C newColony = StandardFactoryController.getInstance().getNewInstance(world, colonyId);
+
+        colonyMap.put(colonyId, newColony);
         markDirty();
 
         return newColony;

@@ -1,6 +1,7 @@
 package com.minecolonies.coremod.colony.buildings;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.minecolonies.api.IAPI;
 import com.minecolonies.api.client.colony.IBuildingView;
 import com.minecolonies.api.client.colony.IColonyView;
@@ -21,7 +22,7 @@ import com.minecolonies.coremod.colony.requestsystem.locations.StaticLocation;
 import com.minecolonies.coremod.colony.workorders.AbstractWorkOrderBuild;
 import com.minecolonies.coremod.entity.ai.citizen.builder.ConstructionTapeHelper;
 import com.minecolonies.coremod.entity.ai.citizen.deliveryman.EntityAIWorkDeliveryman;
-import com.minecolonies.coremod.entity.ai.item.handling.ItemStorage;
+import com.minecolonies.api.entity.ai.item.handling.ItemStorage;
 import com.minecolonies.structures.Structures;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -182,7 +183,7 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
     /**
      * The tileEntity of the building.
      */
-    private       TileEntityColonyBuilding tileEntity;
+    private TileEntityColonyBuilding tileEntity;
 
     /**
      * The level of the building.
@@ -700,10 +701,7 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         dirty = false;
     }
 
-    /**
-     * Destroys the block.
-     * Calls {@link #onDestroyed()}.
-     */
+    @Override
     public final void destroy()
     {
         onDestroyed();
@@ -781,9 +779,8 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
     {
         // Can be overridden by other buildings.
     }
-    /**
-     * Requests an upgrade for the current building.
-     */
+
+    @Override
     public void requestUpgrade()
     {
         if (buildingLevel < getMaxBuildingLevel())
@@ -818,10 +815,8 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         markDirty();
     }
 
-/**
-     * Requests a repair for the current building.
-     */
-    public void requestRepair()
+@Override
+public void requestRepair()
     {
         if (buildingLevel > 0)
         {
@@ -829,11 +824,7 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         }
     }
 
-    /**
-     * Remove the work order for the building.
-     * <p>
-     * Remove either the upgrade or repair work order
-     */
+    @Override
     public void removeWorkOrder()
     {
         for (@NotNull final AbstractWorkOrderBuild o : colony.getWorkManager().getWorkOrdersOfType(AbstractWorkOrderBuild.class))
@@ -847,49 +838,37 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         }
     }
 
-    /**
-     * Returns the rotation of the current building.
-     *
-     * @return integer value of the rotation.
-     */
+    @Override
     public int getRotation()
     {
         return rotation;
     }
-/**
-     * Sets the rotation of the current building.
-     *
-     * @param rotation integer value of the rotation.
-     */
+
+    @Override
     public void setRotation(final int rotation)
-    {
-        this.rotation = rotation;
-    }/**
+        {
+            this.rotation = rotation;
+        }
+
+    /**
      * Children must return their max building level.
      *
      * @return Max building level.
      */
     public abstract int getMaxBuildingLevel();
 
-/**
-     * Returns the style of the current building.
-     *
-     * @return String representation of the current building-style
-     */
+    @Override
     public String getStyle()
-    {
-        return style;
-    }
+        {
+            return style;
+        }
 
-    /**
-     * Sets the style of the building.
-     *
-     * @param style String value of the style.
-     */
+    @Override
     public void setStyle(final String style)
     {
         this.style = style;
     }
+
     /**
      * Serializes to view.
      * Sends 3 integers.
@@ -940,13 +919,7 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         colony.markBuildingsDirty();
     }
 
-        /**
-     * Override this method if you want to keep an amount of items in inventory.
-     * When the inventory is full, everything get's dumped into the building chest.
-     * But you can use this method to hold some stacks back.
-     *
-     * @return a list of objects which should be kept.
-     */
+    @Override
     public Map<ItemStorage, Integer> getRequiredItemsAndAmount()
     {
         return Collections.emptyMap();
@@ -1147,19 +1120,13 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         // Does nothing here
     }
 
-/**
-     * Returns the mirror of the current building.
-     *
-     * @return boolean value of the mirror.
-     */
-    public boolean isMirrored()
+@Override
+public boolean isMirrored()
     {
         return isMirrored;
     }
 
-    /**
-     * Sets the mirror of the current building.
-     */
+    @Override
     public void setMirror()
     {
         this.isMirrored = !isMirrored;
@@ -1204,7 +1171,8 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         {
             return buildingLevel >= buildingMaxLevel;
         }
-/**
+
+        /**
          * Get the current work order level.
          *
          * @return 0 if none, othewise the current level worked on
@@ -1212,7 +1180,9 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         public int getCurrentWorkOrderLevel()
         {
             return workOrderLevel;
-        }/**
+        }
+
+        /**
          * Gets the id for this building.
          *
          * @return A BlockPos because the building ID is its location.
@@ -1233,10 +1203,23 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         {
             return workOrderLevel != NO_WORK_ORDER && workOrderLevel == buildingLevel;
         }
+
         @Override
         public void onUpgradeComplete(final int newLevel)
         {
             //Noop
+        }
+
+        @Override
+        public boolean isMirrored()
+        {
+            return false;
+        }
+
+        @Override
+        public void setMirror()
+        {
+
         }
 
         @Nullable
@@ -1273,8 +1256,14 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
             //NOOP: On the client side this should never be called.
         }
 
-                @Override
-        public TileEntity getTileEntity()
+        @Override
+        public void destroy()
+        {
+
+        }
+
+        @Override
+        public TileEntityColonyBuilding getTileEntity()
         {
             return null;
         }
@@ -1299,6 +1288,12 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         public void markDirty()
         {
 
+        }
+
+        @Override
+        public Map<ItemStorage, Integer> getRequiredItemsAndAmount()
+        {
+            return ImmutableMap.of();
         }
 
         /**
@@ -1403,7 +1398,37 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         }
 
         @Override
+        public void requestUpgrade()
+        {
+
+        }
+
+        @Override
         public void removeCitizen(final ICitizenData citizen)
+        {
+
+        }
+
+        @Override
+        public void requestRepair()
+        {
+
+        }
+
+        @Override
+        public void removeWorkOrder()
+        {
+
+        }
+
+        @Override
+        public int getRotation()
+        {
+            return 0;
+        }
+
+        @Override
+        public void setRotation(final int rotation)
         {
 
         }
@@ -1417,6 +1442,18 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         public int getMaxBuildingLevel()
         {
             return buildingMaxLevel;
+        }
+
+        @Override
+        public String getStyle()
+        {
+            return null;
+        }
+
+        @Override
+        public void setStyle(final String style)
+        {
+
         }
 
         @Override

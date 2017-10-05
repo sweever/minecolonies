@@ -2,6 +2,7 @@ package com.minecolonies.coremod;
 
 import com.minecolonies.api.configuration.Configurations;
 import com.minecolonies.api.lib.Constants;
+import com.minecolonies.api.reference.ModAchievements;
 import com.minecolonies.coremod.commands.CommandEntryPoint;
 import com.minecolonies.coremod.configuration.ConfigurationHandler;
 import com.minecolonies.coremod.network.messages.*;

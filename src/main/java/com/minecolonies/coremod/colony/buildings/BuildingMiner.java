@@ -12,7 +12,7 @@ import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.colony.jobs.JobMiner;
 import com.minecolonies.coremod.entity.ai.citizen.miner.Level;
-import com.minecolonies.coremod.entity.ai.item.handling.ItemStorage;
+import com.minecolonies.api.entity.ai.item.handling.ItemStorage;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSlab;

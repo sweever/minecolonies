@@ -1,14 +1,16 @@
 package com.minecolonies.coremod.network.messages;
 
-import com.minecolonies.api.colony.management.ColonyManager;
-import com.minecolonies.api.colony.requestsystem.factory.IFactoryController;
+import com.minecolonies.api.IAPI;
+import com.minecolonies.api.client.colony.IColonyView;
+import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.BlockPosUtil;
+import com.minecolonies.coremod.MineColonies;
 import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
@@ -21,8 +23,8 @@ import org.jetbrains.annotations.Nullable;
 public class ColonyViewBuildingViewMessage implements IMessage, IMessageHandler<ColonyViewBuildingViewMessage, IMessage>
 {
 
-    private transient IFactoryController factoryController;
-    private           int                colonyId;
+    private           IToken                colonyId;
+    private int dimensionId;
     private           IToken             buildingId;
     private           BlockPos           buildingLocation;
     private           ByteBuf            buildingData;
@@ -42,8 +44,8 @@ public class ColonyViewBuildingViewMessage implements IMessage, IMessageHandler<
      */
     public ColonyViewBuildingViewMessage(@NotNull final AbstractBuilding building)
     {
-        this.factoryController = building.getColony().getFactoryController();
         this.colonyId = building.getColony().getID();
+        this.dimensionId = building.getColony().getDimension();
         this.buildingId = building.getID();
         this.buildingLocation = building.getLocation().getInDimensionLocation();
         this.buildingData = Unpooled.buffer();
@@ -53,10 +55,9 @@ public class ColonyViewBuildingViewMessage implements IMessage, IMessageHandler<
     @Override
     public void fromBytes(@NotNull final ByteBuf buf)
     {
-        colonyId = buf.readInt();
-        factoryController = ColonyManager.getColonyView(colonyId).getFactoryController();
-
-        buildingId = factoryController.deserialize(ByteBufUtils.readTag(buf));
+        colonyId = StandardFactoryController.getInstance().readFromBuffer(buf);
+        dimensionId = buf.readInt();
+        buildingId = StandardFactoryController.getInstance().readFromBuffer(buf);
         buildingLocation = BlockPosUtil.readFromByteBuf(buf);
         buildingData = Unpooled.buffer(buf.readableBytes());
         buf.readBytes(buildingData, buf.readableBytes());
@@ -65,8 +66,9 @@ public class ColonyViewBuildingViewMessage implements IMessage, IMessageHandler<
     @Override
     public void toBytes(@NotNull final ByteBuf buf)
     {
-        buf.writeInt(colonyId);
-        ByteBufUtils.writeTag(buf, factoryController.serialize(buildingId));
+        StandardFactoryController.getInstance().writeToBuffer(buf, colonyId);
+        buf.writeInt(dimensionId);
+        StandardFactoryController.getInstance().writeToBuffer(buf, buildingId);
         BlockPosUtil.writeToByteBuf(buf, buildingLocation);
         buf.writeBytes(buildingData);
     }
@@ -75,6 +77,20 @@ public class ColonyViewBuildingViewMessage implements IMessage, IMessageHandler<
     @Override
     public IMessage onMessage(@NotNull final ColonyViewBuildingViewMessage message, final MessageContext ctx)
     {
-        return ColonyManager.handleColonyBuildingViewMessage(message.colonyId, message.buildingLocation, message.buildingId, message.buildingData);
+        //Check if we are in the same dimension. Updates of a Colony that is not in our dimension are useless anyway.
+        //Safety meassure since we should not be subscribed to these colonies anyway.
+        if (FMLClientHandler.instance().getWorldClient().provider.getDimension() != dimensionId)
+            return null;
+
+        final IColonyView view = IAPI.Holder.getApi().getClientColonyManager().getControllerForWorld(FMLClientHandler.instance().getWorldClient()).getColony(colonyId);
+        if (view != null)
+        {
+            return view.handleColonyBuildingViewMessage(buildingLocation, buildingId, message.buildingData);
+        }
+        else
+        {
+            MineColonies.getLogger().error(String.format("Colony view does not exist for ID #%s", colonyId));
+            return null;
+        }
     }
 }

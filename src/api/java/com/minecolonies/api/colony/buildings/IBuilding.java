@@ -7,12 +7,14 @@ import com.minecolonies.api.colony.handlers.IColonyEventHandler;
 import com.minecolonies.api.colony.requestsystem.request.IRequest;
 import com.minecolonies.api.colony.requestsystem.requester.IRequester;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
+import com.minecolonies.api.entity.ai.item.handling.ItemStorage;
 import com.minecolonies.api.tileentities.TileEntityColonyBuilding;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * A building in a colony. Can request objects in the request system and process events that happen in the world.
@@ -21,11 +23,16 @@ public interface IBuilding<B extends IBuilding> extends IRequester, IColonyEvent
 {
 
     /**
+     * Destroys the building.
+     */
+    void destroy();
+
+    /**
      * Returns the tile entity that belongs to the colony building.
      *
      * @return {@link TileEntity} object of the building.
      */
-    TileEntity getTileEntity();
+    <T extends TileEntityColonyBuilding> T getTileEntity();
 
     /**
      * Sets the tile entity for the building.
@@ -48,11 +55,25 @@ public interface IBuilding<B extends IBuilding> extends IRequester, IColonyEvent
     void markDirty();
 
     /**
+     * Override this method if you want to keep an amount of items in inventory.
+     * When the inventory is full, everything get's dumped into the building chest.
+     * But you can use this method to hold some stacks back.
+     *
+     * @return a list of objects which should be kept.
+     */
+    Map<ItemStorage, Integer> getRequiredItemsAndAmount();
+
+    /**
      * Checks if this building have a work order.
      *
      * @return true if the building is building, upgrading or repairing.
      */
     boolean hasWorkOrder();
+
+    /**
+     * Requests an upgrade for the current building.
+     */
+    void requestUpgrade();
 
     /**
      * Method to remove a citizen.
@@ -62,11 +83,51 @@ public interface IBuilding<B extends IBuilding> extends IRequester, IColonyEvent
     void removeCitizen(ICitizenData citizen);
 
     /**
+         * Requests a repair for the current building.
+         */
+    void requestRepair();
+
+    /**
+     * Remove the work order for the building.
+     * <p>
+     * Remove either the upgrade or repair work order
+     */
+    void removeWorkOrder();
+
+    /**
+     * Returns the rotation of the current building.
+     *
+     * @return integer value of the rotation.
+     */
+    int getRotation();
+
+    /**
+         * Sets the rotation of the current building.
+         *
+         * @param rotation integer value of the rotation.
+         */
+    void setRotation(int rotation);
+
+    /**
      * Children must return their max building level.
      *
      * @return Max building level.
      */
     int getMaxBuildingLevel();
+
+    /**
+         * Returns the style of the current building.
+         *
+         * @return String representation of the current building-style
+         */
+    String getStyle();
+
+    /**
+     * Sets the style of the building.
+     *
+     * @param style String value of the style.
+     */
+    void setStyle(String style);
 
     /**
      * Returns the {@link BlockPos} of the current object, also used as ID.
@@ -81,6 +142,18 @@ public interface IBuilding<B extends IBuilding> extends IRequester, IColonyEvent
      * @param newLevel The new level.
      */
     void onUpgradeComplete(int newLevel);
+
+    /**
+         * Returns the mirror of the current building.
+         *
+         * @return boolean value of the mirror.
+         */
+    boolean isMirrored();
+
+    /**
+     * Sets the mirror of the current building.
+     */
+    void setMirror();
 
     /**
      * Returns the level of the current object.

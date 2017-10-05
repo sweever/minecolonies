@@ -12,7 +12,7 @@ import com.minecolonies.coremod.colony.buildings.*;
 import com.minecolonies.coremod.colony.jobs.JobDeliveryman;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import com.minecolonies.coremod.entity.ai.basic.AbstractEntityAIInteract;
-import com.minecolonies.coremod.entity.ai.item.handling.ItemStorage;
+import com.minecolonies.api.entity.ai.item.handling.ItemStorage;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;

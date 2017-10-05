@@ -44,7 +44,14 @@ public interface IColonyEventHandler
     /**
      * Called when a World is unloaded by MC.
      *
-     * @param event The event that indicates a world is being unloaded-
+     * @param event The event that indicates a world is being unloaded.
      */
     default void onWorldUnload(@NotNull WorldEvent.Unload event) { /*NOOP*/ }
+
+    /**
+     * Called when a World is saved by MC.
+     *
+     * @param event The event that indicates a world is being saved.
+     */
+    default void onWorldSave(@NotNull WorldEvent.Save event) { /*NOOP*/}
 }

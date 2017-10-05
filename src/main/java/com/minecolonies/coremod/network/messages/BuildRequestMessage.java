@@ -1,13 +1,16 @@
 package com.minecolonies.coremod.network.messages;
 
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.IAPI;
+import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.permissions.Action;
-import com.minecolonies.api.util.BlockPosUtil;
-import com.minecolonies.coremod.colony.Colony;
+import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,11 +33,15 @@ public class BuildRequestMessage extends AbstractMessage<BuildRequestMessage, IM
     /**
      * The id of the building.
      */
-    private BlockPos buildingId;
+    private IToken buildingId;
     /**
      * The id of the colony.
      */
-    private int      colonyId;
+    private IToken   colonyId;
+    /**
+     * The id of the Dimension the build should take place in.
+     */
+    private int dimensionId;
     /**
      * The mode id.
      */
@@ -58,6 +65,7 @@ public class BuildRequestMessage extends AbstractMessage<BuildRequestMessage, IM
     {
         super();
         this.colonyId = building.getColony().getID();
+        this.dimensionId = building.getColony().getDimension();
         this.buildingId = building.getID();
         this.mode = mode;
     }
@@ -65,29 +73,33 @@ public class BuildRequestMessage extends AbstractMessage<BuildRequestMessage, IM
     @Override
     public void fromBytes(@NotNull final ByteBuf buf)
     {
-        colonyId = buf.readInt();
-        buildingId = BlockPosUtil.readFromByteBuf(buf);
+        colonyId = StandardFactoryController.getInstance().readFromBuffer(buf);
+        dimensionId = buf.readInt();
+        buildingId = StandardFactoryController.getInstance().readFromBuffer(buf);
         mode = buf.readInt();
     }
 
     @Override
     public void toBytes(@NotNull final ByteBuf buf)
     {
-        buf.writeInt(colonyId);
-        BlockPosUtil.writeToByteBuf(buf, buildingId);
+        StandardFactoryController.getInstance().writeToBuffer(buf, colonyId);
+        buf.writeInt(dimensionId);
+        StandardFactoryController.getInstance().writeToBuffer(buf, buildingId);
         buf.writeInt(mode);
     }
 
     @Override
     public void messageOnServerThread(final BuildRequestMessage message, final EntityPlayerMP player)
     {
-        final Colony colony = ColonyManager.getColony(message.colonyId);
+        final World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(dimensionId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(colonyId);
+
         if (colony == null)
         {
             return;
         }
 
-        final AbstractBuilding building = colony.getBuilding(message.buildingId);
+        final IBuilding building = colony.getBuilding(message.buildingId);
         if (building == null)
         {
             return;

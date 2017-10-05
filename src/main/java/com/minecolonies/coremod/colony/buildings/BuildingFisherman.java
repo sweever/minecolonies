@@ -8,7 +8,7 @@ import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.ColonyView;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.colony.jobs.JobFisherman;
-import com.minecolonies.coremod.entity.ai.item.handling.ItemStorage;
+import com.minecolonies.api.entity.ai.item.handling.ItemStorage;
 import net.minecraft.init.Items;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;

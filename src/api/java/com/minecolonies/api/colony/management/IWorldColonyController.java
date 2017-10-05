@@ -39,6 +39,14 @@ public interface IWorldColonyController<B extends IBuilding, C extends IColony<B
     C createColony(@NotNull BlockPos pos, @NotNull EntityPlayer player);
 
     /**
+     * Creates a new Colony from its ID without assigning any other specific data.
+     * @param id The id to generate a colony for.
+     * @return The newly generated colony with that id.
+     */
+    @NotNull
+    C createColony(@NotNull IToken id);
+
+    /**
      * Specify that colonies should be saved.
      */
     void markDirty();

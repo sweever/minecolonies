@@ -241,13 +241,7 @@ public final class ColonyView implements IColonyView<AbstractBuilding.View>
         return Collections.unmodifiableCollection(workOrders.values());
     }
 
-    /**
-     * Populate a ColonyView from the network data.
-     *
-     * @param buf               {@link ByteBuf} to read from.
-     * @param isNewSubscription Whether this is a new subscription of not.
-     * @return null == no response.
-     */
+    @Override
     @Nullable
     public IMessage handleColonyViewMessage(@NotNull final ByteBuf buf, final boolean isNewSubscription)
     {
@@ -296,12 +290,7 @@ public final class ColonyView implements IColonyView<AbstractBuilding.View>
         return null;
     }
 
-    /**
-     * Update permissions.
-     *
-     * @param buf buffer containing permissions.
-     * @return null == no response
-     */
+    @Override
     @Nullable
     public IMessage handlePermissionsViewMessage(@NotNull final ByteBuf buf)
     {
@@ -309,14 +298,7 @@ public final class ColonyView implements IColonyView<AbstractBuilding.View>
         return null;
     }
 
-    /**
-     * Update a ColonyView's workOrders given a network data ColonyView update
-     * packet. This uses a full-replacement - workOrders do not get updated and
-     * are instead overwritten.
-     *
-     * @param buf Network data.
-     * @return null == no response.
-     */
+    @Override
     @Nullable
     public IMessage handleColonyViewWorkOrderMessage(final ByteBuf buf)
     {
@@ -329,15 +311,7 @@ public final class ColonyView implements IColonyView<AbstractBuilding.View>
         return null;
     }
 
-    /**
-     * Update a ColonyView's citizens given a network data ColonyView update
-     * packet. This uses a full-replacement - citizens do not get updated and
-     * are instead overwritten.
-     *
-     * @param id  ID of the citizen.
-     * @param buf Network data.
-     * @return null == no response.
-     */
+    @Override
     @Nullable
     public IMessage handleColonyViewCitizensMessage(final int id, final ByteBuf buf)
     {
@@ -350,12 +324,7 @@ public final class ColonyView implements IColonyView<AbstractBuilding.View>
         return null;
     }
 
-    /**
-     * Remove a citizen from the ColonyView.
-     *
-     * @param citizen citizen ID.
-     * @return null == no response.
-     */
+    @Override
     @Nullable
     public IMessage handleColonyViewRemoveCitizenMessage(final int citizen)
     {
@@ -363,12 +332,7 @@ public final class ColonyView implements IColonyView<AbstractBuilding.View>
         return null;
     }
 
-    /**
-     * Remove a building from the ColonyView.
-     *
-     * @param buildingId location of the building.
-     * @return null == no response.
-     */
+    @Override
     @Nullable
     public IMessage handleColonyViewRemoveBuildingMessage(final BlockPos buildingId)
     {
@@ -380,12 +344,7 @@ public final class ColonyView implements IColonyView<AbstractBuilding.View>
         return null;
     }
 
-    /**
-     * Remove a workOrder from the ColonyView.
-     *
-     * @param workOrderId id of the workOrder.
-     * @return null == no response
-     */
+    @Override
     @Nullable
     public IMessage handleColonyViewRemoveWorkOrderMessage(final int workOrderId)
     {
@@ -394,15 +353,7 @@ public final class ColonyView implements IColonyView<AbstractBuilding.View>
         return null;
     }
 
-    /**
-     * Update a ColonyView's buildings given a network data ColonyView update
-     * packet. This uses a full-replacement - buildings do not get updated and
-     * are instead overwritten.
-     *
-     * @param buildingId location of the building.
-     * @param buf        buffer containing ColonyBuilding information.
-     * @return null == no response.
-     */
+    @Override
     @Nullable
     public IMessage handleColonyBuildingViewMessage(final BlockPos buildingLocation, final IToken buildingId, @NotNull final ByteBuf buf)
     {
@@ -815,6 +766,14 @@ public final class ColonyView implements IColonyView<AbstractBuilding.View>
     public AbstractBuilding.View getBuilding(final BlockPos buildingId)
     {
         return buildings.get(buildingId);
+    }
+
+    @Nullable
+    @Override
+    public AbstractBuilding.View getBuilding(final IToken buildingId)
+    {
+        //TODO: Implement properly.
+        return null;
     }
 
     /**

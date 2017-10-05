@@ -1,6 +1,8 @@
 package com.minecolonies.coremod.network.messages;
 
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.IAPI;
+import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.configuration.Configurations;
 import com.minecolonies.api.lib.Constants;
@@ -10,8 +12,6 @@ import com.minecolonies.api.util.LanguageHandler;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.coremod.blocks.AbstractBlockHut;
 import com.minecolonies.coremod.blocks.BlockHutTownHall;
-import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.colony.workorders.AbstractWorkOrderBuildDecoration;
 import com.minecolonies.coremod.event.EventHandler;
 import com.minecolonies.structures.Structures;
@@ -146,7 +146,6 @@ public class BuildToolPlaceMessage extends AbstractMessage<BuildToolPlaceMessage
      * @param world         World the hut is being placed into.
      * @param player        Who placed the hut.
      * @param sn            The name of the structure.
-     * @param workOrderName The name of the work order.
      * @param rotation      The number of times the structure should be rotated.
      * @param buildPos      The location the hut is being placed.
      * @param mirror        Whether or not the strcture is mirrored.
@@ -158,7 +157,7 @@ public class BuildToolPlaceMessage extends AbstractMessage<BuildToolPlaceMessage
     {
         final String hut = sn.getSection();
         final Block block = Block.getBlockFromName(Constants.MOD_ID + ":blockHut" + hut);
-        final Colony tempColony = ColonyManager.getClosestColony(world, buildPos);
+        final IColony tempColony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getClosestColony(buildPos);
         if (tempColony != null
               && (!tempColony.getPermissions().hasPermission(player, Action.MANAGE_HUTS)
                     && !(block instanceof BlockHutTownHall
@@ -201,7 +200,7 @@ public class BuildToolPlaceMessage extends AbstractMessage<BuildToolPlaceMessage
                                           final Structures.StructureName sn, final String workOrderName,
                                           final int rotation, @NotNull final BlockPos buildPos, final boolean mirror)
     {
-        @Nullable final Colony colony = ColonyManager.getColony(world, buildPos);
+        @Nullable final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(buildPos);
         if (colony != null && colony.getPermissions().hasPermission(player, Action.PLACE_HUTS))
         {
             colony.getWorkManager().addWorkOrder(new AbstractWorkOrderBuildDecoration(sn.toString(), workOrderName, rotation, buildPos, mirror));
@@ -218,7 +217,6 @@ public class BuildToolPlaceMessage extends AbstractMessage<BuildToolPlaceMessage
      * @param world         World the hut is being placed into.
      * @param player        Who placed the hut.
      * @param sn            The name of the structure.
-     * @param workOrderName The name of the work order.
      * @param rotation      The number of times the structure should be rotated.
      * @param buildPos      The location the hut is being placed.
      * @param mirror        Whether or not the strcture is mirrored.
@@ -228,7 +226,7 @@ public class BuildToolPlaceMessage extends AbstractMessage<BuildToolPlaceMessage
                                        final Structures.StructureName sn,
                                        final int rotation, @NotNull final BlockPos buildPos, final boolean mirror)
     {
-        @Nullable final AbstractBuilding building = ColonyManager.getBuilding(world, buildPos);
+        @Nullable final IBuilding building = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getBuilding(buildPos);
 
         if (building == null)
         {
@@ -238,7 +236,7 @@ public class BuildToolPlaceMessage extends AbstractMessage<BuildToolPlaceMessage
         {
             if (building.getTileEntity() != null)
             {
-                final Colony colony = ColonyManager.getColony(world, buildPos);
+                final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getColony(buildPos);
                 if (colony == null)
                 {
                     Log.getLogger().info("No colony for " + player.getName());

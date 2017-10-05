@@ -7,7 +7,6 @@ import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.entity.Citizen;
 import com.minecolonies.coremod.colony.CitizenData;
 import com.minecolonies.coremod.colony.Colony;
-import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -116,7 +115,7 @@ public abstract class AbstractBuildingWorker extends AbstractBuildingHut impleme
         if (compound.hasKey(TAG_WORKER))
         {
             // Bypass setWorker, which marks dirty
-            worker = (CitizenData) getColony().getCitizen(compound.getInteger(TAG_WORKER));
+            worker = getColony().getCitizen(compound.getInteger(TAG_WORKER));
             if (worker != null)
             {
                 worker.setWorkBuilding(this);

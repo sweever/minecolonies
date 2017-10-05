@@ -50,4 +50,7 @@ public interface ICombiningColonyEventHandler extends IColonyEventHandler
     {
         getCombinedHandlers().forEach(iColonyEventHandler -> iColonyEventHandler.onWorldUnload(event));
     }
+
+    @Override
+    default void onWorldSave(@NotNull WorldEvent.Save event) { getCombinedHandlers().forEach(iColonyEventHandler -> iColonyEventHandler.onWorldSave(event)); }
 }

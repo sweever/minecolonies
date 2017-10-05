@@ -11,13 +11,12 @@ import com.minecolonies.api.colony.requestsystem.requestable.Weapon;
 import com.minecolonies.api.colony.requestsystem.requestable.WeaponType;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.entity.ai.basic.AbstractAISkeleton;
+import com.minecolonies.api.entity.ai.item.handling.ItemStorage;
 import com.minecolonies.api.entity.ai.util.AIState;
 import com.minecolonies.api.entity.ai.util.AITarget;
 import com.minecolonies.api.inventory.InventoryCitizen;
 import com.minecolonies.api.util.*;
-import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
 import com.minecolonies.coremod.colony.jobs.JobDeliveryman;
-import com.minecolonies.coremod.entity.ai.item.handling.ItemStorage;
 import com.minecolonies.coremod.entity.pathfinding.WalkToProxy;
 import com.minecolonies.coremod.util.EntityUtils;
 import net.minecraft.block.Block;
@@ -981,7 +980,7 @@ public abstract class AbstractEntityAIBasic<J extends IJob> extends AbstractAISk
         final Map<ItemStorage, Integer> alreadyKept = new HashMap<>();
         final Map<ItemStorage, Integer> shouldKeep = getOwnBuilding().getRequiredItemsAndAmount();
 
-        @Nullable final IBuilding buildingWorker = getOwnBuilding();
+        @Nullable final IBuildingWorker buildingWorker = getOwnBuilding();
 
         return buildingWorker != null
                  && (walkToBuilding()
@@ -1001,7 +1000,7 @@ public abstract class AbstractEntityAIBasic<J extends IJob> extends AbstractAISk
      */
     private boolean shouldDumpItem(
                                     @NotNull final Map<ItemStorage, Integer> alreadyKept, @NotNull final Map<ItemStorage, Integer> shouldKeep,
-                                    @NotNull final AbstractBuildingWorker buildingWorker, @NotNull final ItemStack stack, final int slot)
+                                    @NotNull final IBuildingWorker buildingWorker, @NotNull final ItemStack stack, final int slot)
     {
         @Nullable final ItemStack returnStack;
         int amountToKeep = 0;

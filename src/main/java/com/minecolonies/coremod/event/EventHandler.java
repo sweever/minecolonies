@@ -4,13 +4,11 @@ import com.minecolonies.api.IAPI;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.permissions.Action;
-import com.minecolonies.api.entity.ai.citizen.builder.IBuilderUndestroyable;
 import com.minecolonies.api.util.LanguageHandler;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.api.util.MathUtils;
 import com.minecolonies.coremod.blocks.AbstractBlockHut;
 import com.minecolonies.coremod.blocks.BlockHutTownHall;
-import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSilverfish;
 import net.minecraft.client.Minecraft;
@@ -363,7 +361,6 @@ public class EventHandler
 
     /**
      * Gets called when world loads.
-     * Calls {@link ColonyManager#onWorldLoad(World)}
      *
      * @param event {@link net.minecraftforge.event.world.WorldEvent.Load}
      */
@@ -375,7 +372,6 @@ public class EventHandler
 
     /**
      * Gets called when world unloads.
-     * Calls {@link ColonyManager#onWorldUnload(World)}
      *
      * @param event {@link net.minecraftforge.event.world.WorldEvent.Unload}
      */
@@ -387,7 +383,6 @@ public class EventHandler
 
     /**
      * Gets called when world saves.
-     * Calls {@link ColonyManager#onWorldSave(World)}
      *
      * @param event {@link net.minecraftforge.event.world.WorldEvent.Save}
      */

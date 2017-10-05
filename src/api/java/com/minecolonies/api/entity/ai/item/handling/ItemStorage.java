@@ -1,4 +1,4 @@
-package com.minecolonies.coremod.entity.ai.item.handling;
+package com.minecolonies.api.entity.ai.item.handling;
 
 import net.minecraft.item.Item;
 import org.jetbrains.annotations.NotNull;

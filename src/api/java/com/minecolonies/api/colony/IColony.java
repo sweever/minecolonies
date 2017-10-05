@@ -374,7 +374,21 @@ public interface IColony<B extends IBuilding> extends ICombiningColonyEventHandl
     @Nullable
     Field getFreeField(String owner);
 
+    /**
+     * Method to get a building from a given position.
+     * @param pos The position to get a building from.
+     * @return The building at the given position, null if none exists their.
+     */
+    @Nullable
     B getBuilding(BlockPos pos);
+
+    /**
+     * Method to get a building from its id.
+     * @param buildingId The id of the building that is retrieved.
+     * @return The building with the given id, null if none exists with that id.
+     */
+    @Nullable
+    B getBuilding(IToken buildingId);
 
     /**
      * Get citizen by ID.
