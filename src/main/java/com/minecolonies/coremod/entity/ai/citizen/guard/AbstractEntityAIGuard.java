@@ -3,6 +3,7 @@ package com.minecolonies.coremod.entity.ai.citizen.guard;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.configuration.Configurations;
 import com.minecolonies.api.util.*;
+import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECOLONIES_COREMOD_ENTITY_GUARD_ARMOR_REQUEST;
 import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.colony.buildings.AbstractBuildingGuards;
@@ -244,10 +245,10 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
                         chest.setInventorySlotContents(i, ItemStackUtils.EMPTY);
                     }
                 }
-                if (!isInHut(ItemArmor))
-                {
-                    chatSpamFilter.talkWithoutSpam(COM_MINECOLONIES_COREMOD_ENTITY_WORKER_TOOLREQUEST);
-                } 
+                if (worker.getItemStackFromSlot(EntityEquipmentSlot.FEET)== ItemStackUtils.EMPTY);
+                   {
+                       chatSpamFilter.talkWithoutSpam(COM_MINECOLONIES_COREMOD_ENTITY_GUARD_ARMOR_REQUEST);
+                   }
                 dumpAfterActions = DUMP_BASE * workBuilding.getBuildingLevel();
             }
         }
@@ -277,11 +278,13 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
      */
     protected void updateArmor()
     {
+        
         worker.setItemStackToSlot(EntityEquipmentSlot.CHEST, ItemStackUtils.EMPTY);
         worker.setItemStackToSlot(EntityEquipmentSlot.FEET, ItemStackUtils.EMPTY);
         worker.setItemStackToSlot(EntityEquipmentSlot.HEAD, ItemStackUtils.EMPTY);
         worker.setItemStackToSlot(EntityEquipmentSlot.LEGS, ItemStackUtils.EMPTY);
-
+       
+            
         for (int i = 0; i < new InvWrapper(worker.getInventoryCitizen()).getSlots(); i++)
         {
             final ItemStack stack = worker.getInventoryCitizen().getStackInSlot(i);
@@ -296,6 +299,10 @@ public abstract class AbstractEntityAIGuard extends AbstractEntityAIInteract<Job
             {
                 worker.setItemStackToSlot(((ItemArmor) stack.getItem()).armorType, stack);
             }
+        }
+        if (worker.getItemStackFromSlot(EntityEquipmentSlot.FEET)== ItemStackUtils.EMPTY);
+        {
+            chatSpamFilter.talkWithoutSpam(COM_MINECOLONIES_COREMOD_ENTITY_GUARD_ARMOR_REQUEST);
         }
     }
 

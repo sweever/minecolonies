@@ -38,7 +38,7 @@ import static com.minecolonies.coremod.entity.ai.util.AIState.*;
 /**
  * This class provides basic ai functionality.
  *
- * @param <J> The job this ai has to fulfil
+ * @param <J> The job this ai has to fulfill
  */
 public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends AbstractAISkeleton<J>
 {
@@ -743,6 +743,9 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
         }
     }
 
+    
+    
+    
     /**
      * Check all chests in the worker hut for a required tool.
      *

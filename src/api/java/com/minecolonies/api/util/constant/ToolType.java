@@ -14,7 +14,12 @@ public enum ToolType implements IToolType
     BOW        ("bow",     false),
     FISHINGROD ("rod",     false),
     SHEARS     ("shears",  false),
-    SHIELD     ("shield",  false);
+    SHIELD     ("shield",  false),
+    HELMET     ("helmet",  true),
+    CHESTPIECE ("chestpiece", true),
+    LEGS       ("legs",    true),
+    BOOTS      ("boots",   true)
+    ;
 
     static final private Map<String,IToolType> tools = new HashMap<>();
     private final String name;
