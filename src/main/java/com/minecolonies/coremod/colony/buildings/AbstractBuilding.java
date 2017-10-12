@@ -815,8 +815,8 @@ public abstract class AbstractBuilding implements IBuilding<AbstractBuilding>
         markDirty();
     }
 
-@Override
-public void requestRepair()
+    @Override
+    public void requestRepair()
     {
         if (buildingLevel > 0)
         {
@@ -924,12 +924,15 @@ public void requestRepair()
     {
         return Collections.emptyMap();
     }
+
     /**
      * Check if the worker requires a shovel.
      *
      * @return true if so.
      */
-    public boolean needsShovel() { return requiresTool(Utils.SHOVEL); }/**
+    public boolean needsShovel() { return requiresTool(Utils.SHOVEL); }
+
+    /**
      * Checks if this building have a work order.
      *
      * @return true if the building is building, upgrading or repairing.
@@ -939,7 +942,7 @@ public void requestRepair()
         return getCurrentWorkOrderLevel() != NO_WORK_ORDER;
     }
 
-        /**
+    /**
      * Check if the worker requires a axe.
      *
      * @return true if so.
@@ -948,7 +951,8 @@ public void requestRepair()
     {
         return requiresTool(Utils.AXE);
     }
-/**
+
+    /**
      * Check if the worker requires a hoe.
      *
      * @return true if so.
@@ -956,7 +960,9 @@ public void requestRepair()
     public boolean needsHoe()
     {
         return requiresTool(Utils.HOE);
-    }/**
+    }
+
+    /**
      * Get the current level of the work order.
      *
      * @return NO_WORK_ORDER if not current work otherwise the level requested.
@@ -984,7 +990,7 @@ public void requestRepair()
         return requiresTool(Utils.PICKAXE);
     }
 
-/**
+    /**
      * Check if the worker requires a weapon.
      *
      * @return true if so.
@@ -994,7 +1000,7 @@ public void requestRepair()
         return requiresTool(Utils.WEAPON);
     }
 
-/**
+    /**
      * Check the required pickaxe level..
      *
      * @return the mining level of the pickaxe.
@@ -1050,7 +1056,7 @@ public void requestRepair()
         return firstOpenToolRequest.getRequest().getToolClass();
     }
 
-/**
+    /**
      * Try to transfer a stack to one of the inventories of the building.
      *
      * @param stack the stack to transfer.
@@ -1082,7 +1088,7 @@ public void requestRepair()
         }
     }
 
-        /**
+    /**
      * Try to transfer a stack to one of the inventories of the building and force the transfer.
      *
      * @param stack the stack to transfer.
@@ -1109,19 +1115,22 @@ public void requestRepair()
         }
         return stack;
     }
-@Nullable
+
+    @Nullable
     private ItemStack forceItemStackToProvider(@NotNull final ICapabilityProvider provider, @NotNull final ItemStack itemStack)
     {
         final List<ItemStorage> localAlreadyKept = new ArrayList<>();
         return InventoryUtils.forceItemStackToProvider(provider, itemStack, (ItemStack stack) -> EntityAIWorkDeliveryman.workerRequiresItem(this, stack, localAlreadyKept));
-    }@Override
+    }
+
+    @Override
     public void onUpgradeComplete(final int newLevel)
     {
         // Does nothing here
     }
 
-@Override
-public boolean isMirrored()
+    @Override
+    public boolean isMirrored()
     {
         return isMirrored;
     }
@@ -1132,6 +1141,25 @@ public boolean isMirrored()
         this.isMirrored = !isMirrored;
     }
 
+    @Override
+    public boolean isBuildingMaxLevel()
+    {
+        return getBuildingLevel() >= getMaxBuildingLevel();
+    }
+
+    @Override
+    public boolean isBuilding()
+    {
+        return getCurrentWorkOrderLevel() != NO_WORK_ORDER && getCurrentWorkOrderLevel() > buildingLevel;
+    }
+
+    @Override
+    public boolean isRepairing()
+    {
+        return getCurrentWorkOrderLevel() != NO_WORK_ORDER && getCurrentWorkOrderLevel() == buildingLevel;
+    }
+
+
     /**
      * The AbstractBuilding View is the client-side representation of a AbstractBuilding.
      * Views contain the AbstractBuilding's data that is relevant to a Client, in a more client-friendly form.
@@ -1139,7 +1167,7 @@ public boolean isMirrored()
      */
     public static class View implements IBuildingView<View>
     {
-        private final IColony<View>  colony;
+        private final IColonyView<View>  colony;
         @NotNull
         private final StaticLocation location;
         @NotNull
@@ -1162,11 +1190,7 @@ public boolean isMirrored()
             this.id = id;
         }
 
-        /**
-         * Checks if this building is at its max level.
-         *
-         * @return true if the building is at its max level.
-         */
+        @Override
         public boolean isBuildingMaxLevel()
         {
             return buildingLevel >= buildingMaxLevel;
@@ -1194,11 +1218,13 @@ public boolean isMirrored()
             return id;
         }
 
+        @Override
         public boolean isBuilding()
         {
             return workOrderLevel != NO_WORK_ORDER && workOrderLevel > buildingLevel;
         }
 
+        @Override
         public boolean isRepairing()
         {
             return workOrderLevel != NO_WORK_ORDER && workOrderLevel == buildingLevel;
@@ -1248,7 +1274,8 @@ public boolean isMirrored()
             buildingLevel = buf.readInt();
             buildingMaxLevel = buf.readInt();
             workOrderLevel = buf.readInt();
-        }        @NotNull
+        }
+
         @Override
         public void onRequestComplete(@NotNull final IToken token)
         {
@@ -1268,18 +1295,18 @@ public boolean isMirrored()
             return null;
         }
 
-                @Override
+        @Override
         public void setTileEntity(final TileEntityColonyBuilding te)
         {
 
         }
 
-                /**
+        /**
          * Gets the ColonyView that this building belongs to.
          *
          * @return ColonyView, client side interpretations of Colony.
          */
-        public IColony<View> getColony()
+        public IColonyView<View> getColony()
         {
             return colony;
         }
@@ -1465,7 +1492,9 @@ public boolean isMirrored()
                 window.open();
             }
         }
-    }/**
+    }
+
+    /**
      * Returns the level of the current object.
      *
      * @return Level of the current object.

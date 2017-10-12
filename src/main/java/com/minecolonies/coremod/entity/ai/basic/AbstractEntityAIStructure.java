@@ -2,12 +2,12 @@ package com.minecolonies.coremod.entity.ai.basic;
 
 import com.minecolonies.api.colony.jobs.IJob;
 import com.minecolonies.api.configuration.Configurations;
+import com.minecolonies.api.entity.Citizen;
 import com.minecolonies.api.entity.ai.util.AIState;
 import com.minecolonies.api.entity.ai.util.AITarget;
 import com.minecolonies.api.reference.ModBlocks;
 import com.minecolonies.api.util.*;
 import com.minecolonies.coremod.colony.jobs.AbstractJobStructure;
-import com.minecolonies.coremod.entity.EntityCitizen;
 import com.minecolonies.coremod.entity.ai.util.Structure;
 import com.minecolonies.coremod.placementhandlers.IPlacementHandler;
 import com.minecolonies.coremod.placementhandlers.PlacementHandlers;
@@ -351,7 +351,7 @@ public abstract class AbstractEntityAIStructure<J extends IJob> extends Abstract
               && MathHelper.floor(worker.posZ) == pos.getZ()
               && worker.getNavigator().noPath())
         {
-            worker.getNavigator().moveAwayFromXYZ(pos, RUN_AWAY_SPEED, 1.0);
+            worker.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), RUN_AWAY_SPEED);
         }
 
         @NotNull Block blockToPlace = block;
@@ -647,13 +647,13 @@ public abstract class AbstractEntityAIStructure<J extends IJob> extends Abstract
         }
         switch (currentStructure.getStage())
         {
-            case Stage.CLEAR:
+            case CLEAR:
                 return AIState.CLEAR_STEP;
-            case Stage.BUILD:
+            case BUILD:
                 return AIState.BUILDING_STEP;
-            case Stage.DECORATE:
+            case DECORATE:
                 return AIState.DECORATION_STEP;
-            case Stage.SPAWN:
+            case SPAWN:
                 return AIState.SPAWN_STEP;
             default:
                 return AIState.COMPLETE_BUILD;
@@ -700,7 +700,7 @@ public abstract class AbstractEntityAIStructure<J extends IJob> extends Abstract
      *
      * @return the EntityCitizen object.
      */
-    public EntityCitizen getWorker()
+    public Citizen getWorker()
     {
         return this.worker;
     }

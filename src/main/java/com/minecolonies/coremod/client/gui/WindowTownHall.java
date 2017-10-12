@@ -1,5 +1,6 @@
 package com.minecolonies.coremod.client.gui;
 
+import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.colony.permissions.Player;
 import com.minecolonies.api.colony.permissions.Rank;
@@ -354,17 +355,17 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
      * List of added users.
      */
     @NotNull
-    private final List<Player>          users       = new ArrayList<>();
+    private final List<Player>        users       = new ArrayList<>();
     /**
      * List of citizens.
      */
     @NotNull
-    private final List<CitizenDataView> citizens    = new ArrayList<>();
+    private final List<ICitizenData>  citizens    = new ArrayList<>();
     /**
      * Map of the pages.
      */
     @NotNull
-    private final Map<String, String>   tabsToPages = new HashMap<>();
+    private final Map<String, String> tabsToPages = new HashMap<>();
 
     /**
      * The button f the last tab -> will be filled later on.

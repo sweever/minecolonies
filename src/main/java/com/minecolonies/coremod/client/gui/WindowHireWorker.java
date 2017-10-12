@@ -1,5 +1,9 @@
 package com.minecolonies.coremod.client.gui;
 
+import com.minecolonies.api.client.colony.IBuildingView;
+import com.minecolonies.api.client.colony.IColonyView;
+import com.minecolonies.api.colony.ICitizenData;
+import com.minecolonies.api.lib.ColorConstants;
 import com.minecolonies.api.lib.Constants;
 import com.minecolonies.api.util.LanguageHandler;
 import com.minecolonies.blockout.Pane;
@@ -8,16 +12,13 @@ import com.minecolonies.blockout.controls.Label;
 import com.minecolonies.blockout.views.ScrollingList;
 import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.MineColonies;
-import com.minecolonies.coremod.colony.CitizenDataView;
-import com.minecolonies.coremod.colony.ColonyView;
-import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
 import com.minecolonies.coremod.network.messages.HireFireMessage;
-import com.minecolonies.api.lib.ColorConstants;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,15 +72,15 @@ public class WindowHireWorker extends Window implements Button.Handler
     /**
      * The view of the current building.
      */
-    private final AbstractBuilding.View building;
+    private final IBuildingView building;
     /**
      * The colony.
      */
-    private final ColonyView            colony;
+    private final IColonyView   colony;
     /**
      * Contains all the citizens.
      */
-    private List<CitizenDataView> citizens = new ArrayList<>();
+    private List<ICitizenData> citizens = new ArrayList<>();
 
     /**
      * Constructor for the window when the player wants to hire a worker for a certain job.
@@ -87,11 +88,11 @@ public class WindowHireWorker extends Window implements Button.Handler
      * @param c          the colony view.
      * @param buildingId the building position.
      */
-    public WindowHireWorker(final ColonyView c, final BlockPos buildingId)
+    public WindowHireWorker(final IColonyView c, final BlockPos buildingId)
     {
         super(Constants.MOD_ID + BUILDING_NAME_RESOURCE_SUFFIX);
         this.colony = c;
-        building = colony.getBuilding(buildingId);
+        building = (IBuildingView) colony.getBuilding(buildingId);
         updateCitizens();
     }
 
@@ -104,7 +105,8 @@ public class WindowHireWorker extends Window implements Button.Handler
         citizens.addAll(colony.getCitizens().values());
 
         //Removes all citizens which already have a job.
-        citizens = colony.getCitizens().values().stream()
+        Collection<ICitizenData> citizenData = colony.getCitizens().values();
+        citizens = citizenData.stream()
                      .filter(citizen -> citizen.getWorkBuilding() == null)
                      .collect(Collectors.toList());
     }
@@ -141,7 +143,7 @@ public class WindowHireWorker extends Window implements Button.Handler
             @Override
             public void updateElement(final int index, @NotNull final Pane rowPane)
             {
-                @NotNull final CitizenDataView citizen = citizens.get(index);
+                @NotNull final ICitizenData citizen = citizens.get(index);
 
                 if (building instanceof AbstractBuildingWorker.View)
                 {
@@ -165,7 +167,7 @@ public class WindowHireWorker extends Window implements Button.Handler
                     rowPane.findPaneOfTypeByID(CITIZEN_LABEL, Label.class).setLabelText(citizen.getName());
                     rowPane.findPaneOfTypeByID(ATTRIBUTES_LABEL, Label.class).setLabelText(attributes);
                     //Invisible id textContent.
-                    rowPane.findPaneOfTypeByID(ID_LABEL, Label.class).setLabelText(Integer.toString(citizen.getID()));
+                    rowPane.findPaneOfTypeByID(ID_LABEL, Label.class).setLabelText(Integer.toString(citizen.getId()));
                 }
             }
         });

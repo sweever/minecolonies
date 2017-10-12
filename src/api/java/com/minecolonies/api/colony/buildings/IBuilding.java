@@ -130,11 +130,22 @@ public interface IBuilding<B extends IBuilding> extends IRequester, IColonyEvent
     void setStyle(String style);
 
     /**
+     * Checks if this building is at its max level.
+     *
+     * @return true if the building is at its max level.
+     */
+    boolean isBuildingMaxLevel();
+
+    /**
      * Returns the {@link BlockPos} of the current object, also used as ID.
      *
      * @return {@link BlockPos} of the current object.
      */
     IToken getID();
+
+    boolean isBuilding();
+
+    boolean isRepairing();
 
     /**
      * Called upon completion of an upgrade process.

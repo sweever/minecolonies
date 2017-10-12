@@ -177,12 +177,7 @@ public final class ColonyView implements IColonyView<AbstractBuilding.View>
         return getBuilding(new BlockPos(x, y, z));
     }
 
-    /**
-     * Returns a map of players in the colony. Key is the UUID, value is {@link
-     * Player}
-     *
-     * @return Map of UUID's and {@link Player}
-     */
+    @Override
     @NotNull
     public Map<UUID, Player> getPlayers()
     {

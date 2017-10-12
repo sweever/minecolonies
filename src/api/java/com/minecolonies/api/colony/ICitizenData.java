@@ -13,6 +13,13 @@ import org.jetbrains.annotations.Nullable;
 public interface ICitizenData
 {
     /**
+     * Entity Id getter.
+     *
+     * @return entity id.
+     */
+    int getEntityId();
+
+    /**
      * Return the entity instance of the citizen data. Respawn the citizen if
      * needed.
      *

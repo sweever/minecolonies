@@ -1,12 +1,12 @@
 package com.minecolonies.coremod.network.messages;
 
 import com.minecolonies.api.IAPI;
+import com.minecolonies.api.client.colony.IBuildingView;
 import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
-import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
@@ -61,7 +61,7 @@ public class BuildRequestMessage extends AbstractMessage<BuildRequestMessage, IM
      * @param building AbstractBuilding of the request.
      * @param mode     Mode of the request, 1 is repair, 0 is build.
      */
-    public BuildRequestMessage(@NotNull final AbstractBuilding.View building, final int mode)
+    public BuildRequestMessage(@NotNull final IBuildingView building, final int mode)
     {
         super();
         this.colonyId = building.getColony().getID();

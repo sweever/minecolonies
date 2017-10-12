@@ -2,6 +2,7 @@ package com.minecolonies.api.client.colony;
 
 import com.minecolonies.api.client.IView;
 import com.minecolonies.api.colony.IColony;
+import com.minecolonies.api.colony.permissions.Player;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.util.math.BlockPos;
@@ -9,8 +10,20 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+import java.util.UUID;
+
 public interface IColonyView<B extends IBuildingView> extends IColony<B>, IView
 {
+    /**
+     * Returns a map of players in the colony. Key is the UUID, value is {@link
+     * Player}
+     *
+     * @return Map of UUID's and {@link Player}
+     */
+    @NotNull
+    Map<UUID, Player> getPlayers();
+
     /**
      * Populate a ColonyView from the network data.
      *
@@ -46,7 +59,7 @@ public interface IColonyView<B extends IBuildingView> extends IColony<B>, IView
      * packet. This uses a full-replacement - citizens do not get updated and
      * are instead overwritten.
      *
-     * @param id  ID of the citizen.
+     * @param citizenId  ID of the citizen.
      * @param buf Network data.
      * @return null == no response.
      */

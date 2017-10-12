@@ -196,6 +196,12 @@ public class CitizenData implements ICitizenData
     }
 
     @Override
+    public int getEntityId()
+    {
+        return entity == null ? -1 : entity.getEntityId();
+    }
+
+    @Override
     @Nullable
     public Citizen getCitizen()
     {

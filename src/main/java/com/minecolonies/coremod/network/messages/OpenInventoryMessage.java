@@ -1,21 +1,27 @@
 package com.minecolonies.coremod.network.messages;
 
-import com.minecolonies.api.colony.management.ColonyManager;
+import com.minecolonies.api.IAPI;
+import com.minecolonies.api.client.colony.IBuildingView;
+import com.minecolonies.api.colony.ICitizenData;
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.permissions.Action;
+import com.minecolonies.api.colony.requestsystem.StandardFactoryController;
+import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.coremod.MineColonies;
 import com.minecolonies.coremod.colony.CitizenDataView;
-import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.entity.EntityCitizen;
-import com.minecolonies.coremod.inventory.InventoryField;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.StringUtils;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +49,12 @@ public class OpenInventoryMessage extends AbstractMessage<OpenInventoryMessage, 
     /**
      * The colony id the field or building etc is in.
      */
-    private int           colonyId;
+    private IToken        colonyId;
+
+    /**
+     * The dimension the colony is in.
+     */
+    private int dimensionId;
 
     /**
      * Empty public constructor.
@@ -58,7 +69,7 @@ public class OpenInventoryMessage extends AbstractMessage<OpenInventoryMessage, 
      *
      * @param citizen {@link CitizenDataView}
      */
-    public OpenInventoryMessage(@NotNull final CitizenDataView citizen)
+    public OpenInventoryMessage(@NotNull final ICitizenData citizen)
     {
         super();
         inventoryType = InventoryType.INVENTORY_CITIZEN;
@@ -71,7 +82,7 @@ public class OpenInventoryMessage extends AbstractMessage<OpenInventoryMessage, 
      *
      * @param building {@link AbstractBuilding.View}
      */
-    public OpenInventoryMessage(@NotNull final AbstractBuilding.View building)
+    public OpenInventoryMessage(@NotNull final IBuildingView building)
     {
         super();
         inventoryType = InventoryType.INVENTORY_CHEST;
@@ -83,15 +94,16 @@ public class OpenInventoryMessage extends AbstractMessage<OpenInventoryMessage, 
      * Creates an open inventory message for a field.
      *
      * @param field    {@link AbstractBuilding.View}
-     * @param colonyId the colony associated with the inventory.
+     * @param colony the colony associated with the inventory.
      */
-    public OpenInventoryMessage(final BlockPos field, final int colonyId)
+    public OpenInventoryMessage(final BlockPos field, final IColony colony)
     {
         super();
         inventoryType = InventoryType.INVENTORY_FIELD;
         name = "field";
         tePos = field;
-        this.colonyId = colonyId;
+        this.colonyId = colony.getID();
+        this.dimensionId = colony.getDimension();
     }
 
     @Override
@@ -108,7 +120,8 @@ public class OpenInventoryMessage extends AbstractMessage<OpenInventoryMessage, 
                 tePos = BlockPosUtil.readFromByteBuf(buf);
                 break;
             case INVENTORY_FIELD:
-                colonyId = buf.readInt();
+                colonyId = StandardFactoryController.getInstance().readFromBuffer(buf);
+                dimensionId = buf.readInt();
                 tePos = BlockPosUtil.readFromByteBuf(buf);
         }
     }
@@ -127,7 +140,8 @@ public class OpenInventoryMessage extends AbstractMessage<OpenInventoryMessage, 
                 BlockPosUtil.writeToByteBuf(buf, tePos);
                 break;
             case INVENTORY_FIELD:
-                buf.writeInt(colonyId);
+                StandardFactoryController.getInstance().writeToBuffer(buf, colonyId);
+                buf.writeInt(dimensionId);
                 BlockPosUtil.writeToByteBuf(buf, tePos);
                 break;
         }
@@ -169,7 +183,11 @@ public class OpenInventoryMessage extends AbstractMessage<OpenInventoryMessage, 
 
     private static void doHutInventory(final OpenInventoryMessage message, final EntityPlayerMP player)
     {
-        if (checkPermissions(ColonyManager.getClosestColony(player.getEntityWorld(), message.tePos), player))
+        final World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(message.dimensionId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getClosestColony(message.tePos);
+
+
+        if (checkPermissions(colony, player))
         {
             @NotNull final TileEntityChest chest = (TileEntityChest) BlockPosUtil.getTileEntity(player.world, message.tePos);
             if (!StringUtils.isNullOrEmpty(message.name))
@@ -182,9 +200,12 @@ public class OpenInventoryMessage extends AbstractMessage<OpenInventoryMessage, 
 
     private static void doFieldInventory(final OpenInventoryMessage message, final EntityPlayerMP player)
     {
-        if (checkPermissions(ColonyManager.getClosestColony(player.getEntityWorld(), message.tePos), player))
+        final World world = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(message.dimensionId);
+        final IColony colony = IAPI.Holder.getApi().getServerColonyManager().getControllerForWorld(world).getClosestColony(message.tePos);
+
+        if (checkPermissions(colony, player))
         {
-            @NotNull final InventoryField inventoryField = ColonyManager.getColony(message.colonyId).getField(message.tePos).getInventoryField();
+            @NotNull final ItemStackHandler inventoryField = colony.getField(message.tePos).getInventoryField();
             if (!StringUtils.isNullOrEmpty(message.name))
             {
                 // inventoryField.setCustomName(message.name);
@@ -193,7 +214,7 @@ public class OpenInventoryMessage extends AbstractMessage<OpenInventoryMessage, 
         }
     }
 
-    private static boolean checkPermissions(final Colony colony, final EntityPlayerMP player)
+    private static boolean checkPermissions(final IColony colony, final EntityPlayerMP player)
     {
         //Verify player has permission to change this huts settings
         return colony.getPermissions().hasPermission(player, Action.MANAGE_HUTS);

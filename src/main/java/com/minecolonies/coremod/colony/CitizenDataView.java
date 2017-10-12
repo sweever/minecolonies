@@ -3,7 +3,6 @@ package com.minecolonies.coremod.colony;
 import com.minecolonies.api.IAPI;
 import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.IColony;
-import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.colony.buildings.IBuildingHome;
 import com.minecolonies.api.colony.buildings.IBuildingWorker;
 import com.minecolonies.api.colony.jobs.IJob;
@@ -87,11 +86,7 @@ public class CitizenDataView implements ICitizenData
         return id;
     }
 
-    /**
-     * Entity Id getter.
-     *
-     * @return entity id.
-     */
+    @Override
     public int getEntityId()
     {
         return entityId;

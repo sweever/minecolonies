@@ -1,6 +1,7 @@
 package com.minecolonies.coremod.colony.buildings;
 
 import com.minecolonies.api.client.colony.IColonyView;
+import com.minecolonies.api.colony.ICitizenData;
 import com.minecolonies.api.colony.requestsystem.token.IToken;
 import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.client.gui.WindowHutWorkerPlaceholder;
@@ -74,7 +75,7 @@ public class BuildingDeliveryman extends AbstractBuildingWorker
 
     @NotNull
     @Override
-    public AbstractJob createJob(final CitizenData citizen)
+    public AbstractJob createJob(final ICitizenData citizen)
     {
         return new JobDeliveryman(citizen);
     }

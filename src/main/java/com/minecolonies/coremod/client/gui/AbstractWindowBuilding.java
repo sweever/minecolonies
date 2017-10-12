@@ -1,11 +1,12 @@
 package com.minecolonies.coremod.client.gui;
 
+import com.minecolonies.api.client.colony.IBuildingView;
+import com.minecolonies.api.colony.buildings.IBuilding;
 import com.minecolonies.api.util.LanguageHandler;
 import com.minecolonies.blockout.controls.Button;
 import com.minecolonies.blockout.controls.Label;
 import com.minecolonies.blockout.views.SwitchView;
 import com.minecolonies.coremod.MineColonies;
-import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.colony.buildings.AbstractBuildingHut;
 import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
 import com.minecolonies.coremod.network.messages.BuildRequestMessage;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @param <B> Class extending {@link AbstractBuildingHut.View}.
  */
-public abstract class AbstractWindowBuilding<B extends AbstractBuildingHut.View> extends AbstractWindowSkeleton
+public abstract class AbstractWindowBuilding<B extends IBuildingView> extends AbstractWindowSkeleton
 {
     private static final String BUTTON_BUILD        = "build";
     private static final String BUTTON_REPAIR       = "repair";
@@ -94,7 +95,7 @@ public abstract class AbstractWindowBuilding<B extends AbstractBuildingHut.View>
         // Or that we are on the correct page
         if (switchView == null || switchView.getCurrentView().getID().equals(PAGE_ACTIONS))
         {
-            final AbstractBuilding.View buildingView = building.getColony().getBuilding(building.getLocation().getInDimensionLocation());
+            final IBuilding buildingView = building.getColony().getBuilding(building.getLocation().getInDimensionLocation());
 
             if (buttonPrevPage != null)
             {
@@ -121,7 +122,7 @@ public abstract class AbstractWindowBuilding<B extends AbstractBuildingHut.View>
     /**
      * Update the state and label for the Build button.
      */
-    private void updateButtonBuild(final AbstractBuilding.View buildingView)
+    private void updateButtonBuild(final IBuilding buildingView)
     {
         if (buttonBuild == null)
         {
@@ -160,7 +161,7 @@ public abstract class AbstractWindowBuilding<B extends AbstractBuildingHut.View>
     /**
      * Update the state and label for the Repair button.
      */
-    private void updateButtonRepair(final AbstractBuilding.View buildingView)
+    private void updateButtonRepair(final IBuilding buildingView)
     {
         if (buttonRepair == null)
         {

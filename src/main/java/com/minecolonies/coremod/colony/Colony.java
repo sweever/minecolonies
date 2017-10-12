@@ -1373,6 +1373,13 @@ public class Colony implements IColony<AbstractBuilding>
         return buildings.get(buildingId);
     }
 
+    @Nullable
+    @Override
+    public AbstractBuilding getBuilding(final IToken buildingId)
+    {
+        return buildings.values().stream().filter(b -> b.getID().equals(buildingId)).findFirst().orElse(null);
+    }
+
     @Override
     public ICitizenData getCitizen(final int citizenId)
     {
