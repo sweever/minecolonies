@@ -48,6 +48,7 @@ public abstract class AbstractJob
     private static final String MAPPING_COWBOY         = "Cowboy";
     private static final String MAPPING_SWINE_HERDER   = "SwineHerder";
     private static final String MAPPING_CHICKEN_HERDER = "ChickenHerder";
+    private static final String MAPPING_COOK        = "Cook";
 
     /**
      * The priority assigned with every main AI job.
@@ -75,12 +76,29 @@ public abstract class AbstractJob
         addMapping(MAPPING_COWBOY, JobCowboy.class);
         addMapping(MAPPING_SWINE_HERDER, JobSwineHerder.class);
         addMapping(MAPPING_CHICKEN_HERDER, JobChickenHerder.class);
+        addMapping(MAPPING_COOK, JobCook.class);
     }
 
+    /**
+     * Citizen connected with the job.
+     */
     private final CitizenData citizen;
+
+    /**
+     * Required items by the job.
+     */
     @NotNull
     private final List<ItemStack> itemsNeeded = new ArrayList<>();
+
+    /**
+     * NameTag of the job.
+     */
     private       String          nameTag     = "";
+
+    /**
+     * Check if the worker has searched for food today.
+     */
+    private boolean searchedForFoodToday;
 
     /**
      * Initialize citizen data.
@@ -354,6 +372,23 @@ public abstract class AbstractJob
     public abstract AbstractAISkeleton<? extends AbstractJob> generateAI();
 
     /**
+     * Check if the citizen already checked for food in his chest today.
+     * @return true if so.
+     */
+    public boolean hasCheckedForFoodToday()
+    {
+        return searchedForFoodToday;
+    }
+
+    /**
+     * Sets that the citizen on this day already searched for food in his chest.
+     */
+    public void setCheckedForFood()
+    {
+        searchedForFoodToday = true;
+    }
+
+    /**
      * This method can be used to display the current status.
      * That a citizen is having.
      *
@@ -413,5 +448,13 @@ public abstract class AbstractJob
      */
     public void triggerDeathAchievement(final DamageSource source, final EntityCitizen citizen)
     {
+    }
+
+    /**
+     * Executed every time the colony woke up.
+     */
+    public void onWakeUp()
+    {
+        searchedForFoodToday = false;
     }
 }

@@ -4,9 +4,12 @@ import com.minecolonies.api.entity.ai.pathfinding.IWalkToProxy;
 import com.minecolonies.api.util.*;
 import com.minecolonies.api.util.constant.IToolType;
 import com.minecolonies.api.util.constant.ToolType;
+import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
+import com.minecolonies.coremod.colony.buildings.BuildingCook;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.colony.jobs.JobDeliveryman;
+import com.minecolonies.coremod.entity.EntityCitizen;
 import com.minecolonies.coremod.entity.ai.item.handling.ItemStorage;
 import com.minecolonies.coremod.entity.ai.util.AIState;
 import com.minecolonies.coremod.entity.ai.util.AITarget;
@@ -15,6 +18,7 @@ import com.minecolonies.coremod.inventory.InventoryCitizen;
 import com.minecolonies.coremod.util.WorkerUtil;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
@@ -121,6 +125,11 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
     private boolean waitForRequest = true;
 
     /**
+     * The restaurant this AI usually goes to.
+     */
+    private BlockPos restaurant = null;
+
+    /**
      * Sets up some important skeleton stuff for every ai.
      *
      * @param job the job class
@@ -165,11 +174,16 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
                 /*
                  * Check if inventory has to be dumped.
                  */
-          new AITarget(this::inventoryNeedsDump, INVENTORY_FULL),
-          /**
-           * Reset to idle if no specific tool is needed.
-           */
-          new AITarget(() -> getState() == NEEDS_TOOL && this.getOwnBuilding().needsTool(ToolType.NONE), IDLE)
+                new AITarget(this::inventoryNeedsDump, INVENTORY_FULL),
+                /**
+                 * Reset to idle if no specific tool is needed.
+                 */
+                new AITarget(() -> getState() == NEEDS_TOOL && this.getOwnBuilding().needsTool(ToolType.NONE), IDLE),
+                /**
+                 * Called when the citizen saturation falls too low.
+                 */
+                new AITarget(() -> (worker.getCitizenData().getSaturation() <= EntityCitizen.HIGH_SATURATION
+                        && !job.hasCheckedForFoodToday()) || worker.getCitizenData().getSaturation() <= 0, this::searchForFood)
         );
     }
 
@@ -216,6 +230,51 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
             Log.getLogger().error("Caused by ai exception:");
             e.printStackTrace();
         }
+    }
+
+    private AIState searchForFood()
+    {
+        if(!job.hasCheckedForFoodToday())
+        {
+            if (walkToBuilding())
+            {
+                return IDLE;
+            }
+
+            job.setCheckedForFood();
+            if (isInHut(itemStack -> !ItemStackUtils.isEmpty(itemStack) && itemStack.getItem() instanceof ItemFood) || worker.getCitizenData().getSaturation() > 0)
+            {
+                return IDLE;
+            }
+        }
+
+        if(restaurant == null)
+        {
+            double distance = Double.MAX_VALUE;
+            BlockPos goodCook = null;
+            for(final AbstractBuilding building : worker.getColony().getBuildings().values())
+            {
+                if(building instanceof BuildingCook)
+                {
+                    final double localDistance = building.getLocation().distanceSq(getOwnBuilding().getLocation());
+                    if(localDistance < distance)
+                    {
+                        distance = localDistance;
+                        goodCook = building.getLocation();
+                    }
+                }
+            }
+
+            if(goodCook == null)
+            {
+                chatSpamFilter.requestTextComponentWithoutSpam(new TextComponentTranslation("com.minecolonies.coremod.ai.noRestaurant"));
+                return getState();
+            }
+            restaurant = goodCook;
+        }
+
+        walkToBlock(restaurant);
+        return IDLE;
     }
 
     /**
@@ -433,6 +492,44 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
         //Return true if the building is null to stall the worker
         return ownBuilding == null
                  || walkToBlock(ownBuilding.getLocation());
+    }
+
+    /**
+     * Check all chests in the worker hut for a required item.
+     *
+     * @param itemStackSelectionPredicate is the type of item requested (amount is ignored)
+     * @return true if a stack of that type was found
+     */
+    public boolean isInHut(@NotNull final Predicate<ItemStack> itemStackSelectionPredicate)
+    {
+        @Nullable final AbstractBuildingWorker building = getOwnBuilding();
+
+        boolean hasItem;
+        if (building != null)
+        {
+            hasItem = isInTileEntity(building.getTileEntity(), itemStackSelectionPredicate);
+
+            if (hasItem)
+            {
+                return true;
+            }
+
+            for (final BlockPos pos : building.getAdditionalCountainers())
+            {
+                final TileEntity entity = world.getTileEntity(pos);
+                if (entity instanceof TileEntityChest)
+                {
+                    hasItem = isInTileEntity((TileEntityChest) entity, itemStackSelectionPredicate);
+
+                    if (hasItem)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -738,8 +835,8 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
         {
             // at least and at most
             chatSpamFilter.talkWithoutSpam(COM_MINECOLONIES_COREMOD_ENTITY_WORKER_PICKAXEREQUEST,
-              ItemStackUtils.swapToolGrade(minimalLevel),
-              ItemStackUtils.swapToolGrade(maximumLevel));
+                    ItemStackUtils.swapToolGrade(minimalLevel),
+                    ItemStackUtils.swapToolGrade(maximumLevel));
         }
     }
 
@@ -860,7 +957,9 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
     {
         //Items already kept in the inventory
         final Map<ItemStorage, Integer> alreadyKept = new HashMap<>();
-        final Map<ItemStorage, Integer> shouldKeep = getOwnBuilding().getRequiredItemsAndAmount();
+        final Map<ItemStorage, Integer> shouldKeep = new HashMap<>();
+        shouldKeep.putAll(getOwnBuilding().getRequiredItemsAndAmount());
+        shouldKeep.put(new ItemStorage(new ItemStack(new ItemFood(1,false)), true, true), worker.getLevel());
 
         @Nullable final AbstractBuildingWorker buildingWorker = getOwnBuilding();
 
@@ -886,7 +985,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
     {
         @Nullable final ItemStack returnStack;
         int amountToKeep = 0;
-        if (keptEnough(alreadyKept, shouldKeep, stack))
+        if (!keptEnough(alreadyKept, shouldKeep, stack))
         {
             returnStack = InventoryUtils.addItemStackToProviderWithResult(buildingWorker.getTileEntity(), stack.copy());
         }
@@ -922,7 +1021,10 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
      * @param stack       stack to analyse.
      * @return true if the the item shouldn't be kept.
      */
-    private static boolean keptEnough(@NotNull final Map<ItemStorage, Integer> alreadyKept, @NotNull final Map<ItemStorage, Integer> shouldKeep, @NotNull final ItemStack stack)
+    private static boolean keptEnough(
+            @NotNull final Map<ItemStorage, Integer> alreadyKept,
+            @NotNull final Map<ItemStorage, Integer> shouldKeep,
+            @NotNull final ItemStack stack)
     {
         final ArrayList<Map.Entry<ItemStorage, Integer>> tempKeep = new ArrayList<>(shouldKeep.entrySet());
         for (final Map.Entry<ItemStorage, Integer> tempEntry : tempKeep)
@@ -952,8 +1054,9 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
      */
     @Nullable
     private static ItemStack handleKeepX(
-                                          @NotNull final Map<ItemStorage, Integer> alreadyKept,
-                                          @NotNull final Map<ItemStorage, Integer> shouldKeep, @NotNull final ItemStorage tempStorage)
+            @NotNull final Map<ItemStorage, Integer> alreadyKept,
+            @NotNull final Map<ItemStorage, Integer> shouldKeep,
+            @NotNull final ItemStorage tempStorage)
     {
         int amountKept = 0;
         if (alreadyKept.get(tempStorage) != null)
@@ -961,16 +1064,28 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
             amountKept = alreadyKept.remove(tempStorage);
         }
 
-        if (shouldKeep.get(tempStorage) >= (tempStorage.getAmount() + amountKept))
+        if (getAmountOfSimilarFromHashMap(tempStorage, shouldKeep) >= (tempStorage.getAmount() + amountKept))
         {
             alreadyKept.put(tempStorage, tempStorage.getAmount() + amountKept);
             return ItemStackUtils.EMPTY;
         }
         alreadyKept.put(tempStorage, shouldKeep.get(tempStorage));
-        final int dump = tempStorage.getAmount() + amountKept - shouldKeep.get(tempStorage);
+        final int dump = tempStorage.getAmount() + amountKept - getAmountOfSimilarFromHashMap(tempStorage, shouldKeep);
 
         //Create tempStack with the amount of items that should be dumped.
         return new ItemStack(tempStorage.getItem(), dump, tempStorage.getDamageValue());
+    }
+
+    private static int getAmountOfSimilarFromHashMap(@NotNull final ItemStorage storage, @NotNull final Map<ItemStorage, Integer> map)
+    {
+        for(final Map.Entry<ItemStorage, Integer> entry: map.entrySet())
+        {
+            if(entry.getKey().equals(storage))
+            {
+                return entry.getValue();
+            }
+        }
+        return 0;
     }
 
     /**
@@ -1081,8 +1196,11 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
             if (countOfItem < 1)
             {
                 final int itemsLeft = ItemStackUtils.getSize(stack) - countOfItem;
-                @NotNull final ItemStack requiredStack = new ItemStack(stack.getItem(), itemsLeft, itemDamage);
-                getOwnBuilding().addNeededItems(requiredStack);
+                @NotNull final ItemStack requiredStack = new ItemStack(stack.getItem(), itemsLeft, -1);
+                if (!isInNeededItems(tempStack))
+                {
+                    getOwnBuilding().addNeededItems(requiredStack);
+                }
                 allClear = false;
             }
             else

@@ -473,7 +473,7 @@ public class EntityCitizen extends EntityAgeable implements INpc
             }
         }
 
-        if(hasChanged)
+        if(citizenData != null && hasChanged)
         {
             citizenData.markDirty();
         }
@@ -2103,6 +2103,10 @@ public class EntityCitizen extends EntityAgeable implements INpc
         {
             setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.working"));
             this.getWorkBuilding().onWakeUp();
+        }
+        if(this.getColonyJob() != null)
+        {
+            this.getColonyJob().onWakeUp();
         }
     }
 

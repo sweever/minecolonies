@@ -135,6 +135,7 @@ public class ClientProxy extends CommonProxy
         registerBlockHut(ModBlocks.blockHutGuardTower);
         registerBlockHut(ModBlocks.blockHutBarracks);
         registerBlockHut(ModBlocks.blockHutBarracksTower);
+        registerBlockHut(ModBlocks.blockHutCook);
 
         itemModelMesher.register(Item.getItemFromBlock(ModBlocks.blockSolidSubstitution), 0,
                 new ModelResourceLocation(ModBlocks.blockSolidSubstitution.getRegistryName(), INVENTORY));
