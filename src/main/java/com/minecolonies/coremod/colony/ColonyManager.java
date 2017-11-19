@@ -1,5 +1,6 @@
 package com.minecolonies.coremod.colony;
 
+import com.minecolonies.api.colony.IColony;
 import com.minecolonies.api.colony.permissions.Player;
 import com.minecolonies.api.colony.permissions.Rank;
 import com.minecolonies.api.configuration.Configurations;
@@ -146,7 +147,10 @@ public final class ColonyManager
 
     private static void addColonyByWorld(final Colony colony)
     {
-        coloniesByWorld.computeIfAbsent(colony.getDimension(), ArrayList::new).add(colony);
+        if(colony.getDimension() >= 0)
+        {
+            coloniesByWorld.computeIfAbsent(colony.getDimension(), ArrayList::new).add(colony);
+        }
     }
 
     /**
@@ -205,6 +209,7 @@ public final class ColonyManager
         {
             Log.getLogger().warn("Deleting Colony " + id + " errored:", e);
         }
+        ColonyManager.markDirty();
     }
 
     /**
@@ -421,7 +426,7 @@ public final class ColonyManager
 
         for (@NotNull final ColonyView c : colonyViews)
         {
-            if (c.getDimension() == w.provider.getDimension())
+            if (c.getDimension() == w.provider.getDimension() && c.getCenter() != null)
             {
                 final long dist = c.getDistanceSquared(pos);
                 if (dist < closestDist)
@@ -546,7 +551,7 @@ public final class ColonyManager
     public static int getMinimumDistanceBetweenTownHalls()
     {
         //  [TownHall](Radius)+(Padding)+(Radius)[TownHall]
-        return (2 * Configurations.workingRangeTownHall) + Configurations.townHallPadding;
+        return (2 * Configurations.gameplay.workingRangeTownHall) + Configurations.gameplay.townHallPadding;
     }
 
     /**
@@ -822,21 +827,6 @@ public final class ColonyManager
         return serverUUID;
     }
 
-
-    /**
-     * Saves data when world is saved.
-     *
-     * @param world World.
-     */
-    public static void onWorldSave(@NotNull final World world)
-    {
-        //We save when the first dimension is saved.
-        if (!world.isRemote && world.provider.getDimension() == 0)
-        {
-            saveColonies();
-        }
-    }
-
     /**
      * When a world unloads, all colonies in that world are informed.
      * Additionally, when the last world is unloaded, delete all colonies.
@@ -847,6 +837,12 @@ public final class ColonyManager
     {
         if (!world.isRemote)
         {
+            if(world.provider.getDimension() == 0)
+            {
+                saveColonies();
+            }
+
+
             for (@NotNull final Colony c : getColonies(world))
             {
                 c.onWorldUnload(world);
@@ -1086,7 +1082,7 @@ public final class ColonyManager
             if (c.getDimension() == world.provider.getDimension())
             {
                 final long dist = c.getDistanceSquared(pos);
-                if (dist < (Configurations.workingRangeTownHall + Configurations.townHallPadding + BUFFER))
+                if (dist < (Configurations.gameplay.workingRangeTownHall + Configurations.gameplay.townHallPadding + BUFFER))
                 {
                     return true;
                 }

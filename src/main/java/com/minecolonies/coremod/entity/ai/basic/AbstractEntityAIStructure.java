@@ -27,6 +27,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.structure.template.Template;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -61,7 +62,16 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
     /**
      * Amount of xp the builder gains each building (Will increase by attribute modifiers additionally).
      */
-    private static final double XP_EACH_BUILDING              = 2.5;
+    private static final double XP_EACH_BUILDING = 10.0D;
+    /**
+     * Amount of xp the builder gains for placing a block.
+     */
+    private static final double XP_EACH_BLOCK = 0.1D;
+    /**
+     * Increase this value to make the building speed slower.
+     * Used to balance worker level speed increase.
+     */
+    private static final int PROGRESS_MULTIPLIER = 10;
     /**
      * Speed the builder should run away when he castles himself in.
      */
@@ -99,7 +109,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
     /**
      * String which shows if something is a waypoint.
      */
-    public static final String WAYPOINT_STRING = "waypoint";
+    public static final String WAYPOINT_STRING = "infrastructure";
 
     /**
      * Creates this ai base class and set's up important things.
@@ -178,6 +188,8 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
     @Override
     public void fillItemsList()
     {
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.gathering"));
+
         if(currentStructure == null)
         {
             return;
@@ -207,6 +219,8 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
     {
         if (!BlockUtils.shouldNeverBeMessedWith(structureBlock.worldBlock))
         {
+            worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.decorating"));
+
             //Fill workFrom with the position from where the builder should build.
             //also ensure we are at that position.
             if (!walkToConstructionSite())
@@ -245,6 +259,8 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
     {
         if (!BlockUtils.shouldNeverBeMessedWith(structureBlock.worldBlock))
         {
+            worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.building"));
+
             //Fill workFrom with the position from where the builder should build.
             //also ensure we are at that position.
             if (!walkToConstructionSite())
@@ -446,6 +462,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
             return true;
         }
 
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.clearing"));
         //Don't break bedrock etc.
         if (!BlockUtils.shouldNeverBeMessedWith(currentBlock.worldBlock))
         {
@@ -459,13 +476,13 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
             worker.faceBlock(currentBlock.blockPosition);
 
             //We need to deal with materials
-            if (Configurations.builderInfiniteResources || currentBlock.worldMetadata.getMaterial().isLiquid())
+            if (Configurations.gameplay.builderInfiniteResources || currentBlock.worldMetadata.getMaterial().isLiquid())
             {
                 worker.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, ItemStackUtils.EMPTY);
                 world.setBlockToAir(currentBlock.blockPosition);
                 world.setBlockState(currentBlock.blockPosition, Blocks.AIR.getDefaultState());
                 worker.swingArm(worker.getActiveHand());
-                setDelay(UNLIMITED_RESOURCES_TIMEOUT);
+                setDelay(UNLIMITED_RESOURCES_TIMEOUT * PROGRESS_MULTIPLIER / (worker.getLevel() + PROGRESS_MULTIPLIER));
             }
             else
             {
@@ -494,6 +511,10 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
      */
     protected boolean isThereAStructureToBuild()
     {
+        if(currentStructure == null)
+        {
+            worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.waitingForBuild"));
+        }
         return currentStructure != null;
     }
 
@@ -557,6 +578,16 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
         return Collections.emptyList();
     }
 
+    /*
+    * Get specific data of an entity.
+    * Workers should implement this correctly if they require this behavior.
+    * @return the entityInfo or null.
+    */
+    public Template.EntityInfo getEntityInfo()
+    {
+        return null;
+    }
+
     /**
      * Check how much of a certain stuck is actually required.
      *
@@ -592,7 +623,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
         final IBlockState decrease;
         for(final IPlacementHandler handlers :PlacementHandlers.handlers)
         {
-            final Object result = handlers.handle(world, coords, blockState, this);
+            final Object result = handlers.handle(world, coords, blockState, this, Configurations.gameplay.builderInfiniteResources, false);
             if(result instanceof IPlacementHandler.ActionProcessingResult)
             {
                 if(result == ACCEPT)
@@ -612,6 +643,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
                 decrease = (IBlockState) result;
                 decreaseInventory(coords, decrease.getBlock(), decrease);
                 worker.swingArm(worker.getActiveHand());
+                worker.addExperience(XP_EACH_BLOCK);
 
                 return true;
             }
@@ -621,6 +653,10 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
         return true;
     }
 
+    /**
+     * Specific actions to execute when building over a block.
+     * @param pos the position to build at.
+     */
     public void handleBuildingOverBlock(@NotNull final BlockPos pos)
     {
         final List<ItemStack> items = BlockPosUtil.getBlockDrops(world, pos, 0);
@@ -676,9 +712,9 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
             }
         }
 
-        if (Configurations.builderBuildBlockDelay > 0 && blockToPlace != Blocks.AIR)
+        if (Configurations.gameplay.builderBuildBlockDelay > 0 && blockToPlace != Blocks.AIR)
         {
-            setDelay(Configurations.builderBuildBlockDelay);
+            setDelay(Configurations.gameplay.builderBuildBlockDelay * PROGRESS_MULTIPLIER / (worker.getLevel() + PROGRESS_MULTIPLIER));
         }
 
         return true;
@@ -773,6 +809,8 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
             return true;
         }
 
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.spawning"));
+
         final Entity entity = getEntityFromEntityInfoOrNull(entityInfo);
         if (entity != null && !isEntityAtPosition(entity, world))
         {
@@ -798,7 +836,7 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
                 request.add(entity.getPickedResult(new RayTraceResult(worker)));
             }
 
-            if (!Configurations.builderInfiniteResources)
+            if (!Configurations.gameplay.builderInfiniteResources)
             {
                 for (final ItemStack stack : request)
                 {
@@ -881,4 +919,14 @@ public abstract class AbstractEntityAIStructure<J extends AbstractJob> extends A
     {
         return rotation;
     }
+
+    /**
+     * Adds a waypoint to the AI's colony.
+     * @param pos the position of the point
+     */
+    public void addWayPoint(final BlockPos pos)
+    {
+        worker.getColony().addWayPoint(pos, world.getBlockState(pos));
+    }
+
 }

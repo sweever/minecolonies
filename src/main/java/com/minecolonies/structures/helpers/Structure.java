@@ -8,7 +8,6 @@ import com.minecolonies.coremod.MineColonies;
 import com.minecolonies.coremod.blocks.ModBlocks;
 import com.minecolonies.coremod.colony.ColonyManager;
 import com.minecolonies.coremod.colony.Structures;
-import com.minecolonies.structures.fake.FakeEntity;
 import com.minecolonies.structures.fake.FakeWorld;
 import com.minecolonies.structures.lib.ModelHolder;
 import net.minecraft.block.Block;
@@ -30,6 +29,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
+import net.minecraft.util.datafix.DataFixer;
+import net.minecraft.util.datafix.DataFixesManager;
+import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -48,6 +50,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -85,6 +88,21 @@ public class Structure
     private static final int BUFFER_SIZE = 1024;
 
     /**
+     * Required Datafixer
+     */
+    private final DataFixer fixer;
+
+    /**
+     * List of models.
+     */
+    private final List<ModelHolder> modelList = new ArrayList<>();
+
+    /**
+     * The last starting position.
+     */
+    private BlockPos lastStartingPos = BlockPos.ORIGIN;
+
+    /**
      * Template of the structure.
      */
     private Template          template;
@@ -107,6 +125,7 @@ public class Structure
             this.settings = settings;
             this.mc = Minecraft.getMinecraft();
         }
+        this.fixer = DataFixesManager.createFixer();
 
         InputStream inputStream = null;
         try
@@ -136,7 +155,7 @@ public class Structure
             try
             {
                 this.md5 = Structure.calculateMD5(Structure.getStream(correctStructureName));
-                this.template = readTemplateFromStream(inputStream);
+                this.template = readTemplateFromStream(inputStream, fixer);
             }
             catch (final IOException e)
             {
@@ -147,6 +166,22 @@ public class Structure
         {
             IOUtils.closeQuietly(inputStream);
         }
+    }
+
+    /**
+     * Constuctor of Structure, tries to create a new structure.
+     * creates a plain Structure to append rendering later.
+     *
+     * @param world with world.
+     */
+    public Structure(@Nullable final World world)
+    {
+        if (world == null || world.isRemote)
+        {
+            this.settings = settings;
+            this.mc = Minecraft.getMinecraft();
+        }
+        this.fixer = DataFixesManager.createFixer();
     }
 
     /**
@@ -170,7 +205,7 @@ public class Structure
             }
         }
         return new File(FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld().getSaveHandler().getWorldDirectory()
-                          + "/" + Constants.MOD_ID);
+                + "/" + Constants.MOD_ID);
     }
 
     /**
@@ -192,7 +227,7 @@ public class Structure
      * - schematics folder
      * - jar
      * It should be the exact opposite that the way used to build the list.
-     *
+     * <p>
      * Suppressing Sonar Rule squid:S2095
      * This rule enforces "Close this InputStream"
      * But in this case the rule does not apply because
@@ -223,7 +258,7 @@ public class Structure
         {
             //Look in the folder first
             inputstream = Structure.getStreamFromFolder(MineColonies.proxy.getSchematicsFolder(), structureName);
-            if (inputstream == null && !Configurations.ignoreSchematicsFromJar)
+            if (inputstream == null && !Configurations.gameplay.ignoreSchematicsFromJar)
             {
                 inputstream = Structure.getStreamFromJar(structureName);
             }
@@ -422,11 +457,17 @@ public class Structure
     /**
      * Reads a template from an inputstream.
      */
-    private static Template readTemplateFromStream(final InputStream stream) throws IOException
+    private static Template readTemplateFromStream(final InputStream stream, final DataFixer fixer) throws IOException
     {
         final NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(stream);
+
+        if (!nbttagcompound.hasKey("DataVersion", 99))
+        {
+            nbttagcompound.setInteger("DataVersion", 500);
+        }
+
         final Template template = new Template();
-        template.read(nbttagcompound);
+        template.read(fixer.process(FixTypes.STRUCTURE, nbttagcompound));
         return template;
     }
 
@@ -497,37 +538,64 @@ public class Structure
      */
     public void renderStructure(@NotNull final BlockPos startingPos, @NotNull final World clientWorld, @NotNull final EntityPlayer player, final float partialTicks)
     {
-        final Template.BlockInfo[] blockList = this.getBlockInfoWithSettings(this.settings);
         final Entity[] entityList = this.getEntityInfoWithSettings(clientWorld, startingPos, this.settings);
 
-        for (final Template.BlockInfo aBlockList : blockList)
+        if(!lastStartingPos.equals(startingPos))
         {
-            Block block = aBlockList.blockState.getBlock();
-            IBlockState iblockstate = aBlockList.blockState;
+            modelList.clear();
+        }
 
-            if (block == ModBlocks.blockSubstitution)
+        if (modelList.isEmpty())
+        {
+            lastStartingPos = startingPos;
+            final Template.BlockInfo[] blockList = this.getBlockInfoWithSettings(this.settings);
+
+            final FakeWorld fakeWorld = new FakeWorld(null, clientWorld.getSaveHandler(), clientWorld.getWorldInfo(), clientWorld.provider, clientWorld.profiler, true, null, true);
+
+            for (final Template.BlockInfo aBlockList : blockList)
             {
-                continue;
+                final IBlockState iblockstate = aBlockList.blockState;
+                fakeWorld.setBlockState(aBlockList.pos, iblockstate);
+                final Block block = iblockstate.getBlock();
+                TileEntity tileentity = null;
+                if (block.hasTileEntity(aBlockList.blockState) && aBlockList.tileentityData != null)
+                {
+                    tileentity = block.createTileEntity(clientWorld, iblockstate);
+                    tileentity.readFromNBT(aBlockList.tileentityData);
+                }
+                fakeWorld.setTileEntity(aBlockList.pos, tileentity);
             }
 
-            if (block == ModBlocks.blockSolidSubstitution)
+            for (final Template.BlockInfo aBlockList : blockList)
             {
-                iblockstate = BlockUtils.getSubstitutionBlockAtWorld(clientWorld, startingPos);
-                block = iblockstate.getBlock();
-            }
+                IBlockState iblockstate = aBlockList.blockState;
+                Block block = iblockstate.getBlock();
+                iblockstate = aBlockList.blockState.getBlock().getActualState(aBlockList.blockState, fakeWorld, aBlockList.pos);
 
-            final BlockPos blockpos = aBlockList.pos.add(startingPos);
-            final IBlockState iBlockExtendedState = block.getExtendedState(iblockstate, clientWorld, blockpos);
-            final IBakedModel ibakedmodel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(iblockstate);
-            TileEntity tileentity = null;
-            if (block.hasTileEntity(iblockstate) && aBlockList.tileentityData != null)
-            {
-                tileentity = block.createTileEntity(clientWorld, iblockstate);
-                tileentity.readFromNBT(aBlockList.tileentityData);
+                if (block == ModBlocks.blockSubstitution)
+                {
+                    continue;
+                }
+
+                if (block == ModBlocks.blockSolidSubstitution)
+                {
+                    iblockstate = BlockUtils.getSubstitutionBlockAtWorld(clientWorld, startingPos);
+                    block = iblockstate.getBlock();
+                }
+
+                final BlockPos blockpos = aBlockList.pos.add(startingPos);
+                final IBlockState iBlockExtendedState = block.getExtendedState(iblockstate, clientWorld, blockpos);
+                final IBakedModel ibakedmodel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(iblockstate);
+
+                final ModelHolder models = new ModelHolder(blockpos, iblockstate, iBlockExtendedState, fakeWorld.getTileEntity(aBlockList.pos), ibakedmodel);
+                modelList.add(models);
             }
-            final ModelHolder models = new ModelHolder(blockpos, iblockstate, iBlockExtendedState, tileentity, ibakedmodel);
+        }
+
+        for(final ModelHolder models: modelList)
+        {
             getQuads(models, models.quads);
-            this.renderGhost(clientWorld, models, player, partialTicks);
+            this.renderGhost(clientWorld, models, player, partialTicks, true);
         }
 
         for (final Entity anEntityList : entityList)
@@ -577,14 +645,19 @@ public class Structure
 
         for (int i = 0; i < entityInfoList.length; i++)
         {
-            final Entity finalEntity = EntityList.createEntityFromNBT(entityInfoList[i].entityData, world);
+            final NBTTagCompound compound = entityInfoList[i].entityData;
+            final Entity finalEntity = EntityList.createEntityFromNBT(compound, world);
             final Vec3d entityVec = Structure.transformedVec3d(settings, entityInfoList[i].pos).add(new Vec3d(pos));
 
+            if (!compound.hasKey("UpdateBlocked"))
+            {
+                compound.setByte("UpdatedBlocked", (byte) 0);
+            }
             if (finalEntity != null)
             {
                 finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(settings.getMirror()) - NINETY_DEGREES);
                 final double rotation =
-                  (double) finalEntity.getMirroredYaw(settings.getMirror()) + ((double) finalEntity.rotationYaw - finalEntity.getRotatedYaw(settings.getRotation()));
+                        (double) finalEntity.getMirroredYaw(settings.getMirror()) + ((double) finalEntity.rotationYaw - finalEntity.getRotatedYaw(settings.getRotation()));
                 finalEntity.setLocationAndAngles(entityVec.xCoord, entityVec.yCoord, entityVec.zCoord, (float) rotation, finalEntity.rotationPitch);
             }
             entityList[i] = finalEntity;
@@ -618,7 +691,7 @@ public class Structure
         }
     }
 
-    public void renderGhost(final World world, final ModelHolder holder, final EntityPlayer player, final float partialTicks)
+    public void renderGhost(final World world, final ModelHolder holder, final EntityPlayer player, final float partialTicks, final boolean simulateWorld)
     {
         final boolean existingModel = !this.mc.world.isAirBlock(holder.pos);
 
@@ -647,19 +720,22 @@ public class Structure
         {
             final TileEntity te = holder.te;
             te.setPos(holder.pos);
-            final FakeWorld fakeWorld = new FakeWorld(holder.actualState, world.getSaveHandler(), world.getWorldInfo(), world.provider, world.theProfiler, true);
+
+            final FakeWorld fakeWorld;
+            if(simulateWorld)
+            {
+                fakeWorld = new FakeWorld(holder.actualState, world.getSaveHandler(), world.getWorldInfo(), world.provider, world.profiler, true, te, true);
+            }
+            else
+            {
+                fakeWorld = new FakeWorld(holder.actualState, world.getSaveHandler(), world.getWorldInfo(), world.provider, world.profiler, true);
+            }
             te.setWorld(fakeWorld);
             final int pass = 0;
 
             if (te.shouldRenderInPass(pass))
             {
                 final TileEntityRendererDispatcher terd = TileEntityRendererDispatcher.instance;
-                terd.prepare(fakeWorld,
-                  Minecraft.getMinecraft().renderEngine,
-                  Minecraft.getMinecraft().fontRendererObj,
-                  new FakeEntity(fakeWorld),
-                  null,
-                  0.0F);
                 GL11.glPushMatrix();
                 terd.renderEngine = Minecraft.getMinecraft().renderEngine;
                 terd.preDrawBatch();
@@ -713,12 +789,12 @@ public class Structure
     }
 
     private void renderGhostBlock(
-                                   final World world,
-                                   final ModelHolder holder,
-                                   final EntityPlayer player,
-                                   final BlockRenderLayer layer,
-                                   final boolean existingModel,
-                                   final float partialTicks)
+            final World world,
+            final ModelHolder holder,
+            final EntityPlayer player,
+            final BlockRenderLayer layer,
+            final boolean existingModel,
+            final float partialTicks)
     {
         final double dx = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
         final double dy = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
@@ -817,10 +893,10 @@ public class Structure
         {
             finalEntity.prevRotationYaw = (float) (finalEntity.getMirroredYaw(settings.getMirror()) - NINETY_DEGREES);
             final double rotationYaw
-              = (double) finalEntity.getMirroredYaw(settings.getMirror()) + ((double) finalEntity.rotationYaw - (double) finalEntity.getRotatedYaw(settings.getRotation()));
+                    = (double) finalEntity.getMirroredYaw(settings.getMirror()) + ((double) finalEntity.rotationYaw - (double) finalEntity.getRotatedYaw(settings.getRotation()));
 
             finalEntity.setLocationAndAngles(entityVec.xCoord, entityVec.yCoord, entityVec.zCoord,
-              (float) rotationYaw, finalEntity.rotationPitch);
+                    (float) rotationYaw, finalEntity.rotationPitch);
 
             final NBTTagCompound nbttagcompound = new NBTTagCompound();
             finalEntity.writeToNBTOptional(nbttagcompound);

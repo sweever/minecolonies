@@ -11,11 +11,13 @@ import com.minecolonies.coremod.entity.ai.util.AITarget;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLadder;
 import net.minecraft.block.BlockOre;
+import net.minecraft.block.BlockRedstoneOre;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -96,7 +98,7 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructure<JobMiner>
     private static boolean isOre(final Block block)
     {
         //TODO make this more sophisticated
-        return block instanceof BlockOre;
+        return block instanceof BlockOre || block instanceof BlockRedstoneOre;
     }
 
     //Miner wants to work but is not at building
@@ -290,6 +292,8 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructure<JobMiner>
 
     private AIState doShaftMining()
     {
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.mining"));
+
         minerWorkingLocation = getNextBlockInShaftToMine();
         if (minerWorkingLocation == null)
         {
@@ -570,7 +574,6 @@ public class EntityAIStructureMiner extends AbstractEntityAIStructure<JobMiner>
     {
         if ((!getBlockState(curBlock).getMaterial().blocksMovement() && getBlock(curBlock) != Blocks.TORCH) || isOre(getBlock(curBlock)))
         {
-
             if (!mineBlock(curBlock, safeStand))
             {
                 //make securing go fast to not confuse the player

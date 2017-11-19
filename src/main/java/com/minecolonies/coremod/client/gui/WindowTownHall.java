@@ -6,10 +6,9 @@ import com.minecolonies.api.colony.permissions.Rank;
 import com.minecolonies.api.util.BlockPosUtil;
 import com.minecolonies.api.util.LanguageHandler;
 import com.minecolonies.api.util.constant.Constants;
+import com.minecolonies.blockout.Log;
 import com.minecolonies.blockout.Pane;
-import com.minecolonies.blockout.controls.Button;
-import com.minecolonies.blockout.controls.Label;
-import com.minecolonies.blockout.controls.TextField;
+import com.minecolonies.blockout.controls.*;
 import com.minecolonies.blockout.views.ScrollingList;
 import com.minecolonies.blockout.views.SwitchView;
 import com.minecolonies.coremod.MineColonies;
@@ -20,11 +19,12 @@ import com.minecolonies.coremod.network.messages.*;
 import net.minecraft.block.Block;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.NotNull;
-import static com.minecolonies.api.util.constant.TranslationConstants.*;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
+
+import static com.minecolonies.api.util.constant.TranslationConstants.*;
 
 /**
  * Window for the town hall.
@@ -85,6 +85,11 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
      * Id of the toggle job button in the GUI.
      */
     private static final String BUTTON_TOGGLE_JOB = "toggleJob";
+
+    /**
+     * Id of the toggle job button in the GUI.
+     */
+    private static final String BUTTON_TOGGLE_HOUSING = "toggleHousing";
 
     /**
      * Id of the remove player button in the GUI..
@@ -254,6 +259,11 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
      * The position of the hidden id in the workOrder window.
      */
     private static final int HIDDEN_ID_POSITION = 5;
+
+    /**
+     * The distance to move the ribbon.
+     */
+    private static final int RIBBON_OFFSET = 5;
 
     /**
      * Link to the xml file of the window.
@@ -444,6 +454,8 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
         registerButton(BUTTON_RECALL, this::recallClicked);
         registerButton(BUTTON_CHANGE_SPEC, this::doNothing);
         registerButton(BUTTON_TOGGLE_JOB, this::toggleHiring);
+        registerButton(BUTTON_TOGGLE_HOUSING, this::toggleHousing);
+
 
         registerButton(BUTTON_PREV_PAGE_PERM, this::switchPage);
         registerButton(BUTTON_NEXT_PAGE_PERM, this::switchPage);
@@ -458,7 +470,7 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
         registerButton(BUTTON_DOWN, this::updatePriority);
         registerButton(BUTTON_DELETE, this::deleteWorkOrder);
 
-        findPaneOfTypeByID(BUTTON_PREV_PAGE_PERM, Button.class).setEnabled(false);
+        findPaneOfTypeByID(BUTTON_PREV_PAGE_PERM, Button.class).setVisible(false);
         findPaneOfTypeByID(BUTTON_MANAGE_OFFICER, Button.class).setEnabled(false);
 
         registerButton(BUTTON_TRIGGER, this::trigger);
@@ -629,21 +641,21 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
         {
             findPaneOfTypeByID(VIEW_PERM_PAGES, SwitchView.class).previousView();
 
-            findPaneOfTypeByID(BUTTON_PREV_PAGE_PERM, Button.class).setEnabled(false);
-            findPaneOfTypeByID(BUTTON_NEXT_PAGE_PERM, Button.class).setEnabled(true);
+            findPaneOfTypeByID(BUTTON_PREV_PAGE_PERM, Button.class).setVisible(false);
+            findPaneOfTypeByID(BUTTON_NEXT_PAGE_PERM, Button.class).setVisible(true);
         }
         else
         {
             findPaneOfTypeByID(VIEW_PERM_PAGES, SwitchView.class).nextView();
 
-            findPaneOfTypeByID(BUTTON_PREV_PAGE_PERM, Button.class).setEnabled(true);
-            findPaneOfTypeByID(BUTTON_NEXT_PAGE_PERM, Button.class).setEnabled(false);
+            findPaneOfTypeByID(BUTTON_PREV_PAGE_PERM, Button.class).setVisible(true);
+            findPaneOfTypeByID(BUTTON_NEXT_PAGE_PERM, Button.class).setVisible(false);
         }
 
         if (findPaneOfTypeByID(VIEW_PERM_PAGES, SwitchView.class).getCurrentView().getID().equals(PERMISSION_VIEW))
         {
-            findPaneOfTypeByID(BUTTON_PREV_PAGE_PERM, Button.class).setEnabled(true);
-            findPaneOfTypeByID(BUTTON_NEXT_PAGE_PERM, Button.class).setEnabled(true);
+            findPaneOfTypeByID(BUTTON_PREV_PAGE_PERM, Button.class).setVisible(true);
+            findPaneOfTypeByID(BUTTON_NEXT_PAGE_PERM, Button.class).setVisible(true);
 
             fillPermissionList(VIEW_OFFICER);
         }
@@ -668,10 +680,11 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
             {
                 final int actionIndex = index <= IGNORE_INDEX ? index : (index + IGNORE_INDEX);
                 final Action action = Action.values()[actionIndex];
-                final String name = LanguageHandler.format(KEY_TO_PERMISSIONS + action.toString().toLowerCase());
+                final String name = LanguageHandler.format(KEY_TO_PERMISSIONS + action.toString().toLowerCase(Locale.US));
 
                 if (name.contains(KEY_TO_PERMISSIONS))
                 {
+                    Log.getLogger().warn("Didn't work for:" + name);
                     return;
                 }
 
@@ -793,12 +806,20 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
     {
         super.onOpened();
 
+        if(lastTabButton != null)
+        {
+            return;
+        }
+
         createAndSetStatistics();
 
         findPaneOfTypeByID(VIEW_PAGES, SwitchView.class).setView(PAGE_ACTIONS);
 
         lastTabButton = findPaneOfTypeByID(BUTTON_ACTIONS, Button.class);
         lastTabButton.setEnabled(false);
+        findPaneOfTypeByID(lastTabButton.getID() + "0", Image.class).setVisible(false);
+        findPaneOfTypeByID(lastTabButton.getID() + "1", ButtonImage.class).setVisible(true);
+        lastTabButton.setPosition(lastTabButton.getX() + RIBBON_OFFSET, findPaneOfTypeByID(lastTabButton.getID() + "1", ButtonImage.class).getY());
 
         fillUserList();
         fillCitizensList();
@@ -807,7 +828,12 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
 
         if (townHall.getColony().isManualHiring())
         {
-            findPaneOfTypeByID("toggleJob", Button.class).setLabel(LanguageHandler.format("com.minecolonies.coremod.gui.hiring.on"));
+            findPaneOfTypeByID(BUTTON_TOGGLE_JOB, Button.class).setLabel(LanguageHandler.format(COM_MINECOLONIES_COREMOD_GUI_HIRING_ON));
+        }
+
+        if (townHall.getColony().isManualHousing())
+        {
+            findPaneOfTypeByID(BUTTON_TOGGLE_HOUSING, Button.class).setLabel(LanguageHandler.format(COM_MINECOLONIES_COREMOD_GUI_HIRING_ON));
         }
     }
 
@@ -1010,17 +1036,38 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
     private void toggleHiring(@NotNull final Button button)
     {
         final boolean toggle;
-        if (button.getLabel().equals(LanguageHandler.format("com.minecolonies.coremod.gui.hiring.off")))
+        if (button.getLabel().equals(LanguageHandler.format(COM_MINECOLONIES_COREMOD_GUI_HIRING_OFF)))
         {
-            button.setLabel(LanguageHandler.format("com.minecolonies.coremod.gui.hiring.on"));
+            button.setLabel(LanguageHandler.format(COM_MINECOLONIES_COREMOD_GUI_HIRING_ON));
             toggle = true;
         }
         else
         {
-            button.setLabel(LanguageHandler.format("com.minecolonies.coremod.gui.hiring.off"));
+            button.setLabel(LanguageHandler.format(COM_MINECOLONIES_COREMOD_GUI_HIRING_OFF));
             toggle = false;
         }
         MineColonies.getNetwork().sendToServer(new ToggleJobMessage(this.building.getColony(), toggle));
+    }
+
+    /**
+     * Toggles the allocation of a certain job. Manual or automatic.
+     *
+     * @param button the pressed button.
+     */
+    private void toggleHousing(@NotNull final Button button)
+    {
+        final boolean toggle;
+        if (button.getLabel().equals(LanguageHandler.format(COM_MINECOLONIES_COREMOD_GUI_HIRING_OFF)))
+        {
+            button.setLabel(LanguageHandler.format(COM_MINECOLONIES_COREMOD_GUI_HIRING_ON));
+            toggle = true;
+        }
+        else
+        {
+            button.setLabel(LanguageHandler.format(COM_MINECOLONIES_COREMOD_GUI_HIRING_OFF));
+            toggle = false;
+        }
+        MineColonies.getNetwork().sendToServer(new ToggleHousingMessage(this.building.getColony(), toggle));
     }
 
     /**
@@ -1030,12 +1077,21 @@ public class WindowTownHall extends AbstractWindowBuilding<BuildingTownHall.View
      */
     private void onTabClicked(@NotNull final Button button)
     {
-        final String page = tabsToPages.get(button.getID());
+        final String oldId = lastTabButton.getID();
+        final String newId = button.getID();
+        final String page = tabsToPages.get(newId);
+        final Image image = findPaneOfTypeByID(oldId + "0", Image.class);
+        lastTabButton.setPosition(lastTabButton.getX() - RIBBON_OFFSET, image.getY() + image.getParent().getY() - 2);
         findPaneOfTypeByID(VIEW_PAGES, SwitchView.class).setView(page);
+        findPaneOfTypeByID(oldId + "0", Image.class).setVisible(true);
+        findPaneOfTypeByID(oldId + "1", ButtonImage.class).setVisible(false);
+        findPaneOfTypeByID(newId + "0", Image.class).setVisible(false);
+        findPaneOfTypeByID(newId + "1", ButtonImage.class).setVisible(true);
 
         lastTabButton.setEnabled(true);
         button.setEnabled(false);
         lastTabButton = button;
+        lastTabButton.setPosition(lastTabButton.getX() + RIBBON_OFFSET, findPaneOfTypeByID(lastTabButton.getID() + "1", ButtonImage.class).getY());
     }
 
     @Override

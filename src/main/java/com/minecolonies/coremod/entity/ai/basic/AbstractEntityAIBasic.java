@@ -12,6 +12,7 @@ import com.minecolonies.coremod.entity.ai.util.AIState;
 import com.minecolonies.coremod.entity.ai.util.AITarget;
 import com.minecolonies.coremod.entity.pathfinding.EntityCitizenWalkToProxy;
 import com.minecolonies.coremod.inventory.InventoryCitizen;
+import com.minecolonies.coremod.util.WorkerUtil;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -20,6 +21,8 @@ import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentBase;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
@@ -162,7 +165,11 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
                 /*
                  * Check if inventory has to be dumped.
                  */
-          new AITarget(this::inventoryNeedsDump, INVENTORY_FULL)
+                new AITarget(this::inventoryNeedsDump, INVENTORY_FULL),
+                /**
+                 * Reset to idle if no specific tool is needed.
+                 */
+                new AITarget(() -> getState() == NEEDS_TOOL && this.getOwnBuilding().needsTool(ToolType.NONE), IDLE)
         );
     }
 
@@ -365,6 +372,8 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
     private AIState waitForNeededItems()
     {
         delay = DELAY_RECHECK;
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.waiting"),
+                new TextComponentString(getOwnBuilding().getFirstNeededItem().getDisplayName()));
         return lookForNeededItems();
     }
 
@@ -490,11 +499,11 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
      * Make sure that the worker stands next the chest to not break immersion.
      * Also make sure to have inventory space for the stack.
      *
-     * @param entity the tileEntity chest or building.
+     * @param entity the tileEntity chest or building or rack.
      * @param is     the itemStack.
      * @return true if found the stack.
      */
-    public boolean isInTileEntity(final TileEntityChest entity, final ItemStack is)
+    public boolean isInTileEntity(final TileEntity entity, final ItemStack is)
     {
         return is != null
                 && InventoryFunctions
@@ -583,7 +592,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
      * @param maxLevel the max tool lev	el.
      * @return true if found the tool.
      */
-    public boolean retrieveToolInTileEntity(final TileEntityChest entity, final IToolType toolType, final int minLevel, final int maxLevel)
+    public boolean retrieveToolInTileEntity(final TileEntity entity, final IToolType toolType, final int minLevel, final int maxLevel)
     {
         if (ToolType.NONE.equals(toolType))
         {
@@ -620,6 +629,8 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
         final IToolType toolType = worker.getWorkBuilding().getNeedsTool();
         if (toolType != ToolType.NONE && checkForToolOrWeapon(toolType, worker.getWorkBuilding().getNeededToolLevel()))
         {
+            worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.waiting"),
+                    new TextComponentString(toolType.getName()));
             delay += DELAY_RECHECK;
             return NEEDS_TOOL;
         }
@@ -680,7 +691,6 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
         if (!getOwnBuilding().hasOnGoingDelivery())
         {
             chatRequestTool(toolType, minimalLevel, maxToolLevel);
-
         }
         return true;
     }
@@ -882,7 +892,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
         }
         else
         {
-            final ItemStorage tempStorage = new ItemStorage(stack.getItem(), stack.getItemDamage(), ItemStackUtils.getSize(stack), false);
+            final ItemStorage tempStorage = new ItemStorage(stack, false);
             final ItemStack tempStack = handleKeepX(alreadyKept, shouldKeep, tempStorage);
             if (ItemStackUtils.isEmpty(tempStack))
             {
@@ -919,11 +929,11 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
             final ItemStorage tempStorage = tempEntry.getKey();
             if (tempStorage != null && tempStorage.getItem() == stack.getItem() && tempStorage.getDamageValue() != stack.getItemDamage())
             {
-                shouldKeep.put(new ItemStorage(stack.getItem(), stack.getItemDamage(), 0, tempStorage.ignoreDamageValue()), tempEntry.getValue());
+                shouldKeep.put(new ItemStorage(stack, tempStorage.ignoreDamageValue()), tempEntry.getValue());
                 break;
             }
         }
-        final ItemStorage tempStorage = new ItemStorage(stack.getItem(), stack.getItemDamage(), 0, false);
+        final ItemStorage tempStorage = new ItemStorage(stack, false);
 
         //Check first if the the item shouldn't be kept if it should be kept check if we already kept enough of them.
         return shouldKeep.get(tempStorage) == null
@@ -939,7 +949,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
      * @param tempStorage item to analyze.
      * @return InventoryUtils.EMPTY if should be kept entirely, else itemStack with amount which should be dumped.
      */
-    @NotNull
+    @Nullable
     private static ItemStack handleKeepX(
                                           @NotNull final Map<ItemStorage, Integer> alreadyKept,
                                           @NotNull final Map<ItemStorage, Integer> shouldKeep, @NotNull final ItemStorage tempStorage)
@@ -998,6 +1008,7 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
                 continue;
             }
             final ItemStack stack = tempStack.copy();
+
 
             final int itemDamage = useItemDamage ? stack.getItemDamage() : -1;
             final int countOfItem = worker.getItemCountInInventory(stack.getItem(), itemDamage);
@@ -1070,7 +1081,27 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
         }
         itemsNeeded.clear();
         Collections.addAll(itemsNeeded, items);
-        this.waitForRequest = true;
+        this.waitForRequest = false;
+        return true;
+    }
+
+    /**
+     * Try to take a list of items from the hut chest and request if neccessary.
+     * @param list the list of items to retrieve.
+     * @param shouldRequest determines if the request to the player should be made.
+     */
+    public boolean tryToTakeFromListOrRequest(final boolean shouldRequest, final ItemStack...list)
+    {
+        for (final @Nullable ItemStack tempStack : list)
+        {
+            if (InventoryUtils.getItemCountInItemHandler(new InvWrapper(worker.getInventoryCitizen()), tempStack::isItemEqual) <
+                    ItemStackUtils.getSize(tempStack)
+                    && !isInHut(tempStack) && shouldRequest)
+            {
+                chatSpamFilter.requestTextStringWithoutSpam(tempStack.getDisplayName());
+                return false;
+            }
+        }
         return true;
     }
 
@@ -1129,8 +1160,8 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
      */
     private void requestTool(@NotNull final Block target)
     {
-        final IToolType toolType = ToolType.getToolType(target.getHarvestTool(target.getDefaultState()));
-        final int required = target.getHarvestLevel(target.getDefaultState());
+        final IToolType toolType = WorkerUtil.getBestToolForBlock(target);
+        final int required = WorkerUtil.getCorrectHavestLevelForBlock(target);
         updateToolFlag(toolType, required);
     }
 
@@ -1162,8 +1193,8 @@ public abstract class AbstractEntityAIBasic<J extends AbstractJob> extends Abstr
      */
     private int getMostEfficientTool(@NotNull final Block target)
     {
-        final IToolType toolType = ToolType.getToolType(target.getHarvestTool(target.getDefaultState()));
-        final int required = target.getHarvestLevel(target.getDefaultState());
+        final IToolType toolType = WorkerUtil.getBestToolForBlock(target);
+        final int required = WorkerUtil.getCorrectHavestLevelForBlock(target);
         int bestSlot = -1;
         int bestLevel = Integer.MAX_VALUE;
         @NotNull final InventoryCitizen inventory = worker.getInventoryCitizen();

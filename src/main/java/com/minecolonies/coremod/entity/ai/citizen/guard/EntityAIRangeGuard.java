@@ -1,6 +1,6 @@
 package com.minecolonies.coremod.entity.ai.citizen.guard;
 
-import com.minecolonies.api.util.*;
+import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.constant.ToolType;
 import com.minecolonies.coremod.colony.jobs.JobGuard;
 import com.minecolonies.coremod.entity.ai.util.AIState;
@@ -56,6 +56,11 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
      * When the difficulty is higher the damage increases by this each level.
      */
     private static final double DIFFICULTY_DAMAGE_INCREASE = 0.11D;
+
+    /**
+     * Experience to add when a mob is killed
+     */
+    private static final int EXP_PER_MOD_DEATH = 5;
 
     /**
      * Chance that the arrow lights up the target when the target is on fire.
@@ -179,24 +184,38 @@ public class EntityAIRangeGuard extends AbstractEntityAIGuard implements IRanged
      */
     protected AIState huntDown()
     {
-        if(huntDownlastAttacker())
+        if (worker.getColony() == null)
+        {
+            return AIState.GUARD_GATHERING;
+        }
+
+        if (huntDownlastAttacker())
         {
             targetEntity = this.worker.getLastAttacker();
+        }
+
+        if(targetEntity == null)
+        {
+            return AIState.GUARD_SEARCH_TARGET;
         }
 
         if (!targetEntity.isEntityAlive() || checkForToolOrWeapon(ToolType.BOW))
         {
             targetEntity = null;
+            worker.addExperience(EXP_PER_MOD_DEATH);
             worker.setAIMoveSpeed((float) 1.0D);
+            this.onKilledEntity(targetEntity);
             return AIState.GUARD_GATHERING;
         }
 
         if (worker.getEntitySenses().canSee(targetEntity) && worker.getDistanceToEntity(targetEntity) <= MAX_ATTACK_DISTANCE)
         {
             worker.resetActiveHand();
-            attackEntityWithRangedAttack(targetEntity, DAMAGE_PER_ATTACK);
+            attackEntityWithRangedAttack(targetEntity, (float) DAMAGE_PER_ATTACK);
+
             setDelay(getReloadTime());
             attacksExecuted += 1;
+            currentSearchDistance = START_SEARCH_DISTANCE;
 
             if (attacksExecuted >= getMaxAttacksUntilRestock())
             {

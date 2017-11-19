@@ -35,7 +35,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob> extends Ab
     /**
      * The amount of xp the entity gains per block mined.
      */
-    private static final double XP_PER_BLOCK         = 0.05D;
+    public static final double XP_PER_BLOCK         = 0.05D;
 
     /**
      * The percentage of time needed if we are one level higher.
@@ -185,7 +185,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob> extends Ab
      * Checks for the right tools and waits for an appropriate delay.
      *
      * @param blockToMine the block to mine eventually
-     * @param safeStand   a safe stand to mine from (AIR Block!)
+     * @param safeStand   a safe stand to mine from (empty Block!)
      */
     private boolean checkMiningLocation(@NotNull final BlockPos blockToMine, @NotNull final BlockPos safeStand)
     {
@@ -199,7 +199,8 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob> extends Ab
 
         final ItemStack tool = worker.getHeldItemMainhand();
 
-        if (tool != null && !ForgeHooks.canToolHarvestBlock(world, blockToMine, tool) && curBlock != Blocks.BEDROCK)
+        if (tool != null && !ForgeHooks.canToolHarvestBlock(world, blockToMine, tool) && curBlock != Blocks.BEDROCK
+                && curBlock.getHarvestTool(curBlock.getDefaultState()) != null)
         {
             Log.getLogger().info(String.format(
               "ForgeHook not in sync with EfficientTool for %s and %s\n"
@@ -262,7 +263,7 @@ public abstract class AbstractEntityAIInteract<J extends AbstractJob> extends Ab
             return (int) world.getBlockState(pos).getBlockHardness(world, pos);
         }
 
-        return (int) ((Configurations.blockMiningDelayModifier
+        return (int) ((Configurations.gameplay.blockMiningDelayModifier
                          * Math.pow(LEVEL_MODIFIER, worker.getLevel()))
                         * (double) world.getBlockState(pos).getBlockHardness(world, pos)
                         / (double) (worker.getHeldItemMainhand().getItem()

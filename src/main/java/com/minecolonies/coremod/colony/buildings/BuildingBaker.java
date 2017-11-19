@@ -1,6 +1,7 @@
 package com.minecolonies.coremod.colony.buildings;
 
 import com.minecolonies.api.util.BlockPosUtil;
+import com.minecolonies.blockout.Log;
 import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.client.gui.WindowHutBaker;
 import com.minecolonies.coremod.colony.CitizenData;
@@ -20,6 +21,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -81,7 +83,7 @@ public class BuildingBaker extends AbstractBuildingWorker
     /**
      * Wait this amount of ticks before checking again.
      */
-    private static final int WAIT_TICKS = 160;
+    private static final int WAIT_TICKS = 320;
 
     /**
      * Always try to keep at least 2 stacks of wheat in the inventory and in the workers chest.
@@ -111,7 +113,7 @@ public class BuildingBaker extends AbstractBuildingWorker
         {
             for(final ItemStack stack: storage.getInput())
             {
-                keepX.put(new ItemStorage(stack.getItem(), stack.getItemDamage(), 0, false), WHEAT_TO_KEEP);
+                keepX.put(new ItemStorage(stack, false), WHEAT_TO_KEEP);
             }
         }
     }
@@ -279,7 +281,6 @@ public class BuildingBaker extends AbstractBuildingWorker
             {
                 entry.getValue().writeToNBT(furnaceCompound);
             }
-
             furnacesTagList.appendTag(furnaceCompound);
         }
         compound.setTag(TAG_FURNACES, furnacesTagList);
@@ -319,9 +320,9 @@ public class BuildingBaker extends AbstractBuildingWorker
     }
 
     @Override
-    public void registerBlockPosition(@NotNull final Block block, @NotNull final BlockPos pos)
+    public void registerBlockPosition(@NotNull final Block block, @NotNull final BlockPos pos, @NotNull final World world)
     {
-        super.registerBlockPosition(block, pos);
+        super.registerBlockPosition(block, pos, world);
         if (block instanceof BlockFurnace && !furnaces.containsKey(pos))
         {
             addToFurnaces(pos);
@@ -385,6 +386,11 @@ public class BuildingBaker extends AbstractBuildingWorker
             final IBlockState furnace = worldObj.getBlockState(entry.getKey());
             if(!(furnace.getBlock() instanceof BlockFurnace))
             {
+                if(worldObj.getTileEntity(entry.getKey()) instanceof TileEntityFurnace)
+                {
+                    return;
+                }
+                Log.getLogger().warn(getColony().getName() + " Removed furnace at: " + entry.getKey() + " because it went missing!");
                 this.removeFromFurnaces(entry.getKey());
                 continue;
             }

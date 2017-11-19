@@ -3,9 +3,11 @@ package com.minecolonies.coremod.entity.ai.minimal;
 import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.coremod.colony.jobs.JobGuard;
 import com.minecolonies.coremod.entity.EntityCitizen;
+import com.minecolonies.coremod.entity.ai.mobs.barbarians.AbstractEntityBarbarian;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.TextComponentTranslation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -59,6 +61,10 @@ public class EntityAICitizenAvoidEntity extends EntityAIBase
     public boolean shouldExecute()
     {
         closestLivingEntity = getClosestToAvoid();
+        if (closestLivingEntity instanceof AbstractEntityBarbarian)
+        {
+            return false;
+        }
         return closestLivingEntity != null && !(theEntity.getColonyJob() instanceof JobGuard) && this.theEntity.canEntityBeSeen(closestLivingEntity);
     }
 
@@ -96,6 +102,11 @@ public class EntityAICitizenAvoidEntity extends EntityAIBase
     @Override
     public boolean continueExecuting()
     {
+        if (closestLivingEntity instanceof AbstractEntityBarbarian)
+        {
+            return false;
+        }
+
         return !theEntity.getNavigator().noPath();
     }
 
@@ -113,6 +124,11 @@ public class EntityAICitizenAvoidEntity extends EntityAIBase
      */
     private void performMoveAway()
     {
+        if (closestLivingEntity instanceof AbstractEntityBarbarian)
+        {
+            return;
+        }
+
         theEntity.getNavigator().moveAwayFromEntityLiving(closestLivingEntity, distanceFromEntity * 2D, nearSpeed);
     }
 
@@ -134,10 +150,11 @@ public class EntityAICitizenAvoidEntity extends EntityAIBase
         theEntity.playMoveAwaySound();
 
         @Nullable final Entity newClosest = getClosestToAvoid();
-        if (newClosest != null && newClosest != closestLivingEntity)
+        if (newClosest != null && newClosest.getEntityId() != closestLivingEntity.getEntityId())
         {
             closestLivingEntity = newClosest;
             performMoveAway();
+            theEntity.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.avoiding"));
             return;
         }
 

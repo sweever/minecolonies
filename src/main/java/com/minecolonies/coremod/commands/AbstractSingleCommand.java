@@ -87,13 +87,13 @@ public abstract class AbstractSingleCommand implements ISubCommand
             return false;
         }
         return canCommandSenderUseCommand(theCommand)
-                && canRankUseCommand(chkColony, player);
+                 && canRankUseCommand(chkColony, player);
     }
 
     /**
      * Will check to see if play is Opped for the given command name.
      *
-     * @param sender  to check the player using the command.
+     * @param sender to check the player using the command.
      * @return boolean
      */
     @NotNull
@@ -102,7 +102,7 @@ public abstract class AbstractSingleCommand implements ISubCommand
         if (sender instanceof EntityPlayer)
         {
             return FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList()
-                    .canSendCommands(((EntityPlayer) sender).getGameProfile());
+                     .canSendCommands(((EntityPlayer) sender).getGameProfile());
         }
         return true;
     }
@@ -118,29 +118,29 @@ public abstract class AbstractSingleCommand implements ISubCommand
         switch (theCommand)
         {
             case HOMETP:
-                return Configurations.canPlayerUseHomeTPCommand;
+                return Configurations.gameplay.canPlayerUseHomeTPCommand;
             case COLONYTP:
-                return Configurations.canPlayerUseColonyTPCommand;
+                return Configurations.gameplay.canPlayerUseColonyTPCommand;
             case RTP:
-                return Configurations.canPlayerUseRTPCommand;
+                return Configurations.gameplay.canPlayerUseRTPCommand;
             case KILLCITIZENS:
-                return Configurations.canPlayerUseKillCitizensCommand;
+                return Configurations.gameplay.canPlayerUseKillCitizensCommand;
             case CITIZENINFO:
-                return Configurations.canPlayerUseCitizenInfoCommand;
+                return Configurations.gameplay.canPlayerUseCitizenInfoCommand;
             case LISTCITIZENS:
-                return Configurations.canPlayerUseListCitizensCommand;
+                return Configurations.gameplay.canPlayerUseListCitizensCommand;
             case RESPAWNCITIZENS:
-                return Configurations.canPlayerRespawnCitizensCommand;
+                return Configurations.gameplay.canPlayerRespawnCitizensCommand;
             case SHOWCOLONYINFO:
-                return Configurations.canPlayerUseShowColonyInfoCommand;
+                return Configurations.gameplay.canPlayerUseShowColonyInfoCommand;
             case ADDOFFICER:
-                return Configurations.canPlayerUseAddOfficerCommand;
+                return Configurations.gameplay.canPlayerUseAddOfficerCommand;
             case DELETECOLONY:
-                return Configurations.canPlayerUseDeleteColonyCommand;
+                return Configurations.gameplay.canPlayerUseDeleteColonyCommand;
             case REFRESH_COLONY:
-                return Configurations.canPlayerUseRefreshColonyCommand;
+                return Configurations.gameplay.canPlayerUseRefreshColonyCommand;
             case MC_BACKUP:
-                return Configurations.canPlayerUseBackupCommand;
+                return Configurations.gameplay.canPlayerUseBackupCommand;
             default:
                 return false;
         }

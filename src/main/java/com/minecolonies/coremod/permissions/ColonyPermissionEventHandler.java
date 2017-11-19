@@ -3,6 +3,7 @@ package com.minecolonies.coremod.permissions;
 import com.minecolonies.api.colony.permissions.Action;
 import com.minecolonies.api.configuration.Configurations;
 import com.minecolonies.api.util.EntityUtils;
+import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.LanguageHandler;
 import com.minecolonies.coremod.blocks.AbstractBlockHut;
 import com.minecolonies.coremod.colony.Colony;
@@ -16,7 +17,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemPotion;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
@@ -59,7 +63,7 @@ public class ColonyPermissionEventHandler
     @SubscribeEvent
     public void on(final BlockEvent.PlaceEvent event)
     {
-        if (Configurations.enableColonyProtection && checkBlockEventDenied(event.getWorld(), event.getPos(), event.getPlayer(), event.getPlacedBlock(),
+        if (Configurations.gameplay.enableColonyProtection && checkBlockEventDenied(event.getWorld(), event.getPos(), event.getPlayer(), event.getPlacedBlock(),
           event.getPlacedBlock().getBlock() instanceof AbstractBlockHut ? Action.PLACE_HUTS : Action.PLACE_BLOCKS))
         {
             cancelEvent(event, event.getPlayer());
@@ -132,7 +136,7 @@ public class ColonyPermissionEventHandler
     @SubscribeEvent
     public void on(final BlockEvent.BreakEvent event)
     {
-        if (Configurations.enableColonyProtection && checkBlockEventDenied(event.getWorld(), event.getPos(), event.getPlayer(),
+        if (Configurations.gameplay.enableColonyProtection && checkBlockEventDenied(event.getWorld(), event.getPos(), event.getPlayer(),
           event.getWorld().getBlockState(event.getPos()),
           event.getWorld().getBlockState(event.getPos()).getBlock() instanceof AbstractBlockHut ? Action.BREAK_HUTS : Action.BREAK_BLOCKS))
         {
@@ -148,7 +152,7 @@ public class ColonyPermissionEventHandler
     @SubscribeEvent
     public void on(final ExplosionEvent.Detonate event)
     {
-        if (!Configurations.enableColonyProtection || !Configurations.turnOffExplosionsInColonies)
+        if (!Configurations.gameplay.enableColonyProtection || !Configurations.gameplay.turnOffExplosionsInColonies)
         {
             return;
         }
@@ -177,8 +181,8 @@ public class ColonyPermissionEventHandler
     @SubscribeEvent
     public void on(final ExplosionEvent.Start event)
     {
-        if (Configurations.enableColonyProtection
-              && Configurations.turnOffExplosionsInColonies
+        if (Configurations.gameplay.enableColonyProtection
+              && Configurations.gameplay.turnOffExplosionsInColonies
               && colony.isCoordInColony(event.getWorld(), new BlockPos(event.getExplosion().getPosition())))
         {
             cancelEvent(event, null);
@@ -208,44 +212,56 @@ public class ColonyPermissionEventHandler
                   && !colony.getPermissions().hasPermission(event.getEntityPlayer(), Action.ACCESS_HUTS))
             {
                 cancelEvent(event, event.getEntityPlayer());
+                return;
             }
 
             final Permissions perms = colony.getPermissions();
 
-            if (isFreeToInteractWith(event.getWorld().getBlockState(event.getPos()).getBlock(), event.getPos())
+            if (isFreeToInteractWith(block, event.getPos())
                   && perms.hasPermission(event.getEntityPlayer(), Action.ACCESS_FREE_BLOCKS))
             {
                 return;
             }
 
-            if (Configurations.enableColonyProtection)
+            if (Configurations.gameplay.enableColonyProtection)
             {
-                if (!perms.hasPermission(event.getEntityPlayer(), Action.RIGHTCLICK_BLOCK) && event.getWorld().getBlockState(event.getPos()).getBlock() != null)
+                if (!perms.hasPermission(event.getEntityPlayer(), Action.RIGHTCLICK_BLOCK) && block != null && block != Blocks.AIR)
                 {
                     cancelEvent(event, event.getEntityPlayer());
+                    return;
                 }
 
-                if (event.getWorld().getBlockState(event.getPos()).getBlock() instanceof BlockContainer && !perms.hasPermission(event.getEntityPlayer(),
+                if (block instanceof BlockContainer && !perms.hasPermission(event.getEntityPlayer(),
                   Action.OPEN_CONTAINER))
                 {
                     cancelEvent(event, event.getEntityPlayer());
+                    return;
                 }
 
                 if (event.getWorld().getTileEntity(event.getPos()) != null && !perms.hasPermission(event.getEntityPlayer(), Action.RIGHTCLICK_ENTITY))
                 {
                     cancelEvent(event, event.getEntityPlayer());
+                    return;
                 }
 
-                if (event.getItemStack() != null && event.getItemStack().getItem() instanceof ItemPotion && !perms.hasPermission(event.getEntityPlayer(),
+                final ItemStack stack = event.getItemStack();
+                if(ItemStackUtils.isEmpty(stack) || stack.getItem() instanceof ItemFood)
+                {
+                    return;
+                }
+
+                if (stack.getItem() instanceof ItemPotion && !perms.hasPermission(event.getEntityPlayer(),
                   Action.THROW_POTION))
                 {
                     cancelEvent(event, event.getEntityPlayer());
+                    return;
                 }
 
-                if (event.getItemStack() != null && event.getItemStack().getItem() instanceof ItemScanTool
+                if (stack.getItem() instanceof ItemScanTool
                       && !perms.hasPermission(event.getEntityPlayer(), Action.USE_SCAN_TOOL))
                 {
                     cancelEvent(event, event.getEntityPlayer());
+                    return;
                 }
             }
         }
@@ -296,7 +312,7 @@ public class ColonyPermissionEventHandler
     {
         @NotNull final EntityPlayer player = EntityUtils.getPlayerOfFakePlayer(playerIn, world);
 
-        if (Configurations.enableColonyProtection
+        if (Configurations.gameplay.enableColonyProtection
               && colony.isCoordInColony(player.getEntityWorld(), player.getPosition())
               && !colony.getPermissions().hasPermission(player, action))
         {
@@ -409,7 +425,7 @@ public class ColonyPermissionEventHandler
 
         @NotNull final EntityPlayer player = EntityUtils.getPlayerOfFakePlayer(event.getEntityPlayer(), event.getEntityPlayer().getEntityWorld());
 
-        if (Configurations.enableColonyProtection
+        if (Configurations.gameplay.enableColonyProtection
               && colony.isCoordInColony(player.getEntityWorld(), player.getPosition()))
         {
             final Permissions perms = colony.getPermissions();
@@ -430,7 +446,7 @@ public class ColonyPermissionEventHandler
                 return;
             }
 
-            if (!perms.hasPermission(event.getEntityPlayer(), Action.ATTACK_ENTITY))
+            if (!(event.getTarget() instanceof  EntityMob) && !perms.hasPermission(event.getEntityPlayer(), Action.ATTACK_ENTITY))
             {
                 cancelEvent(event, player);
             }

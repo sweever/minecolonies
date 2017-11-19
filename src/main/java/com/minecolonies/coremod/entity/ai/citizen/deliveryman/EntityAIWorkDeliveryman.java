@@ -1,8 +1,9 @@
 package com.minecolonies.coremod.entity.ai.citizen.deliveryman;
 
+import com.minecolonies.api.util.InventoryUtils;
+import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.constant.IToolType;
 import com.minecolonies.api.util.constant.ToolType;
-import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.coremod.colony.Colony;
 import com.minecolonies.coremod.colony.buildings.*;
 import com.minecolonies.coremod.colony.jobs.JobDeliveryman;
@@ -12,13 +13,13 @@ import com.minecolonies.coremod.entity.ai.item.handling.ItemStorage;
 import com.minecolonies.coremod.entity.ai.util.AIState;
 import com.minecolonies.coremod.entity.ai.util.AITarget;
 import com.minecolonies.coremod.tileentities.TileEntityColonyBuilding;
-import com.minecolonies.api.util.*;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
@@ -29,18 +30,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.minecolonies.coremod.entity.ai.util.AIState.*;
 import static com.minecolonies.api.util.constant.ToolLevelConstants.TOOL_LEVEL_WOOD_OR_GOLD;
-import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_CHESTFULL;
-import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_NAMEDCHESTFULL;
-import static com.minecolonies.api.util.constant.TranslationConstants.COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_NOWAREHOUSE;
+import static com.minecolonies.api.util.constant.TranslationConstants.*;
+import static com.minecolonies.coremod.entity.ai.util.AIState.*;
 
 
 /**
- * Performs deliveryman work.
- * Created: July 18, 2014
- *
- * @author MrIbby
+ * Delivers item at needs.
  */
 public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliveryman>
 {
@@ -141,6 +137,8 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
         {
             return START_WORKING;
         }
+
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.gathering"));
 
         if (!worker.isWorkerAtSiteWithMove(gatherTarget, MIN_DISTANCE_TO_WAREHOUSE))
         {
@@ -249,7 +247,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
     public static boolean workerRequiresItem(final AbstractBuilding building, final ItemStack stack, final List<ItemStorage> localAlreadyKept)
     {
         return (building instanceof AbstractBuildingWorker && ((AbstractBuildingWorker) building).neededForWorker(stack))
-                 || buildingRequiresCertainAmountOfItem(building, stack, localAlreadyKept);
+                || buildingRequiresCertainAmountOfItem(building, stack, localAlreadyKept);
     }
 
     /**
@@ -265,10 +263,24 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
     {
         for (final Map.Entry<ItemStorage, Integer> entry : building.getRequiredItemsAndAmount().entrySet())
         {
-            if (entry.getKey().getItem() == stack.getItem()
-                  && entry.getKey().getDamageValue() == stack.getItemDamage()
-                  && !localAlreadyKept.contains(entry.getKey()))
+            if (entry.getKey().getItemStack().isItemEqual(stack))
             {
+                if(localAlreadyKept.contains(entry.getKey()))
+                {
+                    final int index = localAlreadyKept.indexOf(entry.getKey());
+                    final ItemStorage temp = localAlreadyKept.get(index);
+
+                    if(temp.getAmount() >= entry.getValue())
+                    {
+                        return false;
+                    }
+
+                    localAlreadyKept.remove(index);
+                    temp.setAmount(temp.getAmount() + ItemStackUtils.getSize(stack));
+                    localAlreadyKept.add(temp);
+                    return true;
+                }
+
                 localAlreadyKept.add(entry.getKey());
                 return true;
             }
@@ -283,6 +295,8 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
      */
     public AIState dump()
     {
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.dumping"));
+
         if (!worker.isWorkerAtSiteWithMove(wareHouse.getLocation(), MIN_DISTANCE_TO_WAREHOUSE))
         {
             return DUMPING;
@@ -303,11 +317,13 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
     private AIState deliver()
     {
         final BuildingDeliveryman deliveryHut = (getOwnBuilding() instanceof BuildingDeliveryman) ? (BuildingDeliveryman) getOwnBuilding() : null;
-        final AbstractBuilding buildingToDeliver = deliveryHut==null ? null : deliveryHut.getBuildingToDeliver();
+        final AbstractBuilding buildingToDeliver = deliveryHut == null ? null : deliveryHut.getBuildingToDeliver();
         if (deliveryHut == null || buildingToDeliver == null)
         {
             return START_WORKING;
         }
+
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.delivering"));
 
         if (!worker.isWorkerAtSiteWithMove(buildingToDeliver.getLocation(), MIN_DISTANCE_TO_WAREHOUSE))
         {
@@ -332,12 +348,12 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
                     if (buildingToDeliver instanceof AbstractBuildingWorker)
                     {
                         chatSpamFilter.talkWithoutSpam(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_NAMEDCHESTFULL,
-                            ((AbstractBuildingWorker)buildingToDeliver).getWorker().getName());
+                                ((AbstractBuildingWorker) buildingToDeliver).getMainWorker().getName());
                     }
                     else
                     {
                         chatSpamFilter.talkWithoutSpam(COM_MINECOLONIES_COREMOD_JOB_DELIVERYMAN_CHESTFULL,
-                            new TextComponentString(" :" + buildingToDeliver.getSchematicName()));
+                                new TextComponentString(" :" + buildingToDeliver.getSchematicName()));
                     }
                 }
 
@@ -351,7 +367,7 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
         buildingToDeliver.setOnGoingDelivery(false);
         deliveryHut.setBuildingToDeliver(null);
 
-        if(buildingToDeliver instanceof BuildingHome)
+        if (buildingToDeliver instanceof BuildingHome)
         {
             ((BuildingHome) buildingToDeliver).setFoodNeeded(false);
         }
@@ -468,9 +484,9 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
         {
             final IToolType toolType = buildingToDeliver.getNeedsTool();
             position = wareHouse.getTileEntity()
-                         .getPositionOfChestWithTool(toolType,
-                           buildingToDeliver.getNeededToolLevel(),
-                           buildingToDeliver);
+                    .getPositionOfChestWithTool(toolType,
+                            buildingToDeliver.getNeededToolLevel(),
+                            buildingToDeliver);
         }
         else
         {
@@ -503,64 +519,62 @@ public class EntityAIWorkDeliveryman extends AbstractEntityAIInteract<JobDeliver
     private AIState gatherItems(@NotNull final AbstractBuilding buildingToDeliver, @NotNull final BlockPos position)
     {
         final TileEntity tileEntity = world.getTileEntity(position);
-        if (tileEntity instanceof TileEntityChest)
+
+        if (tileEntity instanceof TileEntityChest && !(tileEntity instanceof TileEntityColonyBuilding))
         {
-            if (!(tileEntity instanceof TileEntityColonyBuilding))
+            if (((TileEntityChest) tileEntity).numPlayersUsing == 0)
             {
-                if (((TileEntityChest) tileEntity).numPlayersUsing == 0)
-                {
-                    this.world.addBlockEvent(tileEntity.getPos(), tileEntity.getBlockType(), 1, 1);
-                    this.world.notifyNeighborsOfStateChange(tileEntity.getPos(), tileEntity.getBlockType(), true);
-                    this.world.notifyNeighborsOfStateChange(tileEntity.getPos().down(), tileEntity.getBlockType(), true);
-                    setDelay(DUMP_AND_GATHER_DELAY);
-                    return GATHER_IN_WAREHOUSE;
-                }
-                this.world.addBlockEvent(tileEntity.getPos(), tileEntity.getBlockType(), 1, 0);
+                this.world.addBlockEvent(tileEntity.getPos(), tileEntity.getBlockType(), 1, 1);
                 this.world.notifyNeighborsOfStateChange(tileEntity.getPos(), tileEntity.getBlockType(), true);
                 this.world.notifyNeighborsOfStateChange(tileEntity.getPos().down(), tileEntity.getBlockType(), true);
+                setDelay(DUMP_AND_GATHER_DELAY);
+                return GATHER_IN_WAREHOUSE;
             }
+            this.world.addBlockEvent(tileEntity.getPos(), tileEntity.getBlockType(), 1, 0);
+            this.world.notifyNeighborsOfStateChange(tileEntity.getPos(), tileEntity.getBlockType(), true);
+            this.world.notifyNeighborsOfStateChange(tileEntity.getPos().down(), tileEntity.getBlockType(), true);
+        }
 
-            if (buildingToDeliver instanceof BuildingHome)
-            {
-                final int extraFood = worker.getCitizenData().getSaturation() < EntityCitizen.HIGH_SATURATION ? 1 : 0;
+        if (buildingToDeliver instanceof BuildingHome)
+        {
+            final int extraFood = worker.getCitizenData().getSaturation() < EntityCitizen.HIGH_SATURATION ? 1 : 0;
 
-                //Tries to extract a certain amount of the item of the chest.
-                if (InventoryUtils.transferXOfFirstSlotInProviderWithIntoNextFreeSlotInItemHandler(
-                        tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null),
-                        itemStack -> !ItemStackUtils.isEmpty(itemStack) && itemStack.getItem() instanceof ItemFood,
-                        buildingToDeliver.getBuildingLevel() + extraFood,
-                        new InvWrapper(worker.getInventoryCitizen())))
-                {
-                    worker.setHeldItem(SLOT_HAND);
-                    setDelay(DUMP_AND_GATHER_DELAY);
-                    return DELIVERY;
-                }
-
-                ((BuildingDeliveryman) getOwnBuilding()).setBuildingToDeliver(null);
-                itemsToDeliver.clear();
-                return START_WORKING;
-            }
-            else if (retrieveToolInTileEntity((TileEntityChest) tileEntity, buildingToDeliver.getNeedsTool(), TOOL_LEVEL_WOOD_OR_GOLD,
-                    buildingToDeliver.getBuildingLevel()))
+            //Tries to extract a certain amount of the item of the chest.
+            if (InventoryUtils.transferXOfFirstSlotInProviderWithIntoNextFreeSlotInItemHandler(
+                    tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null),
+                    itemStack -> !ItemStackUtils.isEmpty(itemStack) && itemStack.getItem() instanceof ItemFood,
+                    buildingToDeliver.getBuildingLevel() + extraFood,
+                    new InvWrapper(worker.getInventoryCitizen())))
             {
                 worker.setHeldItem(SLOT_HAND);
                 setDelay(DUMP_AND_GATHER_DELAY);
                 return DELIVERY;
             }
-            else if (!itemsToDeliver.isEmpty())
+
+            ((BuildingDeliveryman) getOwnBuilding()).setBuildingToDeliver(null);
+            itemsToDeliver.clear();
+            return START_WORKING;
+        }
+        else if (retrieveToolInTileEntity(tileEntity, buildingToDeliver.getNeedsTool(), TOOL_LEVEL_WOOD_OR_GOLD,
+                buildingToDeliver.getBuildingLevel()))
+        {
+            worker.setHeldItem(SLOT_HAND);
+            setDelay(DUMP_AND_GATHER_DELAY);
+            return DELIVERY;
+        }
+        else if (!itemsToDeliver.isEmpty())
+        {
+            final ItemStack stack = itemsToDeliver.get(0);
+            if (isInTileEntity(tileEntity, stack))
             {
-                final ItemStack stack = itemsToDeliver.get(0);
-                if (isInTileEntity((TileEntityChest) tileEntity, stack))
-                {
-                    itemsToDeliver.remove(0);
-                    worker.setHeldItem(SLOT_HAND);
-                    setDelay(DUMP_AND_GATHER_DELAY);
-                    return DELIVERY;
-                }
-                ((BuildingDeliveryman) getOwnBuilding()).setBuildingToDeliver(null);
-                itemsToDeliver.clear();
-                return START_WORKING;
+                itemsToDeliver.remove(0);
+                worker.setHeldItem(SLOT_HAND);
+                setDelay(DUMP_AND_GATHER_DELAY);
+                return DELIVERY;
             }
+            ((BuildingDeliveryman) getOwnBuilding()).setBuildingToDeliver(null);
+            itemsToDeliver.clear();
+            return START_WORKING;
         }
 
         setDelay(DUMP_AND_GATHER_DELAY);

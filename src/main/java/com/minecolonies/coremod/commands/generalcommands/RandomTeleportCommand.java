@@ -30,10 +30,10 @@ import static com.minecolonies.coremod.commands.AbstractSingleCommand.Commands.R
 public class RandomTeleportCommand extends AbstractSingleCommand
 {
     public static final  String DESC             = "rtp";
-    private static final int    ATTEMPTS         = Configurations.numberOfAttemptsForSafeTP;
-    private static final int    UPPER_BOUNDS     = Configurations.maxDistanceFromWorldSpawn * 2;
-    private static final int    LOWER_BOUNDS     = Configurations.maxDistanceFromWorldSpawn;
-    private static final int    SPAWN_NO_TP      = Configurations.minDistanceFromWorldSpawn;
+    private static final int    ATTEMPTS         = Configurations.gameplay.numberOfAttemptsForSafeTP;
+    private static final int    UPPER_BOUNDS     = Configurations.gameplay.maxDistanceFromWorldSpawn * 2;
+    private static final int    LOWER_BOUNDS     = Configurations.gameplay.maxDistanceFromWorldSpawn;
+    private static final int    SPAWN_NO_TP      = Configurations.gameplay.minDistanceFromWorldSpawn;
     private static final int    STARTING_Y       = 250;
     private static final double SAFETY_DROP      = 8;
     private static final int    FALL_DISTANCE    = 5;
@@ -61,13 +61,13 @@ public class RandomTeleportCommand extends AbstractSingleCommand
     {
         if (SPAWN_NO_TP >= LOWER_BOUNDS)
         {
-            sender.getCommandSenderEntity().sendMessage(new TextComponentString("Please have an admin raise the maxDistanceFromWorldSpawn number in config."));
+            sender.sendMessage(new TextComponentString("Please have an admin raise the maxDistanceFromWorldSpawn number in config."));
             return;
         }
 
         if (!canCommandSenderUseCommand(RTP))
         {
-            sender.getCommandSenderEntity().sendMessage(new TextComponentString("Not happenin bro!!, ask an OP to TP you."));
+            sender.sendMessage(new TextComponentString("Not happenin bro!!, ask an OP to TP you."));
             return;
         }
 
@@ -83,27 +83,26 @@ public class RandomTeleportCommand extends AbstractSingleCommand
         {
             final World world = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld();
             playerToTeleport =
-                    ServerUtils.getPlayerFromUUID(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerProfileCache()
-                            .getGameProfileForUsername(args[0]).getId(), world);
+              ServerUtils.getPlayerFromUUID(FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerProfileCache()
+                                              .getGameProfileForUsername(args[0]).getId(), world);
 
-            sender.getCommandSenderEntity().sendMessage(new TextComponentString("TPin Player: " + playerToTeleport.getName()));
+            sender.sendMessage(new TextComponentString("TPing Player: " + playerToTeleport.getName()));
         }
 
         if (playerToTeleport == null)
         {
-            sender.getCommandSenderEntity().sendMessage(new TextComponentString(CANT_FIND_PLAYER));
+            sender.sendMessage(new TextComponentString(CANT_FIND_PLAYER));
             return;
         }
-        playerToTeleport.getCommandSenderEntity().sendMessage(new TextComponentString("Buckle up buttercup, this ain't no joy ride!!!"));
+        playerToTeleport.sendMessage(new TextComponentString("Buckle up buttercup, this ain't no joy ride!!!"));
 
         teleportPlayer(sender, playerToTeleport);
         //.fallDistance is used to cancel out fall damage  basically if you have -5 it will reduce fall damage by 2.5 hearts
-        playerToTeleport.fallDistance=FALL_DISTANCE;
+        playerToTeleport.fallDistance = FALL_DISTANCE;
     }
 
     /**
      * Get a random coordinate to teleport to.
-     * @return
      */
     private static int getRandCoordinate()
     {
@@ -122,6 +121,7 @@ public class RandomTeleportCommand extends AbstractSingleCommand
 
     /**
      * Method used to teleport the player.
+     *
      * @param sender           the sender to have access to the world.
      * @param playerToTeleport the player which shall be teleported.
      */
@@ -135,6 +135,11 @@ public class RandomTeleportCommand extends AbstractSingleCommand
             /* this math is to get negative numbers */
             final int x = getRandCoordinate();
             final int z = getRandCoordinate();
+
+            if (sender.getEntityWorld().getWorldBorder().getSize() > (sender.getEntityWorld().getSpawnPoint().getDistance(x,STARTING_Y,z)))
+            {
+                continue;
+            }
 
             /* Check for a close by colony*/
             if (ColonyManager.getColony(sender.getEntityWorld(), new BlockPos(x, STARTING_Y, z)) != null)
@@ -155,14 +160,14 @@ public class RandomTeleportCommand extends AbstractSingleCommand
 
             if (foundPosition)
             {
-                if(MinecoloniesCommand.canExecuteCommand((EntityPlayer) sender))
+                if (MinecoloniesCommand.canExecuteCommand((EntityPlayer) sender))
                 {
 
                     playerToTeleport.setPositionAndUpdate(groundPosition.getX(), groundPosition.getY() + SAFETY_DROP, groundPosition.getZ());
                 }
                 else
                 {
-                    sender.getCommandSenderEntity().sendMessage(new TextComponentString("Please wait at least " + Configurations.teleportBuffer + " seconds to teleport again"));
+                    sender.getCommandSenderEntity().sendMessage(new TextComponentString("Please wait at least " + Configurations.gameplay.teleportBuffer + " seconds to teleport again"));
                 }
                 return;
             }
@@ -173,10 +178,10 @@ public class RandomTeleportCommand extends AbstractSingleCommand
     @NotNull
     @Override
     public List<String> getTabCompletionOptions(
-            @NotNull final MinecraftServer server,
-            @NotNull final ICommandSender sender,
-            @NotNull final String[] args,
-            final BlockPos pos)
+                                                 @NotNull final MinecraftServer server,
+                                                 @NotNull final ICommandSender sender,
+                                                 @NotNull final String[] args,
+                                                 final BlockPos pos)
     {
         return Collections.emptyList();
     }

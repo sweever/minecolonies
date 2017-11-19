@@ -6,12 +6,14 @@ import com.minecolonies.api.util.CompatibilityUtils;
 import com.minecolonies.api.util.Log;
 import com.minecolonies.coremod.colony.buildings.AbstractBuilding;
 import com.minecolonies.coremod.colony.buildings.AbstractBuildingWorker;
+import com.minecolonies.coremod.colony.buildings.BuildingBarracksTower;
 import com.minecolonies.coremod.colony.buildings.BuildingHome;
 import com.minecolonies.coremod.colony.jobs.AbstractJob;
 import com.minecolonies.coremod.entity.EntityCitizen;
 import com.minecolonies.coremod.entity.ai.basic.AbstractAISkeleton;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -87,7 +89,7 @@ public class CitizenData
      * The home building of the citizen.
      */
     @Nullable
-    private BuildingHome homeBuilding;
+    private AbstractBuilding homeBuilding;
 
     /**
      * The work building of the citizen.
@@ -231,6 +233,70 @@ public class CitizenData
         colony.markCitizensDirty();
     }
 
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass())
+        {
+            return false;
+        }
+
+        final CitizenData data = (CitizenData) o;
+
+        if (id != data.id)
+        {
+            return false;
+        }
+        if (female != data.female)
+        {
+            return false;
+        }
+        if (strength != data.strength)
+        {
+            return false;
+        }
+        if (endurance != data.endurance)
+        {
+            return false;
+        }
+        if (charisma != data.charisma)
+        {
+            return false;
+        }
+        if (intelligence != data.intelligence)
+        {
+            return false;
+        }
+        if (dexterity != data.dexterity)
+        {
+            return false;
+        }
+        if (name != null ? !name.equals(data.name) : (data.name != null))
+        {
+            return false;
+        }
+        return colony != null ? (data.colony != null && colony.getID() == data.colony.getID()) : (data.colony == null);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = id;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (female ? 1 : 0);
+        result = 31 * result + (colony != null ? colony.hashCode() : 0);
+        result = 31 * result + strength;
+        result = 31 * result + endurance;
+        result = 31 * result + charisma;
+        result = 31 * result + intelligence;
+        result = 31 * result + dexterity;
+        return result;
+    }
+
     /**
      * Create a CitizenData View given it's saved NBTTagCompound.
      *
@@ -333,13 +399,13 @@ public class CitizenData
         String citizenName;
         if (female)
         {
-            citizenName = String.format("%s %s. %s", getRandomElement(rand, Configurations.femaleFirstNames), getRandomLetter(rand),
-                    getRandomElement(rand, Configurations.lastNames));
+            citizenName = String.format("%s %s. %s", getRandomElement(rand, Configurations.names.femaleFirstNames), getRandomLetter(rand),
+                    getRandomElement(rand, Configurations.names.lastNames));
         }
         else
         {
-            citizenName = String.format("%s %s. %s", getRandomElement(rand, Configurations.maleFirstNames), getRandomLetter(rand),
-                    getRandomElement(rand, Configurations.lastNames));
+            citizenName = String.format("%s %s. %s", getRandomElement(rand, Configurations.names.maleFirstNames), getRandomLetter(rand),
+                    getRandomElement(rand, Configurations.names.lastNames));
         }
         for (int i = 1; i <= this.getColony().getMaxCitizens(); i++)
         {
@@ -466,7 +532,7 @@ public class CitizenData
      * @return home building.
      */
     @Nullable
-    public BuildingHome getHomeBuilding()
+    public AbstractBuilding getHomeBuilding()
     {
         return homeBuilding;
     }
@@ -476,13 +542,15 @@ public class CitizenData
      *
      * @param building home building.
      */
-    public void setHomeBuilding(@Nullable final BuildingHome building)
+    public void setHomeBuilding(@Nullable final AbstractBuilding building)
     {
-        if (homeBuilding != null && building != null && homeBuilding != building)
+        if (homeBuilding != null && building != null && !homeBuilding.equals(building))
         {
-            throw new IllegalStateException("CitizenData.setHomeBuilding() - already assigned a home building when setting a new home building");
+            homeBuilding.removeCitizen(this);
+            markDirty();
         }
-        else if (homeBuilding != building)
+
+        if (building == null || building instanceof BuildingHome || building instanceof BuildingBarracksTower)
         {
             homeBuilding = building;
             markDirty();
@@ -679,6 +747,21 @@ public class CitizenData
         buf.writeDouble(getSaturation());
 
         ByteBufUtils.writeUTF8String(buf, (job != null) ? job.getName() : "");
+
+        final EntityCitizen citizen = getCitizenEntity();
+        if(citizen != null)
+        {
+            final ITextComponent[] latestStatus = citizen.getLatestStatus();
+            buf.writeInt(latestStatus.length);
+            for(int i = 0; i < latestStatus.length; i++)
+            {
+                ByteBufUtils.writeUTF8String(buf, latestStatus[i] == null ? "" : latestStatus[i].getUnformattedText());
+            }
+        }
+        else
+        {
+            buf.writeInt(0);
+        }
     }
 
     /**

@@ -1,8 +1,8 @@
 package com.minecolonies.coremod.entity.ai.citizen.fisherman;
 
 import com.minecolonies.api.util.InventoryUtils;
-import com.minecolonies.api.util.constant.ToolType;
 import com.minecolonies.api.util.Utils;
+import com.minecolonies.api.util.constant.ToolType;
 import com.minecolonies.coremod.colony.buildings.BuildingFisherman;
 import com.minecolonies.coremod.colony.jobs.JobFisherman;
 import com.minecolonies.coremod.entity.EntityCitizen;
@@ -18,17 +18,17 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemFishingRod;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
-import static com.minecolonies.coremod.entity.ai.util.AIState.*;
 import static com.minecolonies.api.util.constant.ToolLevelConstants.TOOL_LEVEL_WOOD_OR_GOLD;
+import static com.minecolonies.coremod.entity.ai.util.AIState.*;
 
 /**
  * Fisherman AI class.
@@ -292,6 +292,8 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman>
         {
             return FISHERMAN_SEARCHING_WATER;
         }
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.goingtopond"));
+
         if (walkToWater())
         {
             return getState();
@@ -342,6 +344,8 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman>
      */
     private AIState findWater()
     {
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.searchingwater"));
+
         //Reset executedRotations when fisherman searches a new Pond
         executedRotations = 0;
         //If he can't find any pond, tell that to the player
@@ -422,6 +426,8 @@ public class EntityAIWorkFisherman extends AbstractEntityAISkill<JobFisherman>
     @Nullable
     private AIState doFishing()
     {
+        worker.setLatestStatus(new TextComponentTranslation("com.minecolonies.coremod.status.fishing"));
+
         @Nullable final AIState notReadyState = isReadyToFish();
         if (notReadyState != null)
         {

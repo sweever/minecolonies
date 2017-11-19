@@ -1,6 +1,7 @@
 package com.minecolonies.coremod.colony.buildings;
 
-import com.minecolonies.api.util.*;
+import com.minecolonies.api.util.BlockPosUtil;
+import com.minecolonies.api.util.ItemStackUtils;
 import com.minecolonies.api.util.constant.ToolType;
 import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.achievements.ModAchievements;
@@ -207,15 +208,16 @@ public class BuildingMiner extends AbstractBuildingWorker
         final ItemStack stackCobble = new ItemStack(Blocks.COBBLESTONE);
         final ItemStack stackSlab = new ItemStack(Blocks.WOODEN_SLAB);
         final ItemStack stackPlanks = new ItemStack(Blocks.PLANKS);
-        final ItemStack stackDirts = new ItemStack(Blocks.DIRT);
+        final ItemStack stackDirt = new ItemStack(Blocks.DIRT);
 
-        keepX.put(new ItemStorage(stackLadder.getItem(), stackLadder.getItemDamage(), 0, false), STACK_MAX_SIZE);
-        keepX.put(new ItemStorage(stackFence.getItem(), stackFence.getItemDamage(), 0, false), STACK_MAX_SIZE);
-        keepX.put(new ItemStorage(stackTorch.getItem(), stackTorch.getItemDamage(), 0, false), STACK_MAX_SIZE);
-        keepX.put(new ItemStorage(stackCobble.getItem(), stackCobble.getItemDamage(), 0, false), STACK_MAX_SIZE);
-        keepX.put(new ItemStorage(stackSlab.getItem(), stackSlab.getItemDamage(), 0, false), STACK_MAX_SIZE);
-        keepX.put(new ItemStorage(stackPlanks.getItem(), stackPlanks.getItemDamage(), 0, false), STACK_MAX_SIZE);
-        keepX.put(new ItemStorage(stackDirts.getItem(), stackDirts.getItemDamage(), 0, false), STACK_MAX_SIZE);
+        keepX.put(new ItemStorage(stackLadder, false), STACK_MAX_SIZE);
+        keepX.put(new ItemStorage(stackFence, false), STACK_MAX_SIZE);
+        keepX.put(new ItemStorage(stackTorch, false), STACK_MAX_SIZE);
+        keepX.put(new ItemStorage(stackCobble, false), STACK_MAX_SIZE);
+        keepX.put(new ItemStorage(stackSlab, false), STACK_MAX_SIZE);
+        keepX.put(new ItemStorage(stackPlanks, false), STACK_MAX_SIZE);
+        keepX.put(new ItemStorage(stackDirt, false), STACK_MAX_SIZE);
+
     }
 
     /**
