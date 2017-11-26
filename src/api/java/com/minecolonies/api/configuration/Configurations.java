@@ -85,6 +85,15 @@ import static com.minecolonies.api.util.constant.Constants.*;
             @Config.Comment("Max amount of schematics to be cached on the server")
             public  int maxCachedSchematics = 100;
 
+            @Config.Comment("Should players be allowed to change names? -1 for false, 0 for specific groups, 1 for true")
+            public  int allowGlobalNameChanges = 1;
+
+            @Config.Comment("Players who have special permission (Patreons for example)")
+            public  String[] specialPermGroup = new String[]
+                    {
+                            "_Raycoms_"
+                    };
+
     /* Command configs */
 
             @Config.Comment("Time until a next teleport can be executed (in seconds)")
@@ -93,6 +102,10 @@ import static com.minecolonies.api.util.constant.Constants.*;
             @Config.Comment("Which level counts as op level on the server")
             public  int opLevelForServer = 3;
 
+            @Config.Comment("Sets the amount of hours until a colony will be deleted after not seeing it's mayor, set to zero to disable")
+            public  int autoDeleteColoniesInHours = 0;
+            @Config.Comment("Sets weither or not Colony structures are destroyed automatically.")
+            public  boolean autoDestroyColonyBlocks = true;
             @Config.Comment("Should the player be allowed to use the '/mc rtp' command?")
             public  boolean canPlayerUseRTPCommand = true;
 
