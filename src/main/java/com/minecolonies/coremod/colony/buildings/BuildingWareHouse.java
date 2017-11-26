@@ -2,7 +2,6 @@ package com.minecolonies.coremod.colony.buildings;
 
 import com.minecolonies.api.util.InventoryUtils;
 import com.minecolonies.api.util.ItemStackUtils;
-import com.minecolonies.blockout.Log;
 import com.minecolonies.blockout.views.Window;
 import com.minecolonies.coremod.blocks.BlockHutDeliveryman;
 import com.minecolonies.coremod.blocks.BlockMinecoloniesRack;
@@ -15,7 +14,6 @@ import com.minecolonies.coremod.tileentities.TileEntityRack;
 import com.minecolonies.coremod.tileentities.TileEntityWareHouse;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockChest;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -107,7 +105,6 @@ public class BuildingWareHouse extends AbstractBuilding
         {
             if (!registeredDeliverymen.isEmpty())
             {
-                Log.getLogger().info(getColony().getName() + " " + Arrays.toString(registeredDeliverymen.toArray()));
                 checkForRegisteredDeliverymen();
             }
             return false;
